@@ -3,6 +3,7 @@ import {
   ActionId,
   ChipUsageRequest,
   ClassifyRequest,
+  InterpretRequest,
   CreateContactRequest,
   InteractionRequest,
   MagicLinkRequest,
@@ -82,6 +83,18 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
     res.json({ ok: true });
   });
   api.get("/chips/stats", auth, async (_req, res) => res.json(await store.chipStats()));
+
+  /** A typed answer: the model maps it onto the tree; the result is validated and counted anonymously. */
+  api.post("/chips/interpret", auth, async (req, res) => {
+    const body = InterpretRequest.safeParse(req.body);
+    if (!body.success) return res.status(400).json({ error: "invalid_request" });
+    const question = catalogue.questions.questions.find((q) => q.id === body.data.questionId);
+    if (!question) return res.status(404).json({ error: "unknown_question" });
+    if (!phraser.available) return res.status(503).json({ error: "ai_unavailable" });
+    const out = await phraser.interpret(question, catalogue.questions.questions, body.data.text);
+    await store.countChipProposal(question.id, body.data.text, out.optionId ?? (out.blocked ? "blocked" : Object.keys(out.sets).length ? "sets" : "tags"));
+    res.json(out);
+  });
 
   // --- Sign-in by magic link ------------------------------------------------
 

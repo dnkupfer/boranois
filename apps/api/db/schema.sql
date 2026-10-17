@@ -63,5 +63,6 @@ create table if not exists chip_proposals (
   question_id  text not null,
   text         text not null,
   count        integer not null default 0,
+  mapped       text,
   primary key (question_id, text)
 );

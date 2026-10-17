@@ -16,7 +16,7 @@ type Data = {
   contacts: ContactRecord[];
   interactions: InteractionRow[];
   chipUsage: Record<string, number>;
-  chipProposals: Record<string, number>;
+  chipProposals: Record<string, { count: number; mapped: string | null }>;
 };
 
 export class FileStore implements Store {
@@ -119,9 +119,10 @@ export class FileStore implements Store {
     this.save();
   }
 
-  async countChipProposal(questionId: string, text: string) {
+  async countChipProposal(questionId: string, text: string, mapped: string | null = null) {
     const k = `${questionId}|${text.toLowerCase()}`;
-    this.data.chipProposals[k] = (this.data.chipProposals[k] ?? 0) + 1;
+    const cur = this.data.chipProposals[k] ?? { count: 0, mapped: null };
+    this.data.chipProposals[k] = { count: cur.count + 1, mapped: mapped ?? cur.mapped };
     this.save();
   }
 
@@ -129,7 +130,9 @@ export class FileStore implements Store {
     const split = (k: string) => k.split("|", 2) as [string, string];
     return {
       usage: Object.entries(this.data.chipUsage).map(([k, count]) => ({ questionId: split(k)[0], optionId: split(k)[1], count })),
-      proposals: Object.entries(this.data.chipProposals).map(([k, count]) => ({ questionId: split(k)[0], text: split(k)[1], count })).sort((a, b) => b.count - a.count),
+      proposals: Object.entries(this.data.chipProposals)
+        .map(([k, v]) => ({ questionId: split(k)[0], text: split(k)[1], count: v.count, mapped: v.mapped }))
+        .sort((a, b) => b.count - a.count),
     };
   }
 }

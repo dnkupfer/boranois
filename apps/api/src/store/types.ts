@@ -34,6 +34,6 @@ export interface Store {
 
   // Anonymous counts: which chips get chosen, which get typed in. Never linked to a member or a pessoa.
   countChipUsage(questionId: string, optionId: string): Promise<void>;
-  countChipProposal(questionId: string, text: string): Promise<void>;
+  countChipProposal(questionId: string, text: string, mapped?: string | null): Promise<void>;
   chipStats(): Promise<ChipStats>;
 }

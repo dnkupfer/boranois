@@ -123,7 +123,7 @@ const QuestionSchema = z.object({
   text: z.string().min(1),
   hint: z.string().optional(),
   options: z.union([z.string(), z.array(z.object({ id: z.string().regex(/^[a-z0-9_]+$/), label: z.string().min(1), sets: ChipSetsSchema.optional() }))]),
-  max: z.number().int().min(1),
+  max: z.number().int().min(1).optional(),
   optional: z.boolean().default(false),
   allowCustom: z.boolean().default(false),
   next: z.union([z.string(), z.record(z.string(), z.string()), z.null()]),

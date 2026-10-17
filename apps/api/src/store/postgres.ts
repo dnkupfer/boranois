@@ -128,19 +128,20 @@ export class PostgresStore implements Store {
     );
   }
 
-  async countChipProposal(questionId: string, text: string) {
+  async countChipProposal(questionId: string, text: string, mapped: string | null = null) {
     await this.pool.query(
-      `insert into chip_proposals (question_id, text, count) values ($1, $2, 1) on conflict (question_id, text) do update set count = chip_proposals.count + 1`,
-      [questionId, text.toLowerCase()],
+      `insert into chip_proposals (question_id, text, count, mapped) values ($1, $2, 1, $3)
+       on conflict (question_id, text) do update set count = chip_proposals.count + 1, mapped = coalesce(excluded.mapped, chip_proposals.mapped)`,
+      [questionId, text.toLowerCase(), mapped],
     );
   }
 
   async chipStats(): Promise<ChipStats> {
     const u = await this.pool.query(`select question_id, option_id, count from chip_usage order by count desc`);
-    const pr = await this.pool.query(`select question_id, text, count from chip_proposals order by count desc`);
+    const pr = await this.pool.query(`select question_id, text, count, mapped from chip_proposals order by count desc`);
     return {
       usage: u.rows.map((r) => ({ questionId: r.question_id, optionId: r.option_id, count: Number(r.count) })),
-      proposals: pr.rows.map((r) => ({ questionId: r.question_id, text: r.text, count: Number(r.count) })),
+      proposals: pr.rows.map((r) => ({ questionId: r.question_id, text: r.text, count: Number(r.count), mapped: r.mapped ?? null })),
     };
   }
 }

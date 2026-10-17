@@ -54,7 +54,7 @@ export function Pessoas() {
         <section className="card accent">
           <h2>Antes, sobre você</h2>
           <p>De que grupos você faz parte? Quem é do mesmo grupo ouve mais o que você diz.</p>
-          <ChipGroup options={GROUPS} value={prof.groups} onChange={saveGroups} max={3} />
+          <ChipGroup options={GROUPS} value={prof.groups} onChange={saveGroups} />
         </section>
       )}
 

@@ -1,6 +1,29 @@
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
-import { OutcomeId, RELATIONS, SayingId, SAYINGS, OUTCOMES, labelOf, type ClassifyResponse, type RelationId } from "@boranois/shared";
+import {
+  FREQUENCIES,
+  GROUPS,
+  INFLUENCERS,
+  OUTCOMES,
+  RELATIONS,
+  SAYINGS,
+  SITUATIONS,
+  TRUST_LOSS,
+  WORRIES,
+  FrequencyId,
+  GroupId,
+  InfluencerId,
+  OutcomeId,
+  RelationId,
+  SayingId,
+  SituationId,
+  TrustLossId,
+  WorryId,
+  labelOf,
+  type ClassifyResponse,
+  type Interpretation,
+  type Question,
+} from "@boranois/shared";
 
 // The model has exactly two jobs here: put a step into the member's own words,
 // and label what a pessoa replied. It never decides what is true or what to do next.
@@ -21,6 +44,8 @@ export interface Phraser {
   available: boolean;
   phrase(input: PhraseInput): Promise<string | null>;
   classify(text: string): Promise<ClassifyResponse>;
+  /** Maps a typed answer onto the question tree. Output is validated against the tree before use. */
+  interpret(question: Question, allQuestions: Question[], text: string): Promise<Interpretation>;
 }
 
 const PHRASE_SYSTEM = `Você reescreve uma mensagem de WhatsApp para que ela soe como a pessoa que vai enviá-la (o "remetente"), mantendo exatamente o mesmo sentido.
@@ -35,6 +60,42 @@ Regras, sem exceção:
 - Responda apenas com a mensagem reescrita.`;
 
 const PhraseOutput = z.object({ message: z.string() });
+
+const SetsOutput = z.object({
+  sayings: z.array(SayingId).default([]),
+  worries: z.array(WorryId).default([]),
+  groups: z.array(GroupId).default([]),
+  influencers: z.array(InfluencerId).default([]),
+  trustLoss: TrustLossId.nullable().default(null),
+  situation: SituationId.nullable().default(null),
+  relation: RelationId.nullable().default(null),
+  frequency: FrequencyId.nullable().default(null),
+});
+const InterpretOutput = z.object({
+  option_id: z.string().nullable(),
+  sets: SetsOutput,
+  tags: z.array(z.string().max(40)).max(4).default([]),
+  next_question_id: z.string().nullable(),
+  followup: z
+    .object({
+      text: z.string().min(1).max(120),
+      options: z.array(z.object({ id: z.string().regex(/^[a-z0-9_]+$/).max(30), label: z.string().min(1).max(60), sets: SetsOutput })).min(2).max(5),
+    })
+    .nullable(),
+  blocked: z.string().nullable(),
+  rationale: z.string().max(200),
+});
+
+const INTERPRET_SYSTEM = `Você ajuda um app que orienta conversas entre amigos antes do 2º turno de 2026 no Brasil. Um usuário descreve uma pessoa que conhece respondendo perguntas com opções. Ele digitou uma resposta própria em vez de escolher uma opção. Sua tarefa é encaixar essa resposta no sistema.
+
+Regras:
+- Se a resposta tem o mesmo sentido de uma opção existente, devolva option_id com o id dela e os mesmos chips.
+- Senão, devolva em sets só os chips (dos vocabulários fornecidos) que a resposta realmente implica. Não invente; na dúvida, deixe vazio e use tags (palavras curtas em minúsculas, sem acento).
+- next_question_id: só se uma pergunta existente for claramente a melhor seguinte; senão null.
+- followup: só se a resposta for ambígua e UMA pergunta curta, com 2 a 5 opções, ajudaria a entender melhor a pessoa. Cada opção precisa de sets. Senão null.
+- blocked: se a relação implica poder sobre a pessoa (chefe, patrão, funcionário, empregada, aluno), devolva o motivo em uma frase: conversar sobre voto nessa relação pode ser assédio eleitoral. Senão null.
+- rationale: uma frase.
+Responda só o JSON.`;
 const ClassifyOutput = z.object({ outcome: OutcomeId, saying: SayingId.nullable() });
 const strip = (schema: z.ZodType) => {
   const { $schema: _, ...rest } = z.toJSONSchema(schema);
@@ -75,6 +136,27 @@ export class GeminiPhraser implements Phraser {
     return null;
   }
 
+  async interpret(question: Question, allQuestions: Question[], text: string): Promise<Interpretation> {
+    const vocab = (name: string, list: readonly { id: string; label: string }[]) => `${name}: ${list.map((x) => `${x.id} (${x.label})`).join(", ")}`;
+    const prompt = [
+      `Pergunta (${question.id}): ${question.text}`,
+      `Opções: ${question.options.map((o) => `${o.id} = ${o.label}${o.sets ? " → " + JSON.stringify(o.sets) : ""}`).join("; ")}`,
+      `Outras perguntas existentes (para next_question_id): ${allQuestions.map((q) => `${q.id} = ${q.text}`).join("; ")}`,
+      "Vocabulários:",
+      vocab("sayings", SAYINGS), vocab("worries", WORRIES), vocab("groups", GROUPS), vocab("influencers", INFLUENCERS),
+      vocab("trustLoss", TRUST_LOSS), vocab("situation", SITUATIONS), vocab("relation", RELATIONS), vocab("frequency", FREQUENCIES),
+      `Resposta digitada: """${text}"""`,
+    ].join("\n\n");
+    const res = await this.ai.models.generateContent({
+      model: this.model,
+      contents: prompt,
+      config: { systemInstruction: INTERPRET_SYSTEM, responseMimeType: "application/json", responseJsonSchema: strip(InterpretOutput) },
+    });
+    const parsed = res.text ? InterpretOutput.safeParse(JSON.parse(res.text)) : null;
+    if (!parsed?.success) throw new Error("interpret: no usable output");
+    return validateInterpretation(parsed.data, question, allQuestions);
+  }
+
   async classify(text: string): Promise<ClassifyResponse> {
     const res = await this.ai.models.generateContent({
       model: this.model,
@@ -102,6 +184,29 @@ export class NoPhraser implements Phraser {
   async classify(): Promise<ClassifyResponse> {
     throw new Error("classification unavailable");
   }
+  async interpret(): Promise<Interpretation> {
+    throw new Error("interpretation unavailable");
+  }
+}
+
+/** Keeps the model inside the tree: unknown option or question ids are dropped, not trusted. */
+export function validateInterpretation(out: z.infer<typeof InterpretOutput>, question: Question, allQuestions: Question[]): Interpretation {
+  const optionId = out.option_id && question.options.some((o) => o.id === out.option_id) ? out.option_id : null;
+  const nextQuestionId = out.next_question_id && allQuestions.some((q) => q.id === out.next_question_id) ? out.next_question_id : null;
+  const clean = (s: z.infer<typeof SetsOutput>) =>
+    Object.fromEntries(Object.entries(s).filter(([, v]) => v !== null && !(Array.isArray(v) && v.length === 0))) as Interpretation["sets"];
+  const followup = out.followup
+    ? { text: out.followup.text, options: out.followup.options.map((o) => ({ id: o.id, label: o.label, sets: clean(o.sets) })) }
+    : null;
+  return {
+    optionId,
+    sets: optionId ? (question.options.find((o) => o.id === optionId)?.sets ?? {}) : clean(out.sets),
+    tags: out.tags.map((t) => t.toLowerCase().replace(/[^a-z0-9_ ]/g, "").trim()).filter(Boolean),
+    nextQuestionId,
+    followup,
+    blocked: out.blocked,
+    rationale: out.rationale,
+  };
 }
 
 export const createPhraser = (): Phraser => (process.env.GEMINI_API_KEY ? new GeminiPhraser() : new NoPhraser());

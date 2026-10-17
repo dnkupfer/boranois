@@ -1,16 +1,45 @@
 {
-  "comment": "One question at a time. `next` is either a question id or a map option id -> question id (\"*\" is the default). `sets` maps an option onto the chips the engine understands; options without `sets` become tags. `options` is a taxonomy name (SITUATIONS, RELATIONS, GROUPS, SAYINGS, WORRIES, INFLUENCERS, TRUST_LOSS, FREQUENCIES) or an inline list.",
+  "comment": "One question at a time. `max: 1` means single choice; no `max` means pick as many as you like. `next` is either a question id or a map option id -> question id (\"*\" is the default). `sets` maps an option onto the chips the engine understands; options without `sets` become tags. `options` is a taxonomy name (SITUATIONS, RELATIONS, GROUPS, SAYINGS, WORRIES, INFLUENCERS, TRUST_LOSS, FREQUENCIES) or an inline list. Every question allows a typed answer (\"+ outra\"); the API interprets it with the model and maps it onto these options and chips, or inserts one follow-up question for that person.",
   "start": "relacao",
   "questions": [
-    { "id": "relacao", "text": "{nome} é…", "options": "RELATIONS", "max": 1, "next": "frequencia" },
-    { "id": "frequencia", "text": "Vocês se falam…", "options": "FREQUENCIES", "max": 1, "next": "grupos" },
-    { "id": "grupos", "text": "De que grupos {nome} faz parte?", "hint": "Quem é do mesmo grupo que você ouve mais o que você diz.", "options": "GROUPS", "max": 3, "optional": true, "allowCustom": true, "next": "situacao" },
+    {
+      "id": "relacao",
+      "text": "{nome} é…",
+      "options": "RELATIONS",
+      "max": 1,
+      "next": "frequencia",
+      "allowCustom": true
+    },
+    {
+      "id": "frequencia",
+      "text": "Vocês se falam…",
+      "options": "FREQUENCIES",
+      "max": 1,
+      "next": "grupos",
+      "allowCustom": true
+    },
+    {
+      "id": "grupos",
+      "text": "De que grupos {nome} faz parte?",
+      "hint": "Quem é do mesmo grupo que você ouve mais o que você diz.",
+      "options": "GROUPS",
+      "optional": true,
+      "allowCustom": true,
+      "next": "situacao"
+    },
     {
       "id": "situacao",
       "text": "No 1º turno, {nome}…",
       "options": "SITUATIONS",
       "max": 1,
-      "next": { "nao_votou": "nao_votou_porque", "branco_nulo": "nulo_porque", "lula_para_flavio": "mudando_porque", "flavio_convicto": "convicto" }
+      "next": {
+        "nao_votou": "nao_votou_porque",
+        "branco_nulo": "nulo_porque",
+        "lula_para_flavio": "mudando_porque",
+        "flavio_convicto": "convicto",
+        "*": "frases"
+      },
+      "allowCustom": true
     },
     {
       "id": "nao_votou_porque",
@@ -18,27 +47,95 @@
       "max": 1,
       "allowCustom": true,
       "options": [
-        { "id": "nao_conseguiu", "label": "Não conseguiu (trabalho, distância, título…)", "sets": { "sayings": ["nao_consegui"] } },
-        { "id": "desanimou", "label": "Desanimou: “não adianta”", "sets": { "sayings": ["nao_adianta"] } },
-        { "id": "nenhum", "label": "Não gosta de nenhum dos dois", "sets": { "sayings": ["nenhum_dos_dois"] } },
-        { "id": "medo", "label": "Tem medo de votar errado", "sets": { "sayings": ["medo_piorar"] } },
-        { "id": "decidido", "label": "Achou que já estava decidido", "sets": { "sayings": ["ja_decidido"] } },
-        { "id": "nao_sei", "label": "Não sei" }
+        {
+          "id": "nao_conseguiu",
+          "label": "Não conseguiu (trabalho, distância, título…)",
+          "sets": {
+            "sayings": [
+              "nao_consegui"
+            ]
+          }
+        },
+        {
+          "id": "desanimou",
+          "label": "Desanimou: “não adianta”",
+          "sets": {
+            "sayings": [
+              "nao_adianta"
+            ]
+          }
+        },
+        {
+          "id": "nenhum",
+          "label": "Não gosta de nenhum dos dois",
+          "sets": {
+            "sayings": [
+              "nenhum_dos_dois"
+            ]
+          }
+        },
+        {
+          "id": "medo",
+          "label": "Tem medo de votar errado",
+          "sets": {
+            "sayings": [
+              "medo_piorar"
+            ]
+          }
+        },
+        {
+          "id": "decidido",
+          "label": "Achou que já estava decidido",
+          "sets": {
+            "sayings": [
+              "ja_decidido"
+            ]
+          }
+        },
+        {
+          "id": "nao_sei",
+          "label": "Não sei"
+        }
       ],
-      "next": { "nao_conseguiu": "obstaculo", "desanimou": "confianca", "nenhum": "confianca", "medo": "influencias", "decidido": "influencias", "nao_sei": "frases", "*": "confianca" }
+      "next": {
+        "nao_conseguiu": "obstaculo",
+        "desanimou": "confianca",
+        "nenhum": "confianca",
+        "medo": "influencias",
+        "decidido": "influencias",
+        "nao_sei": "frases",
+        "*": "confianca"
+      }
     },
     {
       "id": "obstaculo",
       "text": "O que atrapalhou?",
-      "max": 2,
       "allowCustom": true,
       "options": [
-        { "id": "trabalho_domingo", "label": "Trabalhou no domingo" },
-        { "id": "secao_longe", "label": "A seção é longe" },
-        { "id": "titulo", "label": "Problema com o título" },
-        { "id": "criancas", "label": "Não tinha com quem deixar as crianças" },
-        { "id": "viagem", "label": "Estava viajando" },
-        { "id": "nao_sei", "label": "Não sei" }
+        {
+          "id": "trabalho_domingo",
+          "label": "Trabalhou no domingo"
+        },
+        {
+          "id": "secao_longe",
+          "label": "A seção é longe"
+        },
+        {
+          "id": "titulo",
+          "label": "Problema com o título"
+        },
+        {
+          "id": "criancas",
+          "label": "Não tinha com quem deixar as crianças"
+        },
+        {
+          "id": "viagem",
+          "label": "Estava viajando"
+        },
+        {
+          "id": "nao_sei",
+          "label": "Não sei"
+        }
       ],
       "next": "preocupacoes"
     },
@@ -48,13 +145,56 @@
       "max": 1,
       "allowCustom": true,
       "options": [
-        { "id": "raiva", "label": "De raiva, como protesto", "sets": { "sayings": ["raiva"] } },
-        { "id": "nenhum", "label": "Não gosta de nenhum dos dois", "sets": { "sayings": ["nenhum_dos_dois"] } },
-        { "id": "decepcao", "label": "Se decepcionou com o PT", "sets": { "sayings": ["nenhum_dos_dois", "nao_melhorou"] } },
-        { "id": "medo", "label": "Tem medo de votar errado", "sets": { "sayings": ["medo_piorar"] } },
-        { "id": "nao_sei", "label": "Não sei" }
+        {
+          "id": "raiva",
+          "label": "De raiva, como protesto",
+          "sets": {
+            "sayings": [
+              "raiva"
+            ]
+          }
+        },
+        {
+          "id": "nenhum",
+          "label": "Não gosta de nenhum dos dois",
+          "sets": {
+            "sayings": [
+              "nenhum_dos_dois"
+            ]
+          }
+        },
+        {
+          "id": "decepcao",
+          "label": "Se decepcionou com o PT",
+          "sets": {
+            "sayings": [
+              "nenhum_dos_dois",
+              "nao_melhorou"
+            ]
+          }
+        },
+        {
+          "id": "medo",
+          "label": "Tem medo de votar errado",
+          "sets": {
+            "sayings": [
+              "medo_piorar"
+            ]
+          }
+        },
+        {
+          "id": "nao_sei",
+          "label": "Não sei"
+        }
       ],
-      "next": { "raiva": "confianca", "nenhum": "confianca", "decepcao": "confianca", "medo": "influencias", "nao_sei": "frases", "*": "confianca" }
+      "next": {
+        "raiva": "confianca",
+        "nenhum": "confianca",
+        "decepcao": "confianca",
+        "medo": "influencias",
+        "nao_sei": "frases",
+        "*": "confianca"
+      }
     },
     {
       "id": "mudando_porque",
@@ -62,14 +202,71 @@
       "max": 1,
       "allowCustom": true,
       "options": [
-        { "id": "bolso", "label": "“Com o Lula não melhorou nada”", "sets": { "sayings": ["nao_melhorou"] } },
-        { "id": "seguranca", "label": "“Bandido tem que ter medo”", "sets": { "sayings": ["bandido_medo"], "worries": ["seguranca"] } },
-        { "id": "fe", "label": "“A esquerda é contra a família”", "sets": { "sayings": ["esquerda_familia"], "worries": ["valores_familia"] } },
-        { "id": "renovacao", "label": "“O Lula já deu o que tinha que dar”", "sets": { "sayings": ["ja_deu"] } },
-        { "id": "ladrao", "label": "“O Lula é ladrão”", "sets": { "sayings": ["lula_ladrao"] } },
-        { "id": "nao_sei", "label": "Não sei" }
+        {
+          "id": "bolso",
+          "label": "“Com o Lula não melhorou nada”",
+          "sets": {
+            "sayings": [
+              "nao_melhorou"
+            ]
+          }
+        },
+        {
+          "id": "seguranca",
+          "label": "“Bandido tem que ter medo”",
+          "sets": {
+            "sayings": [
+              "bandido_medo"
+            ],
+            "worries": [
+              "seguranca"
+            ]
+          }
+        },
+        {
+          "id": "fe",
+          "label": "“A esquerda é contra a família”",
+          "sets": {
+            "sayings": [
+              "esquerda_familia"
+            ],
+            "worries": [
+              "valores_familia"
+            ]
+          }
+        },
+        {
+          "id": "renovacao",
+          "label": "“O Lula já deu o que tinha que dar”",
+          "sets": {
+            "sayings": [
+              "ja_deu"
+            ]
+          }
+        },
+        {
+          "id": "ladrao",
+          "label": "“O Lula é ladrão”",
+          "sets": {
+            "sayings": [
+              "lula_ladrao"
+            ]
+          }
+        },
+        {
+          "id": "nao_sei",
+          "label": "Não sei"
+        }
       ],
-      "next": { "bolso": "conta", "seguranca": "seguranca", "fe": "influencias", "renovacao": "influencias", "ladrao": "certeza", "nao_sei": "frases", "*": "confianca" }
+      "next": {
+        "bolso": "conta",
+        "seguranca": "seguranca",
+        "fe": "influencias",
+        "renovacao": "influencias",
+        "ladrao": "certeza",
+        "nao_sei": "frases",
+        "*": "confianca"
+      }
     },
     {
       "id": "conta",
@@ -77,25 +274,84 @@
       "max": 1,
       "allowCustom": true,
       "options": [
-        { "id": "mercado", "label": "Mercado", "sets": { "worries": ["custo_de_vida"] } },
-        { "id": "aluguel", "label": "Aluguel", "sets": { "worries": ["custo_de_vida"] } },
-        { "id": "gas_luz", "label": "Gás e luz", "sets": { "worries": ["custo_de_vida"] } },
-        { "id": "salario", "label": "Salário baixo", "sets": { "worries": ["emprego"] } },
-        { "id": "aposentadoria", "label": "Aposentadoria", "sets": { "worries": ["aposentadoria"] } },
-        { "id": "nao_sei", "label": "Não sei" }
+        {
+          "id": "mercado",
+          "label": "Mercado",
+          "sets": {
+            "worries": [
+              "custo_de_vida"
+            ]
+          }
+        },
+        {
+          "id": "aluguel",
+          "label": "Aluguel",
+          "sets": {
+            "worries": [
+              "custo_de_vida"
+            ]
+          }
+        },
+        {
+          "id": "gas_luz",
+          "label": "Gás e luz",
+          "sets": {
+            "worries": [
+              "custo_de_vida"
+            ]
+          }
+        },
+        {
+          "id": "salario",
+          "label": "Salário baixo",
+          "sets": {
+            "worries": [
+              "emprego"
+            ]
+          }
+        },
+        {
+          "id": "aposentadoria",
+          "label": "Aposentadoria",
+          "sets": {
+            "worries": [
+              "aposentadoria"
+            ]
+          }
+        },
+        {
+          "id": "nao_sei",
+          "label": "Não sei"
+        }
       ],
       "next": "influencias"
     },
     {
       "id": "seguranca",
       "text": "O que aconteceu?",
-      "max": 2,
       "allowCustom": true,
       "options": [
-        { "id": "assalto", "label": "Foi assaltada, ou alguém da família" },
-        { "id": "bairro_perigoso", "label": "O bairro ficou perigoso" },
-        { "id": "policial_familia", "label": "Tem policial na família", "sets": { "groups": ["seguranca_publica"] } },
-        { "id": "nao_sei", "label": "Não sei" }
+        {
+          "id": "assalto",
+          "label": "Foi assaltada, ou alguém da família"
+        },
+        {
+          "id": "bairro_perigoso",
+          "label": "O bairro ficou perigoso"
+        },
+        {
+          "id": "policial_familia",
+          "label": "Tem policial na família",
+          "sets": {
+            "groups": [
+              "seguranca_publica"
+            ]
+          }
+        },
+        {
+          "id": "nao_sei",
+          "label": "Não sei"
+        }
       ],
       "next": "influencias"
     },
@@ -104,25 +360,96 @@
       "text": "Ela diz que nunca vai mudar de ideia?",
       "max": 1,
       "options": [
-        { "id": "sim", "label": "Sim, não tem conversa", "sets": { "sayings": ["nunca_muda"] } },
-        { "id": "nao", "label": "Não, às vezes ela escuta" }
+        {
+          "id": "sim",
+          "label": "Sim, não tem conversa",
+          "sets": {
+            "sayings": [
+              "nunca_muda"
+            ]
+          }
+        },
+        {
+          "id": "nao",
+          "label": "Não, às vezes ela escuta"
+        }
       ],
-      "next": { "sim": "influencias", "nao": "confianca" }
+      "next": {
+        "sim": "influencias",
+        "nao": "confianca",
+        "*": "confianca"
+      },
+      "allowCustom": true
     },
     {
       "id": "convicto",
       "text": "Ela discute ou só defende?",
       "max": 1,
       "options": [
-        { "id": "discute", "label": "Discute, gosta de debater", "sets": { "sayings": ["nunca_muda"] } },
-        { "id": "defende", "label": "Só defende, não discute", "sets": { "sayings": ["nunca_muda"] } },
-        { "id": "duvida", "label": "Às vezes demonstra dúvida", "sets": { "sayings": ["lula_ladrao"] } }
+        {
+          "id": "discute",
+          "label": "Discute, gosta de debater",
+          "sets": {
+            "sayings": [
+              "nunca_muda"
+            ]
+          }
+        },
+        {
+          "id": "defende",
+          "label": "Só defende, não discute",
+          "sets": {
+            "sayings": [
+              "nunca_muda"
+            ]
+          }
+        },
+        {
+          "id": "duvida",
+          "label": "Às vezes demonstra dúvida",
+          "sets": {
+            "sayings": [
+              "lula_ladrao"
+            ]
+          }
+        }
       ],
+      "next": "influencias",
+      "allowCustom": true
+    },
+    {
+      "id": "frases",
+      "text": "O que ela costuma dizer?",
+      "options": "SAYINGS",
+      "optional": true,
+      "allowCustom": true,
+      "next": "confianca"
+    },
+    {
+      "id": "confianca",
+      "text": "Quando ela parou de acreditar?",
+      "hint": "Se souber.",
+      "options": "TRUST_LOSS",
+      "max": 1,
+      "optional": true,
+      "allowCustom": true,
       "next": "influencias"
     },
-    { "id": "frases", "text": "O que ela costuma dizer?", "options": "SAYINGS", "max": 3, "optional": true, "allowCustom": true, "next": "confianca" },
-    { "id": "confianca", "text": "Quando ela parou de acreditar?", "hint": "Se souber.", "options": "TRUST_LOSS", "max": 1, "optional": true, "allowCustom": true, "next": "influencias" },
-    { "id": "influencias", "text": "Quem ela segue ou escuta?", "options": "INFLUENCERS", "max": 3, "optional": true, "allowCustom": true, "next": "preocupacoes" },
-    { "id": "preocupacoes", "text": "O que mais preocupa {nome}?", "options": "WORRIES", "max": 2, "optional": true, "allowCustom": true, "next": null }
+    {
+      "id": "influencias",
+      "text": "Quem ela segue ou escuta?",
+      "options": "INFLUENCERS",
+      "optional": true,
+      "allowCustom": true,
+      "next": "preocupacoes"
+    },
+    {
+      "id": "preocupacoes",
+      "text": "O que mais preocupa {nome}?",
+      "options": "WORRIES",
+      "optional": true,
+      "allowCustom": true,
+      "next": null
+    }
   ]
 }

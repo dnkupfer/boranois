@@ -147,14 +147,14 @@ export type Priority = (typeof PRIORITIES)[number];
 export const Chips = z.object({
   situation: SituationId,
   relation: RelationId,
-  groups: z.array(GroupId).max(3).default([]),
-  worries: z.array(WorryId).max(2).default([]),
-  sayings: z.array(SayingId).max(3).default([]),
-  influencers: z.array(InfluencerId).max(3).default([]),
+  groups: z.array(GroupId).default([]),
+  worries: z.array(WorryId).default([]),
+  sayings: z.array(SayingId).default([]),
+  influencers: z.array(InfluencerId).default([]),
   trustLoss: TrustLossId.optional(),
   frequency: FrequencyId,
   /** Answers that don't map to a taxonomy (e.g. "trabalhou no domingo"). Categorical only. */
-  tags: z.array(z.string().max(40)).max(12).default([]),
+  tags: z.array(z.string().max(40)).max(30).default([]),
   /** Member and pessoa belong to at least one group in common (computed on the member's device). */
   sharedGroup: z.boolean().default(false),
 });
@@ -185,6 +185,9 @@ export const InteractionRequest = z.object({
 export const ChipUsageRequest = z.object({
   answers: z.array(z.object({ questionId: z.string().max(40), optionIds: z.array(z.string().max(40)).max(12), custom: z.array(z.string().trim().min(1).max(60)).max(5).default([]) })).max(30),
 });
+
+/** A typed answer ("+ outra") to interpret. The text is counted anonymously, never linked to a pessoa. */
+export const InterpretRequest = z.object({ questionId: z.string().max(40), text: z.string().trim().min(1).max(80) });
 
 /** Turn a pasted reply into chips. The text is not stored. */
 export const ClassifyRequest = z.object({ text: z.string().trim().min(1).max(1000) });
@@ -287,11 +290,27 @@ export type Question = {
   text: string;
   hint?: string;
   options: QuestionOption[];
-  max: number;
+  /** 1 = single choice. Absent = as many as you like. */
+  max?: number;
   optional: boolean;
   allowCustom: boolean;
   /** Next question id, or per-option map ("*" default). null ends the flow. */
   next: string | Record<string, string> | null;
 };
 export type QuestionsResponse = { start: string; questions: Question[] };
-export type ChipStats = { usage: { questionId: string; optionId: string; count: number }[]; proposals: { questionId: string; text: string; count: number }[] };
+/** What the model made of a typed answer. Everything here is validated against the tree and the vocabularies. */
+export type Interpretation = {
+  /** Closest existing option, when the meaning is the same. */
+  optionId: string | null;
+  sets: ChipSets;
+  tags: string[];
+  /** Which existing question to ask next; null = follow the tree's default. */
+  nextQuestionId: string | null;
+  /** One extra question for this person, when the answer is ambiguous. */
+  followup: { text: string; options: QuestionOption[] } | null;
+  /** Set when the answer must not be accepted (e.g. a boss/employee relation). */
+  blocked: string | null;
+  rationale: string;
+};
+
+export type ChipStats = { usage: { questionId: string; optionId: string; count: number }[]; proposals: { questionId: string; text: string; count: number; mapped: string | null }[] };
