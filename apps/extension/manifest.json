@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Boranois",
+  "version": "0.1.0",
+  "description": "Verifica, com um clique, se um post do Instagram combina com o objetivo do seu grupo.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Verificar este post",
+    "default_icon": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" }
+  },
+  "icons": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["http://localhost:5173/*"],
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:5173/*"],
+      "js": ["connect.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

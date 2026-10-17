@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+apps/api/.data/
+.firebase/
+*.log
+.DS_Store
+apps/web/public/boranois-extensao.zip

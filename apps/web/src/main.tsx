@@ -1,0 +1,28 @@
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { SessionProvider, useSession } from "./session";
+import { Entrar } from "./pages/Entrar";
+import { Painel } from "./pages/Painel";
+import { Extensao } from "./pages/Extensao";
+import "./styles.css";
+
+function RequireSession({ children }: { children: React.ReactNode }) {
+  const { token } = useSession();
+  return token ? children : <Navigate to="/entrar" replace />;
+}
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <SessionProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/entrar" element={<Entrar />} />
+          <Route path="/" element={<RequireSession><Painel /></RequireSession>} />
+          <Route path="/extensao" element={<Extensao />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </SessionProvider>
+  </StrictMode>,
+);

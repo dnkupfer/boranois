@@ -1,0 +1,19 @@
+{
+  "name": "boranois",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev -w @boranois/api\" \"npm run dev -w @boranois/web\"",
+    "build": "./scripts/zip-extension.sh && npm run build -w @boranois/api && npm run build -w @boranois/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "extension:zip": "./scripts/zip-extension.sh"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}

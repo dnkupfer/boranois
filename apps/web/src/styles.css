@@ -1,0 +1,94 @@
+/* Large type and high contrast on purpose: many users are older and not very tech-savvy. */
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --text: #1c1c1c;
+  --muted: #5c5c5c;
+  --border: #d9d4c7;
+  --primary: #c8102e;
+  --primary-text: #ffffff;
+  --ok-bg: #e5f4e8;
+  --ok-border: #2e7d32;
+  --skip-bg: #eeeeee;
+  --skip-border: #8a8a8a;
+  --warn-bg: #fff4d6;
+  --whatsapp: #128c4a;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); }
+
+.page { max-width: 760px; margin: 0 auto; padding: 0 16px 64px; }
+.topbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 16px 0; }
+.topbar nav { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.brand { font-weight: 800; font-size: 1.3rem; color: var(--primary); text-decoration: none; }
+a { color: var(--primary); }
+
+h1 { font-size: 1.8rem; margin: 8px 0 12px; }
+h2 { font-size: 1.3rem; margin: 0 0 12px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin: 20px 0; }
+
+label { display: block; font-weight: 600; margin-bottom: 16px; }
+input, textarea {
+  display: block; width: 100%; margin-top: 6px; padding: 12px 14px; font: inherit;
+  border: 2px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
+}
+input[type="checkbox"] { display: inline-block; width: 24px; height: 24px; margin: 0 8px 0 0; vertical-align: middle; }
+
+button, .button {
+  display: inline-block; font: inherit; font-weight: 700; padding: 12px 20px; min-height: 52px;
+  border-radius: 10px; border: 2px solid var(--text); background: #fff; color: var(--text);
+  cursor: pointer; text-decoration: none; text-align: center;
+}
+button.primary, .button.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-text); }
+.button.whatsapp { background: var(--whatsapp); border-color: var(--whatsapp); color: #fff; }
+button.link { border: none; background: none; padding: 0; min-height: 0; color: var(--primary); text-decoration: underline; font-weight: 400; }
+button:disabled { opacity: 0.6; cursor: wait; }
+
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0; }
+.row input { flex: 1 1 200px; margin-top: 0; }
+
+.options { display: grid; gap: 12px; }
+.option { display: grid; gap: 4px; text-align: left; font-weight: 400; border-color: var(--border); }
+.option.selected { border-color: var(--primary); background: #fdecee; }
+
+.objective-banner { background: var(--warn-bg); padding: 12px 16px; border-radius: 10px; }
+.muted { color: var(--muted); }
+.error { color: var(--primary); font-weight: 600; }
+
+.invites, .feed { list-style: none; padding: 0; margin: 0 0 16px; }
+.invites li, .feed li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.feed li { display: block; }
+.excerpt { color: var(--muted); margin: 4px 0; }
+
+.checklist { padding-left: 0; list-style: none; }
+.checklist label { font-weight: 400; }
+ol li { margin-bottom: 14px; }
+
+/* Install steps: one card per step with a big numbered badge. */
+.steps { list-style: none; padding: 0; margin: 20px 0; counter-reset: step; }
+.steps > li {
+  counter-increment: step; position: relative; margin: 0 0 16px; padding: 20px 20px 20px 84px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+}
+.steps > li::before {
+  content: counter(step); position: absolute; left: 20px; top: 18px; width: 46px; height: 46px;
+  border-radius: 50%; background: var(--primary); color: var(--primary-text);
+  display: grid; place-items: center; font-weight: 800; font-size: 1.3rem;
+}
+.steps > li > p:first-child { margin-top: 6px; }
+.steps > li > p:last-child { margin-bottom: 0; }
+@media (max-width: 480px) {
+  .steps > li { padding: 72px 16px 16px; }
+}
+
+code { font-size: 1.05rem; background: var(--bg); padding: 8px 12px; border-radius: 8px; }
+
+.status { padding: 14px 18px; border-radius: 10px; background: var(--skip-bg); font-weight: 700; }
+.status.ok { background: var(--ok-bg); color: var(--ok-border); }
+.status.warn { background: var(--warn-bg); }
