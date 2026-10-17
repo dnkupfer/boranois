@@ -9,13 +9,13 @@ Helps people talk, one to one, with friends and relatives who didn't vote, voted
 - **Only true things.** Every fact in [content/facts.json](content/facts.json) has a source, and unverified facts are never served. A step whose fact isn't verified is skipped.
 - **Minimal data about third parties.** Names, phones and notes stay in the member's browser. The server stores an id, chips, the persona, the state and outcome chips. Pasted replies are classified and discarded.
 - **No coercion.** The relation picker has no boss/employee option (assédio eleitoral is a crime). The "Quem tem certeza" persona exists to say: don't engage.
-- **Published.** `/perfis` shows every persona, its narrative and what we never do with it.
+- **Published.** `/como-funciona` explains the rules in five lines; `/api/catalogue` exposes every persona in full for anyone who wants to audit.
 
 Full catalogue and editing rules: [content/README.md](content/README.md).
 
 ```
 apps/web/        Vite + React: magic-link sign-in, suas pessoas, adicionar pessoa (3 steps of chips), guia por pessoa, como funciona
-apps/api/        Express: invites/auth, catalogue loader, engine (match/priority/next step), Gemini phrasing + validator
+apps/api/        Express: magic-link auth, catalogue loader, engine (match/priority/next step), Gemini phrasing + validator
 content/         The catalogue: personas, facts (with sources), contents, defaults, scoring weights
 packages/shared/ Taxonomies (chips), request/response types
 ```
