@@ -1,0 +1,66 @@
+{
+  "id": "teme_a_violencia",
+  "name": "Quem teme a violência",
+  "situations": ["lula_para_flavio"],
+  "default_for": [],
+  "description": "Vive ou trabalha onde a violência é real: assalto, tiroteio, medo de sair à noite. Acredita que o Flávio vai ser duro com bandido e que o Lula “passa a mão na cabeça”. Não é cruel; está com medo.",
+  "narrative": "“Aqui a gente vive com medo. Bandido tem que ter medo também. O Lula solta todo mundo; o Flávio vai botar ordem.”",
+  "groups": ["bairro", "trabalho", "seguranca_publica", "familia"],
+  "values": ["Proteger a família", "Ordem", "Respeito"],
+  "worries": ["seguranca", "custo_de_vida"],
+  "wishes": ["Sair de casa sem medo", "Que os filhos cresçam em paz"],
+  "signals": {
+    "sayings": { "bandido_medo": 6 },
+    "worries": { "seguranca": 3 },
+    "groups": { "seguranca_publica": 1 }
+  },
+  "engage": true,
+  "priority_base": "media",
+  "donts": [
+    "Não diga que a violência diminuiu. Para ela, não diminuiu.",
+    "Não chame o medo dela de exagero nem de preconceito.",
+    "Não entre em debate sobre polícia e direitos humanos. Você perde."
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": ["novo"],
+      "title": "Reconheça o medo",
+      "why": "Ela precisa sentir que você leva a segurança dela a sério.",
+      "template": "{nome}, como tá a coisa aí no bairro? Aqui também tá tenso. Eu queria entender o que te faz pensar que o Flávio resolve isso, de verdade, sem briga."
+    },
+    {
+      "id": "fato",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Um fato sobre segurança, de fonte que ela respeite",
+      "why": "Sem dado concreto sobre o que cada um fez e quer fazer em segurança, não mande nada. Pergunte mais.",
+      "facts": [],
+      "template": "Sobre segurança, uma coisa que eu achei importante: {fato}"
+    },
+    {
+      "id": "conteudo",
+      "action": "enviar_conteudo",
+      "when": ["conversando"],
+      "title": "Mande quem vive a mesma realidade",
+      "why": "Um policial, um morador da mesma região: ela ouve. Um comentarista, não.",
+      "template": "Vi esse aqui, é alguém que vive a mesma coisa que a gente: {conteudo}"
+    },
+    {
+      "id": "fechar",
+      "action": "oferecer_ajuda",
+      "when": ["conversando"],
+      "title": "Deixe a decisão com ela",
+      "why": "Ela decide pela família. Respeite.",
+      "template": "Pensa nisso. O que eu quero é o mesmo que você: a gente sair de casa sem medo. Me conta o que decidir."
+    }
+  ],
+  "objections": {
+    "bandido_medo": {
+      "title": "“Bandido tem que ter medo”",
+      "template": "Concordo que quem faz mal tem que responder. A pergunta que eu faço é: o que cada um fez de verdade, e o que promete que dá pra cumprir? Posso te mandar uma coisa curta sobre isso?",
+      "facts": []
+    }
+  }
+}

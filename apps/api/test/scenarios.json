@@ -1,0 +1,72 @@
+[
+  {
+    "name": "tia que desanimou",
+    "chips": { "situation": "nao_votou", "relation": "familia", "groups": ["familia"], "worries": ["custo_de_vida"], "sayings": ["nao_adianta"], "frequency": "semanal", "sharedGroup": true },
+    "expect": { "persona": "nao_adianta", "priority": "alta", "engage": true }
+  },
+  {
+    "name": "primo que trabalhou no domingo",
+    "chips": { "situation": "nao_votou", "relation": "familia", "groups": ["trabalho"], "worries": ["emprego"], "sayings": ["nao_consegui"], "frequency": "diario", "sharedGroup": false },
+    "expect": { "persona": "nao_conseguiu", "priority": "alta", "engage": true }
+  },
+  {
+    "name": "não votou, sem nenhuma frase marcada",
+    "chips": { "situation": "nao_votou", "relation": "amigo", "groups": [], "worries": [], "sayings": [], "frequency": "raro", "sharedGroup": false },
+    "expect": { "persona": "nao_adianta", "priority": "media", "engage": true, "becauseIncludes": "perfil mais comum" }
+  },
+  {
+    "name": "amiga decepcionada que anulou",
+    "chips": { "situation": "branco_nulo", "relation": "amigo", "groups": ["trabalho"], "worries": ["corrupcao"], "sayings": ["nenhum_dos_dois", "nao_melhorou"], "frequency": "semanal", "sharedGroup": true },
+    "expect": { "persona": "nenhum_dos_dois", "priority": "alta", "engage": true }
+  },
+  {
+    "name": "colega que anulou de raiva",
+    "chips": { "situation": "branco_nulo", "relation": "colega", "groups": [], "worries": ["corrupcao"], "sayings": ["raiva"], "frequency": "semanal", "sharedGroup": false },
+    "expect": { "persona": "anulou_de_raiva", "priority": "media", "engage": true }
+  },
+  {
+    "name": "vizinha com medo de errar",
+    "chips": { "situation": "nao_votou", "relation": "vizinho", "groups": ["igreja_catolica"], "worries": ["saude"], "sayings": ["medo_piorar"], "frequency": "diario", "sharedGroup": false },
+    "expect": { "persona": "medo_de_errar", "priority": "alta", "engage": true }
+  },
+  {
+    "name": "irmão que acha que já está decidido",
+    "chips": { "situation": "nao_votou", "relation": "familia", "groups": ["familia"], "worries": [], "sayings": ["ja_decidido"], "frequency": "diario", "sharedGroup": true },
+    "expect": { "persona": "ja_decidido", "priority": "alta", "engage": true }
+  },
+  {
+    "name": "cunhado que sente no bolso",
+    "chips": { "situation": "lula_para_flavio", "relation": "familia", "groups": ["trabalho"], "worries": ["custo_de_vida"], "sayings": ["nao_melhorou"], "frequency": "semanal", "sharedGroup": false },
+    "expect": { "persona": "sente_no_bolso", "priority": "media", "engage": true }
+  },
+  {
+    "name": "irmã de igreja",
+    "chips": { "situation": "lula_para_flavio", "relation": "amigo", "groups": ["igreja_evangelica"], "worries": ["valores_familia"], "sayings": ["esquerda_familia"], "frequency": "semanal", "sharedGroup": true },
+    "expect": { "persona": "fe_e_comunidade", "priority": "alta", "engage": true }
+  },
+  {
+    "name": "vizinho com medo da violência",
+    "chips": { "situation": "lula_para_flavio", "relation": "vizinho", "groups": ["bairro"], "worries": ["seguranca"], "sayings": ["bandido_medo"], "frequency": "raro", "sharedGroup": false },
+    "expect": { "persona": "teme_a_violencia", "priority": "baixa", "engage": true }
+  },
+  {
+    "name": "sobrinho que quer renovação",
+    "chips": { "situation": "lula_para_flavio", "relation": "familia", "groups": ["estudantes"], "worries": ["educacao"], "sayings": ["ja_deu"], "frequency": "semanal", "sharedGroup": false },
+    "expect": { "persona": "ja_deu", "priority": "media", "engage": true }
+  },
+  {
+    "name": "tio convicto",
+    "chips": { "situation": "flavio_convicto", "relation": "familia", "groups": ["familia"], "worries": ["corrupcao"], "sayings": ["lula_ladrao", "nunca_muda"], "frequency": "diario", "sharedGroup": true },
+    "expect": { "persona": "tem_certeza", "priority": "baixa", "engage": false }
+  },
+  {
+    "name": "não votou mas diz que nunca muda",
+    "chips": { "situation": "nao_votou", "relation": "colega", "groups": [], "worries": [], "sayings": ["nunca_muda", "lula_ladrao"], "frequency": "semanal", "sharedGroup": false },
+    "expect": { "persona": "tem_certeza", "priority": "baixa", "engage": false }
+  },
+  {
+    "name": "lula→flávio sem frase: default",
+    "chips": { "situation": "lula_para_flavio", "relation": "amigo", "groups": [], "worries": [], "sayings": [], "frequency": "semanal", "sharedGroup": false },
+    "expect": { "persona": "sente_no_bolso", "priority": "media", "engage": true }
+  }
+]

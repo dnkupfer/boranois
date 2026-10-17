@@ -1,0 +1,33 @@
+{
+  "id": "tem_certeza",
+  "name": "Quem tem certeza",
+  "situations": ["flavio_convicto", "lula_para_flavio", "branco_nulo", "nao_votou"],
+  "default_for": ["flavio_convicto"],
+  "description": "Acredita com convicção que o Lula é corrupto e que a esquerda ameaça os seus valores. Confia no que ouve da família, da igreja e dos grupos mais do que na imprensa. Quer um país honesto e ordeiro, e está certa de que sabe quem entrega isso.",
+  "narrative": "“Não tem conversa. Eu sei o que eu vi, eu sei em quem eu confio. Pode mandar o que quiser que eu não mudo.”",
+  "groups": ["familia", "igreja_evangelica", "agro", "seguranca_publica"],
+  "values": ["Lealdade", "Ordem", "Honestidade", "Fé"],
+  "worries": ["corrupcao", "valores_familia", "seguranca"],
+  "wishes": ["Ter razão", "Proteger o que é dela"],
+  "signals": {
+    "sayings": { "nunca_muda": 10, "lula_ladrao": 4 }
+  },
+  "engage": false,
+  "priority_base": "baixa",
+  "donts": [
+    "Não discuta. Pessoas com convicção forte não mudam em uma semana, e a discussão custa a relação.",
+    "Não mande nada. Qualquer link vira prova de que você “foi doutrinada”.",
+    "Guarde sua energia para quem está em dúvida."
+  ],
+  "steps": [
+    {
+      "id": "nao_engajar",
+      "action": "parar",
+      "when": ["novo", "conversando", "objecao", "cortou", "aguardando"],
+      "title": "Não engaje",
+      "why": "Convicção forte não muda em uma semana. Seu tempo rende mais com alguém em dúvida. Mantenha a relação; a política, deixe fora.",
+      "template": ""
+    }
+  ],
+  "objections": {}
+}

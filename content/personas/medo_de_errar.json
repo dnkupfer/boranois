@@ -1,0 +1,66 @@
+{
+  "id": "medo_de_errar",
+  "name": "Quem tem medo de errar",
+  "situations": ["nao_votou", "branco_nulo"],
+  "default_for": [],
+  "description": "Não se sente informada o bastante para escolher e prefere não votar a votar “errado”. Evita o assunto porque tem vergonha de não saber. Quer permissão e um guia simples.",
+  "narrative": "“Eu não entendo de política. Todo mundo fala uma coisa diferente. E se eu voto e depois dá tudo errado? Prefiro não me meter.”",
+  "groups": ["familia", "igreja_catolica", "bairro"],
+  "values": ["Fazer a coisa certa", "Não prejudicar ninguém", "Humildade"],
+  "worries": ["custo_de_vida", "saude"],
+  "wishes": ["Alguém de confiança que explique sem complicar", "Ter certeza de que não está fazendo besteira"],
+  "signals": {
+    "sayings": { "medo_piorar": 6, "nenhum_dos_dois": 1 },
+    "worries": {}
+  },
+  "engage": true,
+  "priority_base": "alta",
+  "donts": [
+    "Não mande texto longo nem vídeo de 10 minutos. Ela desiste.",
+    "Não use palavras de político (“agenda”, “pauta”, “reforma”).",
+    "Não ria de nenhuma dúvida."
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": ["novo"],
+      "title": "Dê permissão para não saber",
+      "why": "A vergonha de não entender é o que a mantém longe. Tire isso primeiro.",
+      "template": "{nome}, ninguém entende tudo de política, eu também não. Se você quiser, eu te explico só o que importa pra você, em duas frases. Pode ser?"
+    },
+    {
+      "id": "uma_coisa",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Uma coisa só, concreta",
+      "why": "Ela precisa de um critério simples para decidir, ligado à vida dela.",
+      "facts": [],
+      "template": "Pensa só numa coisa: o que mais pesa pra você hoje, {nome}? Preço das coisas, saúde, trabalho? Me diz, que eu te conto o que cada um quer fazer sobre isso. Sem enrolação."
+    },
+    {
+      "id": "pode_votar",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Mostre que votar é simples",
+      "why": "Parte do medo é do processo. Documento, lugar, horário.",
+      "facts": ["documentos", "onde_votar", "pode_votar_2turno"],
+      "template": "E votar é rápido: {fato} Se quiser, a gente vai junto."
+    },
+    {
+      "id": "ajuda",
+      "action": "oferecer_ajuda",
+      "when": ["conversando"],
+      "title": "Vá junto",
+      "why": "Para quem tem medo, companhia resolve mais que argumento.",
+      "template": "Domingo eu passo aí e a gente vai junto, que tal? Aí qualquer dúvida você me pergunta na hora."
+    }
+  ],
+  "objections": {
+    "medo_piorar": {
+      "title": "“E se piorar?”",
+      "template": "Esse medo é justo. Pensa assim: se você não vota, outra pessoa decide por você, e pode ser alguém que não pensa em você. Votar é só dizer o que você quer. O resto a gente acompanha junto.",
+      "facts": []
+    }
+  }
+}

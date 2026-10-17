@@ -1,0 +1,65 @@
+{
+  "id": "ja_decidido",
+  "name": "Quem acha que já está decidido",
+  "situations": ["nao_votou", "branco_nulo"],
+  "default_for": [],
+  "description": "Até tem preferência, mas acha que a eleição já está ganha (ou perdida) e que o voto dela não vai mudar o resultado. Fica em casa por conforto, não por rejeição.",
+  "narrative": "“Ah, isso já tá decidido. Vai dar fulano de qualquer jeito. Pra que eu vou perder meu domingo?”",
+  "groups": ["familia", "trabalho", "bairro"],
+  "values": ["Praticidade", "Família", "Descanso merecido"],
+  "worries": ["custo_de_vida", "emprego"],
+  "wishes": ["Que o domingo seja tranquilo", "Não se sentir usada"],
+  "signals": {
+    "sayings": { "ja_decidido": 6 },
+    "worries": {}
+  },
+  "engage": true,
+  "priority_base": "alta",
+  "donts": [
+    "Não dê sermão sobre dever cívico.",
+    "Não mande pesquisa atrás de pesquisa. Uma basta."
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": ["novo"],
+      "title": "Pergunte o que ela acha que vai acontecer",
+      "why": "Ela tem um palpite. Descubra qual antes de mostrar os números.",
+      "template": "{nome}, você acha que dia 25 vai dar quem? Pergunto porque eu achava uma coisa e vi uns números que me surpreenderam."
+    },
+    {
+      "id": "empate",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Mostre que está empatado",
+      "why": "A base da decisão dela é que o resultado está dado. Não está.",
+      "facts": ["empate_tecnico", "quaest_ausentes"],
+      "template": "Olha: {fato} Não tá decidido nada. Tá na mão de quem ficou em casa."
+    },
+    {
+      "id": "pode_votar",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Tire a dúvida prática",
+      "why": "Se ela faltou no 1º turno, pode achar que não pode votar no 2º.",
+      "facts": ["pode_votar_2turno", "horario_votacao"],
+      "template": "E é rápido: {fato}"
+    },
+    {
+      "id": "ajuda",
+      "action": "oferecer_ajuda",
+      "when": ["conversando"],
+      "title": "Combine o horário",
+      "why": "Transforme em compromisso. Quem combina, vai.",
+      "template": "Vamos juntos de manhã cedo? Meia hora, e o domingo continua seu."
+    }
+  ],
+  "objections": {
+    "ja_decidido": {
+      "title": "Ela insistiu que já está decidido",
+      "template": "Era o que eu achava também. Dois pontos de diferença e 33 milhões em casa: nunca esteve tão aberto. Se der por um voto, eu quero que o seu esteja lá.",
+      "facts": ["empate_tecnico", "abstencao_33mi"]
+    }
+  }
+}

@@ -1,15 +1,24 @@
 # Boranois
 
-Helps small groups of volunteers (a host plus up to 5 friends) decide which Instagram posts are worth sharing with their group, based on a campaign objective the host picks.
+Helps people talk, one to one, with friends and relatives who didn't vote, voted blank, or are wavering, before the runoff on 25 October 2026. A host invites five friends; each one lists the people they know, and the app says who to talk to first, how to open the conversation, which fact matters for that person, and what to do after they reply. Every message is sent by the member, from their own WhatsApp, in their own words.
+
+## How it decides (and what it never does)
+
+- **Deterministic core.** A pessoa is described with chips (situation, what she says, what worries her, which groups she belongs to). Rules match her to one of eleven published **personas**, compute a **priority** (where the member's time helps most) and pick the **next step** from the persona's hand-written plan. Same catalogue + same inputs = same answer, with the reasons shown.
+- **AI at the edges only.** Gemini rewrites a step in the member's voice (validated: no new numbers, links or claims) and labels a pasted reply. It never decides what is true or what to do next. Without a `GEMINI_API_KEY`, templates go out as written.
+- **Only true things.** Every fact in [content/facts.json](content/facts.json) has a source, and unverified facts are never served. A step whose fact isn't verified is skipped.
+- **Minimal data about third parties.** Names, phones and notes stay in the member's browser. The server stores an id, chips, the persona, the state and outcome chips. Pasted replies are classified and discarded.
+- **No coercion.** The relation picker has no boss/employee option (assédio eleitoral is a crime). The "Quem tem certeza" persona exists to say: don't engage.
+- **Published.** `/perfis` shows every persona, its narrative and what we never do with it.
+
+Full catalogue and editing rules: [content/README.md](content/README.md).
 
 ```
-apps/web/        Vite + React site: invite sign-up, host setup, extension install guide
-apps/api/        Express API: invites, member tokens, /check scoring (Gemini), Neon/Postgres
-apps/extension/  Chrome extension (MV3): one click on an open Instagram post -> verdict + suggested comment
-packages/shared/ Objectives and request/response schemas used by web and api
+apps/web/        Vite + React: sign-in, suas pessoas, adicionar pessoa (chips), guia por pessoa, perfis, convites
+apps/api/        Express: invites/auth, catalogue loader, engine (match/priority/next step), Gemini phrasing + validator
+content/         The catalogue: personas, facts (with sources), contents, defaults, scoring weights
+packages/shared/ Taxonomies (chips), request/response types
 ```
-
-**How the extension behaves:** it only reads the open post when the user clicks its toolbar button (`activeTab`). It has no standing access to Instagram, does nothing in the background, and never likes, comments or shares on its own. Every action on Instagram is taken by a person.
 
 ## Run locally
 
@@ -17,22 +26,17 @@ packages/shared/ Objectives and request/response schemas used by web and api
 npm install
 npm run dev                          # API on :8080, web on :5173 (proxies /api)
 npm run host-code -w @boranois/api   # prints a host sign-up link
+npm test -w @boranois/api            # catalogue checks, match/priority scenarios, phrasing validator
 ```
 
-With no `.env`, the API stores data in `apps/api/.data/dev.json` and uses a keyword scorer for testing. To use Gemini, copy `apps/api/.env.example` to `apps/api/.env` and set `GEMINI_API_KEY`. To use Neon, set `DATABASE_URL` and run `npm run db:migrate -w @boranois/api`.
+Without `apps/api/.env`, data goes to `apps/api/.data/dev.json` and no AI is used. Copy `apps/api/.env.example` to `.env` to set `GEMINI_API_KEY` and/or `DATABASE_URL` (then `npm run db:migrate -w @boranois/api`).
 
-### Try the extension
+## Changing the catalogue
 
-1. Open the host link, sign in, and pick an objective.
-2. In Chrome, go to `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**, and choose `apps/extension`.
-3. Reload the site. It should say "Extensão conectada ✓". The site hands its session token to the extension automatically.
-4. Open an Instagram post (`instagram.com/p/...` or `/reel/...`) and click the extension's button.
-
-After editing extension files, click the reload icon on its card in `chrome://extensions`.
+Edit the JSON in `content/`, run `npm test -w @boranois/api`, restart the API. The catalogue version (a hash) is recorded on every contact and interaction, so a change never silently rewrites history. Scoring weights live in `content/scoring.json`; `test/scenarios.json` is the regression suite for them.
 
 ## Deploy
 
-- **Web:** `npm run build`, then `firebase deploy --only hosting`. Set the project in `.firebaserc`. `/api/**` is rewritten to the Cloud Run service `boranois-api` in `southamerica-east1`.
-- **API:** build the root `Dockerfile` and deploy it to Cloud Run as `boranois-api` in `southamerica-east1`. Pass `DATABASE_URL` (Neon **pooled** string, region `aws-sa-east-1`), `GEMINI_API_KEY` and `ADMIN_TOKEN` from Secret Manager.
-- **Extension:** add the production origin (e.g. `https://<project>.web.app/*`) to `host_permissions` and `content_scripts.matches` in `apps/extension/manifest.json`, then run `npm run extension:zip`. The site's download button serves that zip.
+- **Web:** `npm run build`, then `firebase deploy --only hosting` (`.firebaserc` needs the project id). `/api/**` is rewritten to the Cloud Run service `boranois-api` in `southamerica-east1`.
+- **API:** build the root `Dockerfile` (it bundles `content/`) and deploy to Cloud Run as `boranois-api`. Secrets: `DATABASE_URL` (Neon pooled string), `GEMINI_API_KEY`, `ADMIN_TOKEN`.
 - **Host codes in production:** `curl -X POST -H "x-admin-token: $ADMIN_TOKEN" https://<site>/api/admin/host-codes`

@@ -1,8 +1,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-import type { FeedItem, Group, Invite, ObjectiveId } from "@boranois/shared";
+import type { Invite, OutcomeId } from "@boranois/shared";
 import { newId, newInviteCode } from "../ids.js";
-import type { MemberRecord, NewCheck, RedeemResult, Store } from "./types.js";
+import type { ContactPatch, ContactRecord, MemberRecord, NewContact, NewInteraction, RedeemResult, Store } from "./types.js";
 
 // Local-dev store: everything in one JSON file so data survives `tsx watch` restarts.
 
@@ -16,17 +16,17 @@ type InviteRow = {
   createdAt: string;
 };
 type MemberRow = MemberRecord & { tokenHash: string };
-type CheckRow = NewCheck & { id: string; createdAt: string };
-type Data = { groups: Group[]; members: MemberRow[]; invites: InviteRow[]; checks: CheckRow[] };
+type InteractionRow = NewInteraction & { id: string; createdAt: string };
+type Data = { groups: { id: string }[]; members: MemberRow[]; invites: InviteRow[]; contacts: ContactRecord[]; interactions: InteractionRow[] };
 
 export class FileStore implements Store {
   private data: Data;
 
   constructor(private path: string) {
     try {
-      this.data = JSON.parse(readFileSync(path, "utf8"));
+      this.data = { contacts: [], interactions: [], ...JSON.parse(readFileSync(path, "utf8")) };
     } catch {
-      this.data = { groups: [], members: [], invites: [], checks: [] };
+      this.data = { groups: [], members: [], invites: [], contacts: [], interactions: [] };
     }
   }
 
@@ -37,10 +37,7 @@ export class FileStore implements Store {
 
   async createHostCode() {
     const code = newInviteCode();
-    this.data.invites.push({
-      code, groupId: null, role: "host", contactName: null, phone: null, usedBy: null,
-      createdAt: new Date().toISOString(),
-    });
+    this.data.invites.push({ code, groupId: null, role: "host", contactName: null, phone: null, usedBy: null, createdAt: new Date().toISOString() });
     this.save();
     return code;
   }
@@ -53,14 +50,14 @@ export class FileStore implements Store {
     let groupId = invite.groupId;
     if (!groupId) {
       groupId = newId();
-      this.data.groups.push({ id: groupId, objective: null });
+      this.data.groups.push({ id: groupId });
     }
     const member: MemberRow = { id: newId(), groupId, name, role: invite.role, tokenHash };
     this.data.members.push(member);
     invite.usedBy = member.id;
     this.save();
     const { tokenHash: _, ...record } = member;
-    return { ok: true, member: record, group: await this.getGroup(groupId) };
+    return { ok: true, member: record };
   }
 
   async memberByTokenHash(tokenHash: string) {
@@ -68,17 +65,6 @@ export class FileStore implements Store {
     if (!m) return null;
     const { tokenHash: _, ...record } = m;
     return record;
-  }
-
-  async getGroup(groupId: string) {
-    return { ...this.data.groups.find((g) => g.id === groupId)! };
-  }
-
-  async updateGroup(groupId: string, objective: ObjectiveId) {
-    const g = this.data.groups.find((g) => g.id === groupId)!;
-    g.objective = objective;
-    this.save();
-    return { ...g };
   }
 
   async listInvites(groupId: string): Promise<Invite[]> {
@@ -95,37 +81,46 @@ export class FileStore implements Store {
 
   async createInvites(groupId: string, contacts: { name: string; phone?: string }[]) {
     for (const c of contacts) {
-      this.data.invites.push({
-        code: newInviteCode(), groupId, role: "member", contactName: c.name, phone: c.phone ?? null,
-        usedBy: null, createdAt: new Date().toISOString(),
-      });
+      this.data.invites.push({ code: newInviteCode(), groupId, role: "member", contactName: c.name, phone: c.phone ?? null, usedBy: null, createdAt: new Date().toISOString() });
     }
     this.save();
     return this.listInvites(groupId);
   }
 
-  async insertCheck(check: NewCheck) {
-    const id = newId();
-    this.data.checks.push({ ...check, id, createdAt: new Date().toISOString() });
+  async createContact(c: NewContact) {
+    const now = new Date().toISOString();
+    const record: ContactRecord = { ...c, id: newId(), createdAt: now, updatedAt: now };
+    this.data.contacts.push(record);
     this.save();
-    return id;
+    return record;
   }
 
-  async listSharedChecks(groupId: string, limit: number): Promise<FeedItem[]> {
-    return this.data.checks
-      .filter((c) => c.groupId === groupId && c.decision === "share")
-      .slice(-limit)
-      .reverse()
-      .map((c) => ({
-        id: c.id,
-        postUrl: c.postUrl,
-        handle: c.handle,
-        captionExcerpt: c.caption.slice(0, 200),
-        score: c.score,
-        reason: c.reason,
-        suggestedComment: c.suggestedComment,
-        checkedBy: this.data.members.find((m) => m.id === c.memberId)?.name ?? "",
-        createdAt: c.createdAt,
-      }));
+  async listContacts(memberId: string) {
+    return this.data.contacts.filter((c) => c.memberId === memberId);
+  }
+
+  async getContact(memberId: string, id: string) {
+    return this.data.contacts.find((c) => c.memberId === memberId && c.id === id) ?? null;
+  }
+
+  async updateContact(id: string, patch: ContactPatch) {
+    const c = this.data.contacts.find((c) => c.id === id)!;
+    Object.assign(c, patch, { updatedAt: new Date().toISOString() });
+    this.save();
+    return c;
+  }
+
+  async deleteContact(memberId: string, id: string) {
+    this.data.contacts = this.data.contacts.filter((c) => !(c.memberId === memberId && c.id === id));
+    this.save();
+  }
+
+  async insertInteraction(i: NewInteraction) {
+    this.data.interactions.push({ ...i, id: newId(), createdAt: new Date().toISOString() });
+    this.save();
+  }
+
+  async listOutcomes(contactId: string): Promise<OutcomeId[]> {
+    return this.data.interactions.filter((i) => i.contactId === contactId).map((i) => i.outcome);
   }
 }

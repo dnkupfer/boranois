@@ -1,0 +1,65 @@
+{
+  "id": "ja_deu",
+  "name": "Quem acha que o Lula já deu o que tinha que dar",
+  "situations": ["lula_para_flavio", "branco_nulo"],
+  "default_for": [],
+  "description": "Gosta do Lula, ou gostou. Acha que ele já fez a parte dele, que está velho, cansado, e que o país precisa de renovação. Não odeia o Flávio: vê nele “alguém novo”. Está mais cansada do que convencida.",
+  "narrative": "“O Lula foi importante, mas já deu. Tá na hora de gente nova. O Flávio pode não ser perfeito, mas é diferente.”",
+  "groups": ["trabalho", "estudantes", "familia"],
+  "values": ["Renovação", "Energia", "Futuro"],
+  "worries": ["emprego", "educacao", "custo_de_vida"],
+  "wishes": ["Sentir que o país vai pra frente", "Um futuro para os filhos"],
+  "signals": {
+    "sayings": { "ja_deu": 6, "nao_melhorou": 1 },
+    "worries": { "educacao": 1 }
+  },
+  "engage": true,
+  "priority_base": "media",
+  "donts": [
+    "Não defenda a idade do Lula. Não é sobre isso.",
+    "Não diga que o Flávio é igual ao pai. Ela quer ouvir sobre o futuro, não sobre o passado.",
+    "Não seja nostálgica. Fale do que vem."
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": ["novo"],
+      "title": "Pergunte que renovação ela quer",
+      "why": "“Renovação” é vago. Descubra o que ela quer que mude de verdade.",
+      "template": "{nome}, quando você fala em gente nova, o que você queria que mudasse de verdade? Pergunto porque eu também quero mudança, e queria saber se a gente tá pensando na mesma coisa."
+    },
+    {
+      "id": "o_que_vem",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Compare o que cada um quer fazer daqui pra frente",
+      "why": "Ela olha pro futuro. Dê um fato sobre o plano de cada um para a preocupação dela.",
+      "facts": [],
+      "template": "Sobre {preocupacao}, olha o que cada um quer fazer: {fato}"
+    },
+    {
+      "id": "conteudo",
+      "action": "enviar_conteudo",
+      "when": ["conversando"],
+      "title": "Mande alguém jovem falando",
+      "why": "Renovação ela ouve de quem é novo, não de quem é velho.",
+      "template": "Vi esse e pensei em você, é curtinho: {conteudo}"
+    },
+    {
+      "id": "fechar",
+      "action": "oferecer_ajuda",
+      "when": ["conversando"],
+      "title": "Deixe decidir",
+      "why": "Ela não está brigando com você. Não transforme em briga.",
+      "template": "Pensa com calma. A gente quer a mesma coisa, só tá vendo caminhos diferentes. Me conta o que decidir."
+    }
+  ],
+  "objections": {
+    "ja_deu": {
+      "title": "Ela insistiu que já deu",
+      "template": "Pode ser. Mas “novo” por si só não diz o que vai fazer. Me diz o que você mais quer que mude, que eu te mostro o que cada um promete sobre isso.",
+      "facts": []
+    }
+  }
+}

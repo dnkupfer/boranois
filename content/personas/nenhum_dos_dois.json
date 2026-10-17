@@ -1,0 +1,118 @@
+{
+  "id": "nenhum_dos_dois",
+  "name": "Quem não gosta de nenhum dos dois",
+  "situations": [
+    "nao_votou",
+    "branco_nulo"
+  ],
+  "default_for": [
+    "branco_nulo"
+  ],
+  "description": "Já votou no Lula (ou no PT) e se decepcionou. Não quer o Flávio, mas se recusa a “dar o voto de novo”. Votou branco, nulo, ou ficou em casa por princípio.",
+  "narrative": "“Eu votei neles e não vi resultado. Não vou votar no Flávio, mas também não vou dar meu voto de graça. Anular é o meu jeito de dizer que não aceito nenhum.”",
+  "groups": [
+    "trabalho",
+    "estudantes",
+    "bairro"
+  ],
+  "values": [
+    "Coerência",
+    "Justiça",
+    "Não ser enganado de novo"
+  ],
+  "worries": [
+    "custo_de_vida",
+    "corrupcao",
+    "emprego"
+  ],
+  "wishes": [
+    "Ser levado a sério",
+    "Uma política que não seja só os mesmos"
+  ],
+  "signals": {
+    "sayings": {
+      "nenhum_dos_dois": 5,
+      "todos_iguais": 3,
+      "raiva": 2,
+      "nao_melhorou": 2
+    },
+    "worries": {
+      "corrupcao": 1
+    }
+  },
+  "engage": true,
+  "priority_base": "alta",
+  "donts": [
+    "Não defenda o governo. Ela não quer ouvir isso, e você perde a conversa.",
+    "Não diga que votar nulo é burrice.",
+    "Não faça a conversa ser sobre o Lula. Faça ser sobre a vida dela."
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Reconheça a decepção antes de qualquer coisa",
+      "why": "Ela espera que você defenda o governo. Se você não fizer isso, ela escuta.",
+      "template": "{nome}, posso te perguntar uma coisa sem briga? Você anulou no 1º turno, né? O que mais te decepcionou? Eu não vou tentar te convencer, só quero entender."
+    },
+    {
+      "id": "branco_nao_conta",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Explique o que o voto nulo faz no 2º turno",
+      "why": "Muita gente acha que anular é um protesto registrado. No 2º turno, é o mesmo que não ir.",
+      "facts": [
+        "branco_nao_conta"
+      ],
+      "template": "Só uma coisa que eu acho que vale saber: {fato}"
+    },
+    {
+      "id": "voto_pesa",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Mostre quem decide essa eleição",
+      "why": "Ela se sente irrelevante. Os números mostram que o grupo dela é o que decide.",
+      "facts": [
+        "quaest_ausentes",
+        "abstencao_33mi"
+      ],
+      "template": "Olha isso: {fato} Ou seja, quem está decepcionado como você é quem vai decidir."
+    },
+    {
+      "id": "ajuda",
+      "action": "oferecer_ajuda",
+      "when": [
+        "conversando"
+      ],
+      "title": "Deixe a porta aberta",
+      "why": "Sem pressão. Quem se sente respeitado volta sozinho.",
+      "template": "Seja o que for que você decidir, tá tudo bem. Se quiser conversar mais, me chama. E domingo, se quiser companhia pra ir votar, eu vou junto."
+    }
+  ],
+  "objections": {
+    "nao_melhorou": {
+      "title": "“Não melhorou nada”",
+      "template": "Pra você não melhorou, e eu acredito. A pergunta que eu me faço é: com o outro, melhora ou piora? Qual é a coisa que mais pesa pra você hoje?",
+      "facts": []
+    },
+    "todos_iguais": {
+      "title": "“São todos iguais”",
+      "template": "Eu entendo o cansaço. Mas tem coisa que não é igual: o que cada um quer fazer com salário, aposentadoria e direito de quem trabalha. Posso te mandar uma coisa curta sobre isso?",
+      "facts": []
+    },
+    "raiva": {
+      "title": "Ela anulou de raiva",
+      "template": "Raiva é justa. Só que no 2º turno o voto nulo não registra raiva nenhuma, ele some. Se a raiva é com quem te decepcionou, me diz: o que teria que mudar?",
+      "facts": [
+        "branco_nao_conta"
+      ]
+    }
+  }
+}

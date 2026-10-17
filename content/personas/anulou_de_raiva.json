@@ -1,0 +1,71 @@
+{
+  "id": "anulou_de_raiva",
+  "name": "Quem anulou de raiva",
+  "situations": ["branco_nulo"],
+  "default_for": [],
+  "description": "Foi votar e anulou de propósito, como protesto. Está engajada e com raiva, geralmente de uma coisa específica (um escândalo, uma promessa quebrada, um político local). Quer ser ouvida.",
+  "narrative": "“Eu fui lá e anulei, e anularia de novo. É o único jeito de mostrar que eu não aceito esse circo. Alguém tem que registrar o protesto.”",
+  "groups": ["trabalho", "estudantes", "bairro"],
+  "values": ["Coerência", "Indignação justa", "Ser ouvida"],
+  "worries": ["corrupcao", "custo_de_vida"],
+  "wishes": ["Que o protesto dela signifique alguma coisa", "Que alguém reconheça a raiva como legítima"],
+  "signals": {
+    "sayings": { "raiva": 6, "todos_iguais": 2 },
+    "worries": { "corrupcao": 1 }
+  },
+  "engage": true,
+  "priority_base": "media",
+  "donts": [
+    "Não minimize a raiva dela. É o motor da conversa.",
+    "Não a chame de irresponsável.",
+    "Não diga “voto nulo é voto no Flávio”. Ela já ouviu e odeia."
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": ["novo"],
+      "title": "Pergunte do que é a raiva",
+      "why": "Raiva específica tem resposta específica. Raiva genérica, não.",
+      "template": "{nome}, você anulou no 1º turno, né? Posso perguntar do que foi a raiva? Não é pra discutir, é que eu respeito e quero entender."
+    },
+    {
+      "id": "nulo_some",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Mostre para onde vai o voto nulo no 2º turno",
+      "why": "Ela acredita que o nulo registra o protesto. No 2º turno ele simplesmente some do cálculo.",
+      "facts": ["branco_nao_conta"],
+      "template": "Uma coisa que eu descobri e acho que você ia querer saber: {fato} O protesto não fica registrado em lugar nenhum."
+    },
+    {
+      "id": "quem_decide",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Mostre que o grupo dela é quem decide",
+      "why": "Transforma a raiva em poder: quem anulou é o maior bloco da eleição.",
+      "facts": ["quaest_ausentes", "empate_tecnico"],
+      "template": "E olha o tamanho disso: {fato} Quem anulou como você é o maior grupo dessa eleição."
+    },
+    {
+      "id": "ajuda",
+      "action": "oferecer_ajuda",
+      "when": ["conversando"],
+      "title": "Respeite a decisão final",
+      "why": "Ela decide. Pressão confirma a raiva.",
+      "template": "Decisão é sua, e eu respeito de qualquer jeito. Só queria que você decidisse sabendo disso. Se quiser, domingo a gente vai junto."
+    }
+  ],
+  "objections": {
+    "raiva": {
+      "title": "Ela manteve o protesto",
+      "template": "Entendo. Só pensa numa coisa: o protesto que faz mais barulho é o voto que decide, não o que some. Mas é com você.",
+      "facts": ["branco_nao_conta"]
+    },
+    "todos_iguais": {
+      "title": "“São todos iguais”",
+      "template": "Na raiva, parecem. No que vão fazer com o seu salário e os seus direitos, não são. Posso te mandar uma coisa curta?",
+      "facts": []
+    }
+  }
+}

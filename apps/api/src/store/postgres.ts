@@ -1,7 +1,7 @@
 import pg from "pg";
-import type { FeedItem, Group, Invite, ObjectiveId } from "@boranois/shared";
+import type { Invite, OutcomeId } from "@boranois/shared";
 import { newId, newInviteCode } from "../ids.js";
-import type { MemberRecord, NewCheck, RedeemResult, Store } from "./types.js";
+import type { ContactPatch, ContactRecord, MemberRecord, NewContact, NewInteraction, RedeemResult, Store } from "./types.js";
 
 // Use Neon's pooled connection string (host contains "-pooler"): Cloud Run
 // can run many instances, each with its own small pool.
@@ -9,8 +9,21 @@ export function createPool(connectionString: string) {
   return new pg.Pool({ connectionString, max: 5, ssl: { rejectUnauthorized: true } });
 }
 
-const toGroup = (r: any): Group => ({ id: r.id, objective: r.objective });
 const toMember = (r: any): MemberRecord => ({ id: r.id, groupId: r.group_id, name: r.name, role: r.role });
+const toContact = (r: any): ContactRecord => ({
+  id: r.id,
+  memberId: r.member_id,
+  groupId: r.group_id,
+  chips: r.chips,
+  match: r.match,
+  priority: r.priority,
+  state: r.state,
+  stepsDone: r.steps_done,
+  lastSaying: r.last_saying,
+  catalogueVersion: r.catalogue_version,
+  createdAt: r.created_at.toISOString(),
+  updatedAt: r.updated_at.toISOString(),
+});
 
 export class PostgresStore implements Store {
   constructor(private pool: pg.Pool) {}
@@ -35,7 +48,6 @@ export class PostgresStore implements Store {
         await client.query("rollback");
         return { ok: false, error: "used" };
       }
-
       let groupId: string = invite.group_id;
       if (!groupId) {
         groupId = newId();
@@ -47,9 +59,8 @@ export class PostgresStore implements Store {
         [memberId, groupId, name, invite.role, tokenHash],
       );
       await client.query(`update invites set used_by = $1, used_at = now() where code = $2`, [memberId, code]);
-      const g = await client.query(`select * from groups where id = $1`, [groupId]);
       await client.query("commit");
-      return { ok: true, member: toMember(m.rows[0]), group: toGroup(g.rows[0]) };
+      return { ok: true, member: toMember(m.rows[0]) };
     } catch (err) {
       await client.query("rollback");
       throw err;
@@ -63,69 +74,79 @@ export class PostgresStore implements Store {
     return rows[0] ? toMember(rows[0]) : null;
   }
 
-  async getGroup(groupId: string) {
-    const { rows } = await this.pool.query(`select * from groups where id = $1`, [groupId]);
-    return toGroup(rows[0]);
-  }
-
-  async updateGroup(groupId: string, objective: ObjectiveId) {
-    const { rows } = await this.pool.query(`update groups set objective = $2 where id = $1 returning *`, [groupId, objective]);
-    return toGroup(rows[0]);
-  }
-
   async listInvites(groupId: string): Promise<Invite[]> {
     const { rows } = await this.pool.query(
-      `select i.*, m.name as used_by_name from invites i
-       left join members m on m.id = i.used_by
+      `select i.*, m.name as used_by_name from invites i left join members m on m.id = i.used_by
        where i.group_id = $1 order by i.created_at`,
       [groupId],
     );
-    return rows.map((r) => ({
-      code: r.code,
-      contactName: r.contact_name,
-      phone: r.phone,
-      usedByName: r.used_by_name,
-      createdAt: r.created_at.toISOString(),
-    }));
+    return rows.map((r) => ({ code: r.code, contactName: r.contact_name, phone: r.phone, usedByName: r.used_by_name, createdAt: r.created_at.toISOString() }));
   }
 
   async createInvites(groupId: string, contacts: { name: string; phone?: string }[]) {
     for (const c of contacts) {
-      await this.pool.query(
-        `insert into invites (code, group_id, role, contact_name, phone) values ($1, $2, 'member', $3, $4)`,
-        [newInviteCode(), groupId, c.name, c.phone ?? null],
-      );
+      await this.pool.query(`insert into invites (code, group_id, role, contact_name, phone) values ($1, $2, 'member', $3, $4)`, [newInviteCode(), groupId, c.name, c.phone ?? null]);
     }
     return this.listInvites(groupId);
   }
 
-  async insertCheck(c: NewCheck) {
-    const id = newId();
-    await this.pool.query(
-      `insert into checks (id, group_id, member_id, objective, post_url, handle, caption, score, decision, reason, suggested_comment, scorer)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-      [id, c.groupId, c.memberId, c.objective, c.postUrl, c.handle, c.caption, c.score, c.decision, c.reason, c.suggestedComment, c.scorer],
+  async createContact(c: NewContact) {
+    const { rows } = await this.pool.query(
+      `insert into contacts (id, member_id, group_id, chips, persona_id, match, priority, state, steps_done, last_saying, catalogue_version)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *`,
+      [newId(), c.memberId, c.groupId, c.chips, c.match.personaId, c.match, c.priority, c.state, JSON.stringify(c.stepsDone), c.lastSaying, c.catalogueVersion],
     );
-    return id;
+    return toContact(rows[0]);
   }
 
-  async listSharedChecks(groupId: string, limit: number): Promise<FeedItem[]> {
+  async listContacts(memberId: string) {
+    const { rows } = await this.pool.query(`select * from contacts where member_id = $1 order by created_at`, [memberId]);
+    return rows.map(toContact);
+  }
+
+  async getContact(memberId: string, id: string) {
+    const { rows } = await this.pool.query(`select * from contacts where member_id = $1 and id = $2`, [memberId, id]);
+    return rows[0] ? toContact(rows[0]) : null;
+  }
+
+  async updateContact(id: string, patch: ContactPatch) {
     const { rows } = await this.pool.query(
-      `select c.*, m.name as checked_by from checks c join members m on m.id = c.member_id
-       where c.group_id = $1 and c.decision = 'share'
-       order by c.created_at desc limit $2`,
-      [groupId, limit],
+      `update contacts set
+         state = coalesce($2, state),
+         steps_done = coalesce($3, steps_done),
+         priority = coalesce($4, priority),
+         match = coalesce($5, match),
+         persona_id = coalesce($6, persona_id),
+         last_saying = case when $7::boolean then $8 else last_saying end,
+         updated_at = now()
+       where id = $1 returning *`,
+      [
+        id,
+        patch.state ?? null,
+        patch.stepsDone ? JSON.stringify(patch.stepsDone) : null,
+        patch.priority ?? null,
+        patch.match ?? null,
+        patch.match?.personaId ?? null,
+        patch.lastSaying !== undefined,
+        patch.lastSaying ?? null,
+      ],
     );
-    return rows.map((r) => ({
-      id: r.id,
-      postUrl: r.post_url,
-      handle: r.handle,
-      captionExcerpt: r.caption.slice(0, 200),
-      score: r.score,
-      reason: r.reason,
-      suggestedComment: r.suggested_comment,
-      checkedBy: r.checked_by,
-      createdAt: r.created_at.toISOString(),
-    }));
+    return toContact(rows[0]);
+  }
+
+  async deleteContact(memberId: string, id: string) {
+    await this.pool.query(`delete from contacts where member_id = $1 and id = $2`, [memberId, id]);
+  }
+
+  async insertInteraction(i: NewInteraction) {
+    await this.pool.query(
+      `insert into interactions (id, contact_id, member_id, step_id, outcome, saying, catalogue_version) values ($1, $2, $3, $4, $5, $6, $7)`,
+      [newId(), i.contactId, i.memberId, i.stepId, i.outcome, i.saying, i.catalogueVersion],
+    );
+  }
+
+  async listOutcomes(contactId: string): Promise<OutcomeId[]> {
+    const { rows } = await this.pool.query(`select outcome from interactions where contact_id = $1 order by created_at`, [contactId]);
+    return rows.map((r) => r.outcome);
   }
 }

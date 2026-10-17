@@ -1,110 +1,224 @@
 import { z } from "zod";
 
-// Campaign objectives a host can pick for their group.
-// TODO: replace the texts with the campaign's exact wording.
-export const OBJECTIVES = [
-  {
-    id: "abstencao",
-    title: "Quem não votou no 1º turno",
-    description:
-      "Motivar quem não votou no primeiro turno a votar agora, para proteger os direitos dos trabalhadores.",
-  },
-  {
-    id: "branco",
-    title: "Quem votou em branco no 1º turno",
-    description:
-      "Motivar quem votou em branco no primeiro turno a votar agora, para proteger os direitos dos trabalhadores.",
-  },
-  {
-    id: "reconquista",
-    title: "Eleitores de Lula que estão indo para o Flávio",
-    description:
-      "Reconquistar quem votou em Lula antes e agora pensa em votar no Flávio, mas sem muita convicção.",
-  },
+// ---------------------------------------------------------------------------
+// Taxonomies. These are the "chips" a member taps about a pessoa. Ids are stable
+// (the catalogue references them); labels are what the UI shows.
+
+export const SITUATIONS = [
+  { id: "nao_votou", label: "Não votou no 1º turno" },
+  { id: "branco_nulo", label: "Votou branco ou nulo" },
+  { id: "lula_para_flavio", label: "Votou no Lula e está pensando no Flávio" },
+  { id: "flavio_convicto", label: "Vai votar no Flávio e defende" },
 ] as const;
 
-export const ObjectiveId = z.enum(["abstencao", "branco", "reconquista"]);
-export type ObjectiveId = z.infer<typeof ObjectiveId>;
+export const RELATIONS = [
+  { id: "familia", label: "Família" },
+  { id: "amigo", label: "Amigo(a)" },
+  { id: "vizinho", label: "Vizinho(a)" },
+  { id: "colega", label: "Colega" },
+] as const;
 
-export function getObjective(id: ObjectiveId) {
-  return OBJECTIVES.find((o) => o.id === id)!;
-}
+// Social groups / information environments. Also used for the member's own groups.
+export const GROUPS = [
+  { id: "igreja_evangelica", label: "Igreja evangélica" },
+  { id: "igreja_catolica", label: "Igreja católica" },
+  { id: "familia", label: "Grupo da família" },
+  { id: "trabalho", label: "Trabalho" },
+  { id: "agro", label: "Campo / agro" },
+  { id: "seguranca_publica", label: "Polícia / militar" },
+  { id: "estudantes", label: "Estudantes" },
+  { id: "bairro", label: "Bairro / comunidade" },
+] as const;
 
-export const MAX_INVITES_PER_GROUP = 5;
+export const WORRIES = [
+  { id: "custo_de_vida", label: "Custo de vida" },
+  { id: "emprego", label: "Emprego" },
+  { id: "aposentadoria", label: "Aposentadoria" },
+  { id: "seguranca", label: "Segurança" },
+  { id: "valores_familia", label: "Valores e família" },
+  { id: "corrupcao", label: "Corrupção" },
+  { id: "saude", label: "Saúde" },
+  { id: "educacao", label: "Educação" },
+] as const;
 
-// --- Requests ---
+// Things the pessoa says. The most discriminating signal for matching a persona.
+export const SAYINGS = [
+  { id: "nao_adianta", label: "“Não adianta votar”" },
+  { id: "todos_iguais", label: "“São todos iguais”" },
+  { id: "nenhum_dos_dois", label: "“Não gosto de nenhum dos dois”" },
+  { id: "nao_consegui", label: "“Não consegui ir votar”" },
+  { id: "medo_piorar", label: "“E se eu votar e piorar?”" },
+  { id: "ja_decidido", label: "“Já está decidido, não precisa de mim”" },
+  { id: "raiva", label: "“Anulei de raiva”" },
+  { id: "nao_melhorou", label: "“Com o Lula não melhorou nada”" },
+  { id: "esquerda_familia", label: "“A esquerda é contra a família”" },
+  { id: "bandido_medo", label: "“Bandido tem que ter medo”" },
+  { id: "ja_deu", label: "“O Lula já deu o que tinha que dar”" },
+  { id: "lula_ladrao", label: "“O Lula é ladrão”" },
+  { id: "nunca_muda", label: "“Nunca vou mudar de ideia”" },
+] as const;
+
+export const FREQUENCIES = [
+  { id: "diario", label: "Quase todo dia" },
+  { id: "semanal", label: "Toda semana" },
+  { id: "raro", label: "De vez em quando" },
+] as const;
+
+const ids = <T extends readonly { id: string }[]>(list: T) =>
+  list.map((x) => x.id) as unknown as [T[number]["id"], ...T[number]["id"][]];
+
+export const SituationId = z.enum(ids(SITUATIONS));
+export const RelationId = z.enum(ids(RELATIONS));
+export const GroupId = z.enum(ids(GROUPS));
+export const WorryId = z.enum(ids(WORRIES));
+export const SayingId = z.enum(ids(SAYINGS));
+export const FrequencyId = z.enum(ids(FREQUENCIES));
+export type SituationId = z.infer<typeof SituationId>;
+export type RelationId = z.infer<typeof RelationId>;
+export type GroupId = z.infer<typeof GroupId>;
+export type WorryId = z.infer<typeof WorryId>;
+export type SayingId = z.infer<typeof SayingId>;
+export type FrequencyId = z.infer<typeof FrequencyId>;
+
+export const labelOf = (list: readonly { id: string; label: string }[], id: string) =>
+  list.find((x) => x.id === id)?.label ?? id;
+
+// ---------------------------------------------------------------------------
+// Runtime vocabulary
+
+export const ACTIONS = ["abrir_conversa", "enviar_fato", "enviar_conteudo", "oferecer_ajuda", "lembrar", "pausar", "parar"] as const;
+export const ActionId = z.enum(ACTIONS);
+export type ActionId = z.infer<typeof ActionId>;
+
+export const CONTACT_STATES = ["novo", "aguardando", "conversando", "objecao", "cortou", "vai_votar", "votou", "perdido", "pausado"] as const;
+export const ContactState = z.enum(CONTACT_STATES);
+export type ContactState = z.infer<typeof ContactState>;
+
+export const OUTCOMES = [
+  { id: "respondeu_bem", label: "Respondeu bem" },
+  { id: "fez_pergunta", label: "Fez uma pergunta" },
+  { id: "discordou", label: "Discordou" },
+  { id: "cortou_assunto", label: "Cortou o assunto" },
+  { id: "sem_resposta", label: "Não respondeu" },
+  { id: "vai_votar", label: "Disse que vai votar" },
+  { id: "votou", label: "Já votou" },
+  { id: "nao_vai_votar", label: "Disse que não vai" },
+] as const;
+export const OutcomeId = z.enum(ids(OUTCOMES));
+export type OutcomeId = z.infer<typeof OutcomeId>;
+
+export const PRIORITIES = ["alta", "media", "baixa"] as const;
+export type Priority = (typeof PRIORITIES)[number];
+
+// ---------------------------------------------------------------------------
+// Requests
+
+export const Chips = z.object({
+  situation: SituationId,
+  relation: RelationId,
+  groups: z.array(GroupId).max(3).default([]),
+  worries: z.array(WorryId).max(2).default([]),
+  sayings: z.array(SayingId).max(3).default([]),
+  frequency: FrequencyId,
+  /** Member and pessoa belong to at least one group in common (computed on the member's device). */
+  sharedGroup: z.boolean().default(false),
+});
+export type Chips = z.infer<typeof Chips>;
 
 export const JoinRequest = z.object({
   code: z.string().trim().min(4).max(20),
   name: z.string().trim().min(1).max(60),
 });
-export type JoinRequest = z.infer<typeof JoinRequest>;
-
-export const UpdateGroupRequest = z.object({
-  objective: ObjectiveId,
-});
-export type UpdateGroupRequest = z.infer<typeof UpdateGroupRequest>;
 
 export const CreateInvitesRequest = z.object({
-  contacts: z
-    .array(
-      z.object({
-        name: z.string().trim().min(1).max(60),
-        phone: z.string().trim().max(30).optional(),
-      }),
-    )
-    .min(1)
-    .max(MAX_INVITES_PER_GROUP),
+  contacts: z.array(z.object({ name: z.string().trim().min(1).max(60), phone: z.string().trim().max(30).optional() })).min(1).max(5),
 });
-export type CreateInvitesRequest = z.infer<typeof CreateInvitesRequest>;
 
-export const CheckRequest = z
-  .object({
-    postUrl: z.string().trim().max(500).optional(),
-    handle: z.string().trim().max(100).optional(),
-    caption: z.string().trim().max(5000).optional(),
-    /** Base64 JPEG of the visible tab, taken by the extension when the user clicks. */
-    screenshot: z.string().max(3_000_000).optional(),
-  })
-  .refine((r) => r.caption || r.screenshot, { message: "caption or screenshot required" });
-export type CheckRequest = z.infer<typeof CheckRequest>;
+/** Create a pessoa. Name, phone and notes never reach the server. */
+export const CreateContactRequest = z.object({ chips: Chips, personaId: z.string().max(60).optional() });
 
-// --- Responses ---
+/** Ask for the next step, phrased. Note and voice are used for phrasing and not stored. */
+export const NextStepRequest = z.object({
+  nickname: z.string().trim().max(40),
+  note: z.string().trim().max(500).optional(),
+  voiceSample: z.string().trim().max(600).optional(),
+});
+
+export const InteractionRequest = z.object({
+  stepId: z.string().max(60),
+  outcome: OutcomeId,
+  /** When the pessoa disagreed: what she said, as a chip. */
+  saying: SayingId.optional(),
+});
+
+/** Turn a pasted reply into chips. The text is not stored. */
+export const ClassifyRequest = z.object({ text: z.string().trim().min(1).max(1000) });
+
+export const MAX_INVITES_PER_GROUP = 5;
+
+// ---------------------------------------------------------------------------
+// Responses
 
 export type Member = { id: string; name: string; role: "host" | "member" };
-export type Group = { id: string; objective: ObjectiveId | null };
-export type Invite = {
-  code: string;
-  contactName: string | null;
-  phone: string | null;
-  usedByName: string | null;
-  createdAt: string;
+export type Invite = { code: string; contactName: string | null; phone: string | null; usedByName: string | null; createdAt: string };
+export type JoinResponse = { token: string; member: Member };
+export type MeResponse = { member: Member; invites: Invite[] };
+
+export type Match = {
+  personaId: string;
+  personaName: string;
+  /** Human-readable signals that fired, e.g. "diz “não adianta votar”". */
+  because: string[];
+  /** A close second, when the match isn't clear. */
+  alternative: { personaId: string; personaName: string } | null;
 };
 
-export type JoinResponse = { token: string; member: Member; group: Group };
-export type MeResponse = { member: Member; group: Group; invites: Invite[] };
+export type PriorityResult = { level: Priority; reasons: string[]; engage: boolean };
 
-/** "unclear": there wasn't enough on screen to tell what the post says. */
-export type Decision = "share" | "skip" | "unclear";
-
-export type CheckResponse = {
+export type Contact = {
   id: string;
-  decision: Decision;
-  score: number;
-  reason: string;
-  suggestedComment: string | null;
-  objective: ObjectiveId;
+  chips: Chips;
+  match: Match;
+  priority: PriorityResult;
+  state: ContactState;
+  stepsDone: string[];
+  catalogueVersion: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
-export type FeedItem = {
+export type Fact = { id: string; text: string; sourceName: string; sourceUrl: string };
+export type Content = { id: string; url: string; type: "video" | "post" | "texto"; summary: string; messenger: string };
+
+export type Step = {
   id: string;
-  postUrl: string | null;
-  handle: string | null;
-  captionExcerpt: string;
-  score: number;
-  reason: string;
-  suggestedComment: string | null;
-  checkedBy: string;
-  createdAt: string;
+  action: ActionId;
+  title: string;
+  /** Why this step, in one line. */
+  why: string;
+  /** Ready to send, in the member's voice (or the template when phrasing is unavailable). */
+  message: string | null;
+  fact: Fact | null;
+  content: Content | null;
+  /** True when the message was phrased by AI; false when it's the raw template. */
+  phrased: boolean;
+  donts: string[];
 };
-export type FeedResponse = { items: FeedItem[] };
+
+export type NextStepResponse = { contact: Contact; step: Step };
+export type ClassifyResponse = { outcome: OutcomeId; saying: SayingId | null };
+
+export type PublicPersona = {
+  id: string;
+  name: string;
+  situations: SituationId[];
+  description: string;
+  narrative: string;
+  values: string[];
+  worries: string[];
+  wishes: string[];
+  engage: boolean;
+  donts: string[];
+};
+
+export type CatalogueResponse = { version: string; personas: PublicPersona[] };

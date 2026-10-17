@@ -1,0 +1,83 @@
+[
+  {
+    "id": "pode_votar_2turno",
+    "text": "Quem não votou no 1º turno pode votar normalmente no 2º turno, dia 25 de outubro. Cada turno é uma eleição separada.",
+    "sourceName": "TSE (via Diário do Grande ABC)",
+    "sourceUrl": "https://www.dgabc.com.br/Noticia/4351048/quem-faltou-ao-primeiro-turno-pode-votar-normalmente-no-segundo-diz-tse",
+    "worries": [],
+    "situations": ["nao_votou"],
+    "verified": true
+  },
+  {
+    "id": "justificar_1turno",
+    "text": "Quem faltou no 1º turno precisa justificar a ausência até 3 de dezembro, pelo app e-Título ou no cartório eleitoral. Isso não impede de votar no 2º turno.",
+    "sourceName": "TSE (via Diário do Grande ABC)",
+    "sourceUrl": "https://www.dgabc.com.br/Noticia/4351048/quem-faltou-ao-primeiro-turno-pode-votar-normalmente-no-segundo-diz-tse",
+    "worries": [],
+    "situations": ["nao_votou"],
+    "verified": true
+  },
+  {
+    "id": "abstencao_33mi",
+    "text": "No 1º turno, 33,4 milhões de pessoas não votaram (21% dos eleitores). Foi a maior abstenção em 28 anos.",
+    "sourceName": "Jornal Grande Bahia / TSE",
+    "sourceUrl": "https://jornalgrandebahia.com.br/?p=1391247",
+    "worries": [],
+    "situations": ["nao_votou", "branco_nulo"],
+    "verified": true
+  },
+  {
+    "id": "quaest_ausentes",
+    "text": "Entre quem não votou, votou branco ou nulo no 1º turno, 43% dizem que votam no Lula e 38% no Flávio (Quaest, 14/10). Quem ficou em casa decide essa eleição.",
+    "sourceName": "Quaest (via SpaceMoney)",
+    "sourceUrl": "https://www.spacemoney.com.br/politica/quaest-abstencao-segundo-turno",
+    "worries": [],
+    "situations": ["nao_votou", "branco_nulo"],
+    "verified": true
+  },
+  {
+    "id": "empate_tecnico",
+    "text": "A última Datafolha (15/10) deu Flávio 47% e Lula 45%: empate técnico. Nunca um voto pesou tanto.",
+    "sourceName": "Datafolha (via O Povo)",
+    "sourceUrl": "https://www.opovo.com.br/noticias/politica/eleicoes/2026/10/14/datafolha-e-quaest-divulgam-novas-pesquisas-sobre-2-turno-entre-lula-e-flavio.html",
+    "worries": [],
+    "situations": ["nao_votou", "branco_nulo", "lula_para_flavio"],
+    "verified": true
+  },
+  {
+    "id": "branco_nao_conta",
+    "text": "No 2º turno, só os votos válidos contam. Voto em branco ou nulo não vai para ninguém: na prática, é o mesmo que ficar em casa.",
+    "sourceName": "TSE — Perguntas frequentes",
+    "sourceUrl": "https://www.tse.jus.br/eleitor/glossario/termos/voto-branco",
+    "worries": [],
+    "situations": ["branco_nulo"],
+    "verified": false
+  },
+  {
+    "id": "documentos",
+    "text": "Para votar basta um documento oficial com foto (RG, CNH, carteira de trabalho ou o e-Título com foto). O título em papel não é obrigatório.",
+    "sourceName": "TSE — Documentos para votar",
+    "sourceUrl": "https://www.tse.jus.br/eleitor/titulo-de-eleitor/documentos-para-votar",
+    "worries": [],
+    "situations": ["nao_votou", "branco_nulo"],
+    "verified": false
+  },
+  {
+    "id": "onde_votar",
+    "text": "Para saber onde vota, é só abrir o app e-Título ou o site do TSE (“Onde votar”) e digitar o CPF.",
+    "sourceName": "TSE — Onde votar",
+    "sourceUrl": "https://www.tse.jus.br/servicos-eleitorais/titulo-e-local-de-votacao/consulta-por-nome",
+    "worries": [],
+    "situations": ["nao_votou"],
+    "verified": false
+  },
+  {
+    "id": "horario_votacao",
+    "text": "A votação no dia 25 vai das 8h às 17h, no horário de Brasília.",
+    "sourceName": "TSE — Calendário eleitoral 2026",
+    "sourceUrl": "https://www.tse.jus.br/eleicoes/eleicoes-2026",
+    "worries": [],
+    "situations": ["nao_votou", "branco_nulo"],
+    "verified": false
+  }
+]

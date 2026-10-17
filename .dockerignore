@@ -4,5 +4,4 @@
 apps/api/.data
 apps/web/*
 !apps/web/package.json
-apps/extension
 .git

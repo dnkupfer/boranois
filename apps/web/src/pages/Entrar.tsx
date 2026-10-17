@@ -39,7 +39,7 @@ export function Entrar() {
   return (
     <Layout>
       <h1>Bem-vindo(a)!</h1>
-      <p>Você recebeu um convite para um grupo de 5 amigos que ajudam a campanha no Instagram.</p>
+      <p>Você recebeu um convite para um grupinho de 5 amigos. Cada um conversa com as pessoas que conhece sobre votar no dia 25. O app ajuda a saber com quem falar e o que dizer.</p>
       <form onSubmit={submit} className="card">
         <label>
           Código do convite

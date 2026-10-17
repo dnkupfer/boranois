@@ -1,0 +1,71 @@
+{
+  "id": "fe_e_comunidade",
+  "name": "Quem vive a fé e a comunidade",
+  "situations": ["lula_para_flavio", "branco_nulo"],
+  "default_for": [],
+  "description": "Se importa de verdade com justiça, com os pobres e com a família. Na igreja e no grupo de WhatsApp ouve que a esquerda é contra Deus e contra a família, e que o Lula é corrupto. Não vê (ou não acredita) no que sai sobre o Flávio, porque vem de fontes que ela não confia.",
+  "narrative": "“Eu não sou de política, sou de Deus. Mas não posso votar em quem é contra a família e contra a igreja. Todo mundo lá no grupo diz isso, e o pastor também.”",
+  "groups": ["igreja_evangelica", "igreja_catolica", "familia"],
+  "values": ["Fé", "Família", "Honestidade", "Cuidar dos mais fracos"],
+  "worries": ["valores_familia", "corrupcao", "custo_de_vida"],
+  "wishes": ["Um país honesto e de bem", "Que a família dela esteja protegida", "Não trair a sua igreja"],
+  "signals": {
+    "sayings": { "esquerda_familia": 6, "lula_ladrao": 2 },
+    "worries": { "valores_familia": 3 },
+    "groups": { "igreja_evangelica": 2, "igreja_catolica": 1 }
+  },
+  "engage": true,
+  "priority_base": "media",
+  "donts": [
+    "Nunca discuta fé nem fale mal da igreja dela.",
+    "Não mande matéria de jornal “de esquerda”. Para ela, não vale.",
+    "Não diga que ela foi enganada. Fale dos valores que vocês têm em comum."
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": ["novo"],
+      "title": "Comece pelos valores em comum",
+      "why": "Vocês querem as mesmas coisas: justiça, família, honestidade. A conversa começa aí, não na política.",
+      "template": "{nome}, uma coisa que eu admiro em você é como você cuida da família e de quem precisa. Posso te perguntar como você tá vendo essa eleição? Não é pra discutir, é que eu confio no seu julgamento."
+    },
+    {
+      "id": "voz_de_dentro",
+      "action": "enviar_conteudo",
+      "when": ["conversando"],
+      "title": "Mande uma voz da própria fé",
+      "why": "Ela só ouve quem é do grupo dela. Um pastor, um padre, um irmão de igreja falando é o que pode abrir espaço. Sem isso, não mande nada.",
+      "template": "Vi esse aqui e pensei em você. É um irmão de fé falando, curtinho: {conteudo}"
+    },
+    {
+      "id": "justica",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Ligue a fé à vida real",
+      "why": "Cuidar dos pobres e da família é um valor dela. Um fato concreto sobre isso, de fonte que ela respeite.",
+      "facts": [],
+      "template": "Sobre cuidar de quem precisa, que eu sei que é importante pra você: {fato}"
+    },
+    {
+      "id": "fechar",
+      "action": "oferecer_ajuda",
+      "when": ["conversando"],
+      "title": "Deixe com Deus e com ela",
+      "why": "Pressão é desrespeito. Ela decide em oração, e tudo bem.",
+      "template": "Pensa com calma, e com Deus. Eu respeito a sua decisão, seja qual for. Só queria que você ouvisse também quem é da nossa fé e pensa diferente."
+    }
+  ],
+  "objections": {
+    "esquerda_familia": {
+      "title": "“A esquerda é contra a família”",
+      "template": "Eu entendo de onde vem isso. Mas olha pra mim, pra nossa família: a gente é de esquerda? Não. A gente é de cuidar um do outro. É isso que eu tô olhando nessa eleição: quem cuida de quem precisa.",
+      "facts": []
+    },
+    "lula_ladrao": {
+      "title": "“O Lula é ladrão”",
+      "template": "Eu sei que muita gente acredita nisso, e não vou te pedir pra mudar de ideia por mim. Só te peço uma coisa: olha com o mesmo olhar pros dois lados. Posso te mandar uma coisa de uma fonte que você confia?",
+      "facts": []
+    }
+  }
+}

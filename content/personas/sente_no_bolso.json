@@ -1,0 +1,70 @@
+{
+  "id": "sente_no_bolso",
+  "name": "Quem sente no bolso",
+  "situations": ["lula_para_flavio"],
+  "default_for": ["lula_para_flavio"],
+  "description": "Votou no Lula esperando que a vida melhorasse no dia a dia e sente que o preço das coisas continua apertando. Não é ideológica; é prática. Está pensando no Flávio porque quer tentar outra coisa.",
+  "narrative": "“Eu votei nele, e o mercado continua caro. Aluguel, gás, luz. Se não mudou com ele, vai ver é hora de tentar o outro.”",
+  "groups": ["trabalho", "familia", "bairro"],
+  "values": ["Trabalho duro", "Sustentar a família", "Resultado, não discurso"],
+  "worries": ["custo_de_vida", "emprego", "aposentadoria"],
+  "wishes": ["Sobrar dinheiro no fim do mês", "Estabilidade"],
+  "signals": {
+    "sayings": { "nao_melhorou": 6 },
+    "worries": { "custo_de_vida": 3, "emprego": 2, "aposentadoria": 2 }
+  },
+  "engage": true,
+  "priority_base": "media",
+  "donts": [
+    "Não diga que a economia vai bem. Para ela, não vai.",
+    "Não cite índice (IPCA, PIB). Fale de mercado, gás, salário.",
+    "Não ataque o Flávio. Fale do que cada um quer fazer com o bolso dela."
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": ["novo"],
+      "title": "Pergunte o que mais pesa",
+      "why": "Ela tem uma conta específica na cabeça. Descubra qual.",
+      "template": "{nome}, o que mais tá pesando aí em casa? Mercado, aluguel, gás? Aqui tá difícil também, e eu queria entender como você tá vendo essa eleição."
+    },
+    {
+      "id": "o_que_cada_um_quer",
+      "action": "enviar_fato",
+      "when": ["conversando"],
+      "title": "Compare o que cada um quer fazer com o bolso dela",
+      "why": "A decisão dela é prática. Dê um fato prático, com fonte, sobre a preocupação que ela citou.",
+      "facts": [],
+      "template": "Então olha, sobre {preocupacao}: {fato}"
+    },
+    {
+      "id": "conteudo",
+      "action": "enviar_conteudo",
+      "when": ["conversando"],
+      "title": "Mande uma voz parecida com a dela",
+      "why": "Ela confia em quem vive a mesma vida. Um trabalhador falando vale mais que um político.",
+      "template": "Vi esse aqui e lembrei de você, é curtinho: {conteudo}"
+    },
+    {
+      "id": "fechar",
+      "action": "oferecer_ajuda",
+      "when": ["conversando"],
+      "title": "Deixe ela concluir",
+      "why": "Quem decide sozinha mantém a decisão.",
+      "template": "Pensa nisso com calma. Seja o que for, me conta o que decidiu. E domingo, se quiser, a gente vai junto."
+    }
+  ],
+  "objections": {
+    "nao_melhorou": {
+      "title": "“Não melhorou nada”",
+      "template": "Pra você não, e eu acredito. A pergunta é o que vem agora: o que cada um promete pra salário, aposentadoria e direito de quem trabalha. Posso te mandar uma coisa curta sobre isso?",
+      "facts": []
+    },
+    "todos_iguais": {
+      "title": "“São todos iguais”",
+      "template": "No bolso, não são. Me diz a sua maior conta hoje que eu te mostro o que cada um quer fazer com ela.",
+      "facts": []
+    }
+  }
+}
