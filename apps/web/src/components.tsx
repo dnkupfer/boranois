@@ -3,17 +3,16 @@ import { Link, NavLink } from "react-router-dom";
 import type { Priority } from "@boranois/shared";
 import { useSession } from "./session";
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  const { me, signOut } = useSession();
+export function Layout({ children, narrow = false }: { children: React.ReactNode; narrow?: boolean }) {
+  const { token, signOut } = useSession();
   return (
-    <div className="page">
+    <div className={`page ${narrow ? "narrow" : ""}`}>
       <header className="topbar">
         <Link to="/" className="brand">Boranois</Link>
         <nav>
-          {me && <NavLink to="/">Pessoas</NavLink>}
-          <NavLink to="/perfis">Perfis</NavLink>
-          {me?.member.role === "host" && <NavLink to="/convites">Convites</NavLink>}
-          {me && <button className="link" onClick={signOut}>Sair</button>}
+          {token && <NavLink to="/">Pessoas</NavLink>}
+          <NavLink to="/como-funciona">Como funciona</NavLink>
+          {token && <button className="link" onClick={signOut}>Sair</button>}
         </nav>
       </header>
       <main>{children}</main>
@@ -38,10 +37,10 @@ export function CopyButton({ text, label, className = "secondary" }: { text: str
   );
 }
 
-const PRIORITY_LABEL: Record<Priority, string> = { alta: "Alta", media: "Média", baixa: "Baixa" };
+const PRIORITY_LABEL: Record<Priority, string> = { alta: "Comece por aqui", media: "Vale a conversa", baixa: "Depois" };
 
 export function PriorityBadge({ level, engage }: { level: Priority; engage: boolean }) {
-  if (!engage) return <span className="badge stop">Não engajar</span>;
+  if (!engage) return <span className="badge stop">Melhor não</span>;
   return <span className={`badge ${level}`}>{PRIORITY_LABEL[level]}</span>;
 }
 
@@ -69,6 +68,16 @@ export function ChipGroup<T extends string>({
         <button type="button" key={o.id} className={`chip ${value.includes(o.id) ? "on" : ""}`} onClick={() => toggle(o.id)}>
           {o.label}
         </button>
+      ))}
+    </div>
+  );
+}
+
+export function Steps({ current, total }: { current: number; total: number }) {
+  return (
+    <div className="stepper" aria-label={`Passo ${current} de ${total}`}>
+      {Array.from({ length: total }, (_, i) => (
+        <span key={i} className={i < current ? "on" : ""} />
       ))}
     </div>
   );

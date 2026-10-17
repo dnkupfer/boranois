@@ -1,37 +1,31 @@
 -- Idempotent schema; run with `npm run db:migrate -w @boranois/api`.
 -- Nothing here identifies the pessoas: their names, phones and notes stay on the member's device.
 
-create table if not exists groups (
-  id          text primary key,
-  created_at  timestamptz not null default now()
-);
-
 create table if not exists members (
   id          text primary key,
-  group_id    text not null references groups(id),
-  name        text not null,
-  role        text not null check (role in ('host', 'member')),
-  token_hash  text not null unique,
+  email       text not null unique,
+  name        text,
   created_at  timestamptz not null default now()
 );
 
--- group_id is null for host codes: redeeming one creates a new group.
-create table if not exists invites (
-  code          text primary key,
-  group_id      text references groups(id),
-  role          text not null check (role in ('host', 'member')),
-  contact_name  text,
-  phone         text,
-  used_by       text references members(id),
-  used_at       timestamptz,
-  created_at    timestamptz not null default now()
+-- Magic-link sign-in. Tokens are stored hashed; a login is single-use and short-lived.
+create table if not exists logins (
+  token_hash  text primary key,
+  email       text not null,
+  expires_at  timestamptz not null,
+  used_at     timestamptz,
+  created_at  timestamptz not null default now()
 );
-create index if not exists invites_group_idx on invites (group_id);
+
+create table if not exists sessions (
+  token_hash  text primary key,
+  member_id   text not null references members(id),
+  created_at  timestamptz not null default now()
+);
 
 create table if not exists contacts (
   id                 text primary key,
   member_id          text not null references members(id),
-  group_id           text not null references groups(id),
   chips              jsonb not null,
   persona_id         text not null,
   match              jsonb not null,

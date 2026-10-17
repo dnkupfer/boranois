@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { OUTCOMES, SAYINGS, type ClassifyResponse, type Contact, type NextStepResponse, type OutcomeId, type SayingId, type Step } from "@boranois/shared";
+import { OUTCOMES, SAYINGS, type ClassifyResponse, type Contact, type Guide, type NextStepResponse, type OutcomeId, type SayingId, type Step } from "@boranois/shared";
 import { api } from "../api";
 import { ChipGroup, CopyButton, Layout, PriorityBadge } from "../components";
 import { privateContacts, profile, whatsappLink } from "../local";
 import { useSession } from "../session";
 
 type Phase = "step" | "outcome";
+const SENDING = ["abrir_conversa", "enviar_fato", "enviar_conteudo", "oferecer_ajuda", "lembrar"];
+const isSending = (s: Step) => SENDING.includes(s.action) && !!s.message;
 
 export function Pessoa() {
   const { id = "" } = useParams();
@@ -15,10 +17,12 @@ export function Pessoa() {
   const priv = privateContacts.get(id);
   const [contact, setContact] = useState<Contact | null>(null);
   const [step, setStep] = useState<Step | null>(null);
+  const [guide, setGuide] = useState<Guide | null>(null);
   const [message, setMessage] = useState("");
   const [phase, setPhase] = useState<Phase>("step");
   const [busy, setBusy] = useState(false);
   const [showWhy, setShowWhy] = useState(false);
+  const [showRead, setShowRead] = useState(true);
 
   const loadNext = useCallback(async () => {
     setBusy(true);
@@ -28,6 +32,7 @@ export function Pessoa() {
       });
       setContact(r.contact);
       setStep(r.step);
+      setGuide(r.guide);
       setMessage(r.step.message ?? "");
       setPhase("step");
     } finally {
@@ -70,32 +75,45 @@ export function Pessoa() {
     navigate("/");
   };
 
-  if (!contact || !step) return <Layout><p className="muted">Pensando no melhor jeito…</p></Layout>;
+  if (!contact || !step || !guide) return <Layout narrow><p className="muted">Pensando no melhor jeito…</p></Layout>;
+  const nome = priv.nickname || "ela";
 
   return (
-    <Layout>
+    <Layout narrow>
       <p><Link to="/">← Suas pessoas</Link></p>
       <div className="person-head">
         <h1>{priv.nickname || "Pessoa"}</h1>
         <PriorityBadge level={contact.priority.level} engage={contact.priority.engage} />
       </div>
-      <p>
-        Parece <strong>{contact.match.personaName}</strong>
-        <button className="link" onClick={() => setShowWhy((v) => !v)}> {showWhy ? "esconder" : "por quê?"}</button>
+      <p className="persona-line">
+        {guide.personaName}
+        <button className="link" onClick={() => setShowWhy((v) => !v)}> · {showWhy ? "fechar" : "por quê?"}</button>
       </p>
       {showWhy && (
         <div className="card small">
           <p><strong>Perfil:</strong> {contact.match.because.join("; ")}.</p>
           <p><strong>Prioridade:</strong> {contact.priority.reasons.join("; ")}.</p>
-          <p className="muted">Os perfis são públicos: veja todos em <Link to="/perfis">Perfis</Link>.</p>
+          {contact.match.alternative && (
+            <p>
+              Ou será que é mais <em>{contact.match.alternative.personaName}</em>?{" "}
+              <button className="link" onClick={() => switchPersona(contact.match.alternative!.personaId)}>Trocar</button>
+            </p>
+          )}
         </div>
       )}
-      {contact.match.alternative && (
-        <p className="muted">
-          Ou será que é mais <em>{contact.match.alternative.personaName}</em>?{" "}
-          <button className="link" onClick={() => switchPersona(contact.match.alternative!.personaId)}>Trocar</button>
-        </p>
-      )}
+
+      <section className="card read">
+        <button className="link toggle" onClick={() => setShowRead((v) => !v)}>
+          <strong>Por que {nome} pensa assim</strong> {showRead ? "▾" : "▸"}
+        </button>
+        {showRead && (
+          <>
+            <p>{guide.read}</p>
+            <p><strong>Em quem ela acredita:</strong> {guide.wouldBelieve.join("; ")}.</p>
+            <p><strong>O que pode virar a chave:</strong> {guide.turningPoint}</p>
+          </>
+        )}
+      </section>
 
       {phase === "step" ? (
         <StepCard step={step} message={message} setMessage={setMessage} phone={priv.phone} busy={busy} onSent={() => sent(false)} onSkip={() => sent(true)} />
@@ -103,10 +121,28 @@ export function Pessoa() {
         <OutcomeCard busy={busy} aiAvailable={aiAvailable} onOutcome={outcome} />
       )}
 
-      {step.donts.length > 0 && (
-        <section className="card">
-          <h2>Com {priv.nickname || "ela"}, não:</h2>
-          <ul>{step.donts.map((d, i) => <li key={i}>{d}</li>)}</ul>
+      <section className="card">
+        <h2>Como falar com {nome}</h2>
+        <ol className="tactics">
+          {guide.tactics.map((t, i) => (
+            <li key={i}>
+              <strong>{t.title}</strong>
+              <p>{t.detail}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {guide.avoid.length > 0 && (
+        <section className="card avoid">
+          <h2>Evite</h2>
+          <ul>
+            {guide.avoid.map((a, i) => (
+              <li key={i}>
+                <strong>{a.what}.</strong> <span className="muted">{a.why}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -115,14 +151,13 @@ export function Pessoa() {
   );
 }
 
-const isSending = (s: Step) => ["abrir_conversa", "enviar_fato", "enviar_conteudo", "oferecer_ajuda", "lembrar"].includes(s.action) && !!s.message;
-
 function StepCard({
   step, message, setMessage, phone, busy, onSent, onSkip,
 }: { step: Step; message: string; setMessage: (m: string) => void; phone: string; busy: boolean; onSent: () => void; onSkip: () => void }) {
   const sending = isSending(step);
   return (
     <section className="card step-card">
+      <p className="eyebrow">Agora</p>
       <h2>{step.title}</h2>
       <p className="muted">{step.why}</p>
       {sending && (
@@ -133,29 +168,27 @@ function StepCard({
           </label>
           {step.fact && (
             <p className="small muted">
-              Fonte do fato: <a href={step.fact.sourceUrl} target="_blank" rel="noreferrer">{step.fact.sourceName}</a>
+              Fonte: <a href={step.fact.sourceUrl} target="_blank" rel="noreferrer">{step.fact.sourceName}</a>
             </p>
           )}
           {step.content && (
             <p className="small">
-              Vídeo/post: <a href={step.content.url} target="_blank" rel="noreferrer">{step.content.summary}</a> <span className="muted">({step.content.messenger})</span>
+              Para enviar: <a href={step.content.url} target="_blank" rel="noreferrer">{step.content.summary}</a> <span className="muted">({step.content.messenger})</span>
             </p>
           )}
           <div className="row">
             {phone ? (
               <a className="button whatsapp" href={whatsappLink(phone, message)} target="_blank" rel="noreferrer">Enviar no WhatsApp</a>
             ) : (
-              <CopyButton text={message} label="Copiar mensagem" className="whatsapp-copy" />
+              <CopyButton text={message} label="Copiar mensagem" className="whatsapp" />
             )}
             <button className="primary" disabled={busy} onClick={onSent}>Já mandei</button>
-            <button className="link" disabled={busy} onClick={onSkip}>Pular este passo</button>
+            <button className="link" disabled={busy} onClick={onSkip}>Pular</button>
           </div>
         </>
       )}
-      {!sending && (
-        <div className="row">
-          {step.action !== "parar" && step.action !== "pausar" && <button className="primary" disabled={busy} onClick={onSent}>Entendi</button>}
-        </div>
+      {!sending && step.action !== "parar" && step.action !== "pausar" && (
+        <div className="row"><button className="primary" disabled={busy} onClick={onSent}>Entendi</button></div>
       )}
     </section>
   );
@@ -181,11 +214,12 @@ function OutcomeCard({ busy, aiAvailable, onOutcome }: { busy: boolean; aiAvaila
   const o = picked[0];
   return (
     <section className="card step-card">
-      <h2>E aí, o que aconteceu?</h2>
-      <p className="muted">Marque quando ela responder. Se ainda não respondeu, pode voltar depois.</p>
+      <p className="eyebrow">Depois</p>
+      <h2>O que ela respondeu?</h2>
+      <p className="muted">Se ainda não respondeu, volte depois. Mandar de novo agora parece cobrança.</p>
       {aiAvailable && (
         <label>
-          Se quiser, cole o que ela respondeu <span className="muted">(não fica guardado)</span>
+          Cole a resposta dela, se quiser <span className="muted">(não fica guardado)</span>
           <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={2} />
           {pasted && <button type="button" className="secondary" disabled={classifying} onClick={classify}>{classifying ? "Lendo…" : "Entender a resposta"}</button>}
         </label>

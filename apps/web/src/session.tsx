@@ -1,52 +1,49 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import type { MeResponse } from "@boranois/shared";
+import type { Member, MeResponse } from "@boranois/shared";
 import { api, ApiError, getToken, setToken } from "./api";
 
 type Session = {
   token: string | null;
-  me: MeResponse | null;
+  member: Member | null;
   aiAvailable: boolean;
-  signIn: (token: string) => void;
+  signIn: (token: string, member: Member) => void;
   signOut: () => void;
-  refresh: () => Promise<void>;
+  setMember: (m: Member) => void;
 };
 
 const SessionContext = createContext<Session>(null!);
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [token, setTokenState] = useState(getToken);
-  const [me, setMe] = useState<MeResponse | null>(null);
+  const [member, setMember] = useState<Member | null>(null);
   const [aiAvailable, setAiAvailable] = useState(false);
 
   const signOut = useCallback(() => {
     setToken(null);
     setTokenState(null);
-    setMe(null);
+    setMember(null);
   }, []);
 
-  const refresh = useCallback(async () => {
-    if (!getToken()) return;
-    try {
-      setMe(await api<MeResponse>("/me"));
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) signOut();
-    }
-  }, [signOut]);
-
   useEffect(() => {
-    refresh();
-  }, [token, refresh]);
+    if (!token) return;
+    api<MeResponse>("/me")
+      .then((r) => setMember(r.member))
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) signOut();
+      });
+  }, [token, signOut]);
 
   useEffect(() => {
     api<{ ai: boolean }>("/health").then((h) => setAiAvailable(h.ai)).catch(() => {});
   }, []);
 
-  const signIn = (t: string) => {
+  const signIn = (t: string, m: Member) => {
     setToken(t);
     setTokenState(t);
+    setMember(m);
   };
 
-  return <SessionContext.Provider value={{ token, me, aiAvailable, signIn, signOut, refresh }}>{children}</SessionContext.Provider>;
+  return <SessionContext.Provider value={{ token, member, aiAvailable, signIn, signOut, setMember }}>{children}</SessionContext.Provider>;
 }
 
 export const useSession = () => useContext(SessionContext);

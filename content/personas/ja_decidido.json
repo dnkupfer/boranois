@@ -3,63 +3,43 @@
   "name": "Quem acha que já está decidido",
   "situations": ["nao_votou", "branco_nulo"],
   "default_for": [],
-  "description": "Até tem preferência, mas acha que a eleição já está ganha (ou perdida) e que o voto dela não vai mudar o resultado. Fica em casa por conforto, não por rejeição.",
-  "narrative": "“Ah, isso já tá decidido. Vai dar fulano de qualquer jeito. Pra que eu vou perder meu domingo?”",
-  "groups": ["familia", "trabalho", "bairro"],
-  "values": ["Praticidade", "Família", "Descanso merecido"],
-  "worries": ["custo_de_vida", "emprego"],
-  "wishes": ["Que o domingo seja tranquilo", "Não se sentir usada"],
+  "summary": "Tem lado, mas viu uma manchete e concluiu que está dado. Fica em casa por conforto, não por rejeição.",
+  "profile": {
+    "trust_story": "Acompanha por manchete. Viu “Flávio na frente” (ou “Lula ganha de qualquer jeito”) e concluiu que o resultado está dado. Domingo é dia de descanso e família; não vai “perder a manhã” para um placar que já sabe.",
+    "feelings": ["conforto", "desinteresse", "não quer se sentir usada"],
+    "identity": "“Sou prática. Não perco tempo com o que não muda.”",
+    "media_diet": ["manchete no celular", "Jornal Nacional", "grupo da família"],
+    "shuts_down": ["sermão cívico", "muitas mensagens"],
+    "opens_up": ["um número que contradiz a manchete", "um plano que custa pouco tempo"],
+    "would_believe": ["alguém próximo com um dado simples", "não “a campanha”"],
+    "turning_point": "Ver que está empatado e que o grupo dela (quem ficou em casa) decide; e ter hora marcada."
+  },
   "signals": {
     "sayings": { "ja_decidido": 6 },
-    "worries": {}
+    "worries": {},
+    "influencers": { "globo": 1 },
+    "trust_loss": { "ainda": 1 }
   },
   "engage": true,
   "priority_base": "alta",
-  "donts": [
-    "Não dê sermão sobre dever cívico.",
-    "Não mande pesquisa atrás de pesquisa. Uma basta."
+  "tactics": [
+    { "title": "Pergunte quem ela acha que ganha, antes de mostrar o empate", "detail": "A surpresa é o argumento. Se você já chega com o número, não há surpresa." },
+    { "title": "Uma pesquisa, de cabeça", "detail": "“Datafolha deu 47 a 45. Empate.” Sem link. Link ela não abre; número ela repete." },
+    { "title": "Venda tempo, não dever", "detail": "“De manhã cedo, vinte minutos, e o domingo continua seu.”" },
+    { "title": "Hora e lugar no mesmo dia", "detail": "Compromisso com você, não com a urna. “Passo aí às 9h.”" },
+    { "title": "Seção longe? Resolva o caminho na hora", "detail": "Carona, horário, quem vai junto. O obstáculo prático é a desculpa que ela usa para si mesma." }
+  ],
+  "avoid": [
+    { "what": "Falar em dever, democracia, “cada voto conta”", "why": "Soa a sermão; ela desliga no primeiro parágrafo." },
+    { "what": "Mandar mais de uma pesquisa", "why": "Vira spam, e spam é o que ela espera de campanha." }
   ],
   "steps": [
-    {
-      "id": "abrir",
-      "action": "abrir_conversa",
-      "when": ["novo"],
-      "title": "Pergunte o que ela acha que vai acontecer",
-      "why": "Ela tem um palpite. Descubra qual antes de mostrar os números.",
-      "template": "{nome}, você acha que dia 25 vai dar quem? Pergunto porque eu achava uma coisa e vi uns números que me surpreenderam."
-    },
-    {
-      "id": "empate",
-      "action": "enviar_fato",
-      "when": ["conversando"],
-      "title": "Mostre que está empatado",
-      "why": "A base da decisão dela é que o resultado está dado. Não está.",
-      "facts": ["empate_tecnico", "quaest_ausentes"],
-      "template": "Olha: {fato} Não tá decidido nada. Tá na mão de quem ficou em casa."
-    },
-    {
-      "id": "pode_votar",
-      "action": "enviar_fato",
-      "when": ["conversando"],
-      "title": "Tire a dúvida prática",
-      "why": "Se ela faltou no 1º turno, pode achar que não pode votar no 2º.",
-      "facts": ["pode_votar_2turno", "horario_votacao"],
-      "template": "E é rápido: {fato}"
-    },
-    {
-      "id": "ajuda",
-      "action": "oferecer_ajuda",
-      "when": ["conversando"],
-      "title": "Combine o horário",
-      "why": "Transforme em compromisso. Quem combina, vai.",
-      "template": "Vamos juntos de manhã cedo? Meia hora, e o domingo continua seu."
-    }
+    { "id": "abrir", "action": "abrir_conversa", "when": ["novo"], "title": "Pergunte o que ela acha que vai acontecer", "why": "Ela tem um palpite. Descubra qual antes de mostrar os números.", "template": "{nome}, você acha que dia 25 vai dar quem? Pergunto porque eu achava uma coisa e vi uns números que me surpreenderam." },
+    { "id": "empate", "action": "enviar_fato", "when": ["conversando"], "title": "Mostre que está empatado", "why": "A base da decisão dela é que o resultado está dado. Não está.", "facts": ["empate_tecnico", "quaest_ausentes"], "template": "Olha: {fato} Não tá decidido nada. Tá na mão de quem ficou em casa." },
+    { "id": "pode_votar", "action": "enviar_fato", "when": ["conversando"], "title": "Tire a dúvida prática", "why": "Se ela faltou no 1º turno, pode achar que não pode votar no 2º.", "facts": ["pode_votar_2turno", "horario_votacao"], "template": "E é rápido: {fato}" },
+    { "id": "ajuda", "action": "oferecer_ajuda", "when": ["conversando"], "title": "Combine o horário", "why": "Transforme em compromisso. Quem combina, vai.", "template": "Vamos juntos de manhã cedo? Vinte minutos, e o domingo continua seu." }
   ],
   "objections": {
-    "ja_decidido": {
-      "title": "Ela insistiu que já está decidido",
-      "template": "Era o que eu achava também. Dois pontos de diferença e 33 milhões em casa: nunca esteve tão aberto. Se der por um voto, eu quero que o seu esteja lá.",
-      "facts": ["empate_tecnico", "abstencao_33mi"]
-    }
+    "ja_decidido": { "title": "Ela insistiu que já está decidido", "template": "Era o que eu achava também. Dois pontos de diferença e 33 milhões em casa: nunca esteve tão aberto. Se der por um voto, eu quero que o seu esteja lá.", "facts": ["empate_tecnico", "abstencao_33mi"] }
   }
 }

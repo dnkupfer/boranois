@@ -6,8 +6,7 @@ import { Entrar } from "./pages/Entrar";
 import { Pessoas } from "./pages/Pessoas";
 import { NovaPessoa } from "./pages/NovaPessoa";
 import { Pessoa } from "./pages/Pessoa";
-import { Perfis } from "./pages/Perfis";
-import { Convites } from "./pages/Convites";
+import { ComoFunciona } from "./pages/ComoFunciona";
 import "./styles.css";
 
 function RequireSession({ children }: { children: React.ReactNode }) {
@@ -21,11 +20,10 @@ createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <Routes>
           <Route path="/entrar" element={<Entrar />} />
-          <Route path="/perfis" element={<Perfis />} />
+          <Route path="/como-funciona" element={<ComoFunciona />} />
           <Route path="/" element={<RequireSession><Pessoas /></RequireSession>} />
           <Route path="/nova" element={<RequireSession><NovaPessoa /></RequireSession>} />
           <Route path="/pessoa/:id" element={<RequireSession><Pessoa /></RequireSession>} />
-          <Route path="/convites" element={<RequireSession><Convites /></RequireSession>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

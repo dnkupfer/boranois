@@ -3,63 +3,43 @@
   "name": "Quem acha que o Lula já deu o que tinha que dar",
   "situations": ["lula_para_flavio", "branco_nulo"],
   "default_for": [],
-  "description": "Gosta do Lula, ou gostou. Acha que ele já fez a parte dele, que está velho, cansado, e que o país precisa de renovação. Não odeia o Flávio: vê nele “alguém novo”. Está mais cansada do que convencida.",
-  "narrative": "“O Lula foi importante, mas já deu. Tá na hora de gente nova. O Flávio pode não ser perfeito, mas é diferente.”",
-  "groups": ["trabalho", "estudantes", "familia"],
-  "values": ["Renovação", "Energia", "Futuro"],
-  "worries": ["emprego", "educacao", "custo_de_vida"],
-  "wishes": ["Sentir que o país vai pra frente", "Um futuro para os filhos"],
+  "summary": "Gostou do Lula. Acha que ele cumpriu o papel e que agora é hora de gente nova. Está mais cansada do que convencida.",
+  "profile": {
+    "trust_story": "Gostou do Lula e viu os anos bons. Acha que ele cumpriu o papel e que o país precisa de “gente nova”. Não é anti-PT; é cansada. Vê no Flávio “o diferente”, mesmo sem saber bem o que ele propõe. O desgaste do governo (escândalos, preço) alimenta a sensação de ciclo encerrado.",
+    "feelings": ["cansaço", "nostalgia", "desejo de futuro", "vergonha de parecer saudosista"],
+    "identity": "“Quero o país pra frente, não pro passado.”",
+    "media_diet": ["Instagram de notícia rápida", "Felipe Neto", "podcasts", "Marçal às vezes"],
+    "shuts_down": ["defesa da idade do Lula", "“o Flávio é igual ao pai”", "nostalgia"],
+    "opens_up": ["perguntarem que mudança ela quer e levarem a sério", "alguém jovem falando de futuro"],
+    "would_believe": ["alguém mais jovem que ela, com visão de futuro", "comparação concreta de planos"],
+    "turning_point": "Perceber que “novo” não diz o que vai fazer: comparar o plano de cada um para a coisa que ela quer que mude."
+  },
   "signals": {
     "sayings": { "ja_deu": 6, "nao_melhorou": 1 },
-    "worries": { "educacao": 1 }
+    "worries": { "educacao": 1 },
+    "influencers": { "felipe_neto": 1, "marcal": 1 },
+    "trust_loss": { "ainda": 1, "inss": 1 }
   },
   "engage": true,
   "priority_base": "media",
-  "donts": [
-    "Não defenda a idade do Lula. Não é sobre isso.",
-    "Não diga que o Flávio é igual ao pai. Ela quer ouvir sobre o futuro, não sobre o passado.",
-    "Não seja nostálgica. Fale do que vem."
+  "tactics": [
+    { "title": "Pergunte que mudança ela quer, concretamente", "detail": "“Gente nova” vira um projeto quando ela diz o quê. Até lá é humor, não decisão." },
+    { "title": "Nunca defenda a idade; nem toque no assunto", "detail": "Qualquer frase sobre idade confirma que o lado dele é o passado. Fale de plano." },
+    { "title": "Compare sobre o que ela quer", "detail": "“Sobre X, olha o que cada um propõe.” Fonte, uma frase. Comparação concreta é o que “novo” não aguenta." },
+    { "title": "Alguém jovem falando de futuro", "detail": "Não alguém velho falando do passado. O mensageiro é a mensagem." },
+    { "title": "Não diga que o Flávio é o pai", "detail": "Pergunte “o que ele propõe de novo?” e deixe ela procurar. Se ela não achar, achou sozinha." }
+  ],
+  "avoid": [
+    { "what": "Defender a idade do Lula ou falar dos anos bons", "why": "Confirma que o lado dele é o passado." },
+    { "what": "Dizer que o Flávio é só o pai", "why": "Soa a desqualificação, e ela quer ouvir sobre futuro." }
   ],
   "steps": [
-    {
-      "id": "abrir",
-      "action": "abrir_conversa",
-      "when": ["novo"],
-      "title": "Pergunte que renovação ela quer",
-      "why": "“Renovação” é vago. Descubra o que ela quer que mude de verdade.",
-      "template": "{nome}, quando você fala em gente nova, o que você queria que mudasse de verdade? Pergunto porque eu também quero mudança, e queria saber se a gente tá pensando na mesma coisa."
-    },
-    {
-      "id": "o_que_vem",
-      "action": "enviar_fato",
-      "when": ["conversando"],
-      "title": "Compare o que cada um quer fazer daqui pra frente",
-      "why": "Ela olha pro futuro. Dê um fato sobre o plano de cada um para a preocupação dela.",
-      "facts": [],
-      "template": "Sobre {preocupacao}, olha o que cada um quer fazer: {fato}"
-    },
-    {
-      "id": "conteudo",
-      "action": "enviar_conteudo",
-      "when": ["conversando"],
-      "title": "Mande alguém jovem falando",
-      "why": "Renovação ela ouve de quem é novo, não de quem é velho.",
-      "template": "Vi esse e pensei em você, é curtinho: {conteudo}"
-    },
-    {
-      "id": "fechar",
-      "action": "oferecer_ajuda",
-      "when": ["conversando"],
-      "title": "Deixe decidir",
-      "why": "Ela não está brigando com você. Não transforme em briga.",
-      "template": "Pensa com calma. A gente quer a mesma coisa, só tá vendo caminhos diferentes. Me conta o que decidir."
-    }
+    { "id": "abrir", "action": "abrir_conversa", "when": ["novo"], "title": "Pergunte que renovação ela quer", "why": "“Renovação” é vago. Descubra o que ela quer que mude de verdade.", "template": "{nome}, quando você fala em gente nova, o que você queria que mudasse de verdade? Pergunto porque eu também quero mudança, e queria saber se a gente tá pensando na mesma coisa." },
+    { "id": "o_que_vem", "action": "enviar_fato", "when": ["conversando"], "title": "Compare o que cada um quer fazer daqui pra frente", "why": "Ela olha pro futuro. Dê um fato sobre o plano de cada um para a preocupação dela.", "facts": [], "template": "Sobre {preocupacao}, olha o que cada um quer fazer: {fato}" },
+    { "id": "conteudo", "action": "enviar_conteudo", "when": ["conversando"], "title": "Mande alguém jovem falando", "why": "Renovação ela ouve de quem é novo, não de quem é velho.", "template": "Vi esse e pensei em você, é curtinho: {conteudo}" },
+    { "id": "fechar", "action": "oferecer_ajuda", "when": ["conversando"], "title": "Deixe decidir", "why": "Ela não está brigando com você. Não transforme em briga.", "template": "Pensa com calma. A gente quer a mesma coisa, só tá vendo caminhos diferentes. Me conta o que decidir." }
   ],
   "objections": {
-    "ja_deu": {
-      "title": "Ela insistiu que já deu",
-      "template": "Pode ser. Mas “novo” por si só não diz o que vai fazer. Me diz o que você mais quer que mude, que eu te mostro o que cada um promete sobre isso.",
-      "facts": []
-    }
+    "ja_deu": { "title": "Ela insistiu que já deu", "template": "Pode ser. Mas “novo” por si só não diz o que vai fazer. Me diz o que você mais quer que mude, que eu te mostro o que cada um promete sobre isso.", "facts": [] }
   }
 }

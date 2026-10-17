@@ -1,36 +1,46 @@
 import express, { type NextFunction, type Request, type Response } from "express";
-import { timingSafeEqual } from "node:crypto";
 import {
   ActionId,
   ClassifyRequest,
   CreateContactRequest,
-  CreateInvitesRequest,
   InteractionRequest,
-  JoinRequest,
-  MAX_INVITES_PER_GROUP,
+  MagicLinkRequest,
   NextStepRequest,
+  UpdateMeRequest,
+  VerifyRequest,
   WORRIES,
   labelOf,
   type CatalogueResponse,
   type Contact,
-  type JoinResponse,
+  type MagicLinkResponse,
   type MeResponse,
+  type Member,
   type NextStepResponse,
   type Step,
+  type VerifyResponse,
 } from "@boranois/shared";
 import { toPublic, type Catalogue } from "./catalogue.js";
-import { afterOutcome, afterSent, match, nextStep, priority, renderTemplate } from "./engine.js";
+import { afterOutcome, afterSent, buildGuide, match, nextStep, priority, renderTemplate } from "./engine.js";
 import type { Phraser } from "./gemini.js";
-import { hashToken, newToken, normalizeCode } from "./ids.js";
+import { hashToken, newToken } from "./ids.js";
 import type { Store } from "./store/index.js";
-import type { ContactRecord, MemberRecord } from "./store/types.js";
+import type { ContactRecord } from "./store/types.js";
 
-type Deps = { store: Store; catalogue: Catalogue; phraser: Phraser; adminToken?: string; today?: () => string };
-type AuthedRequest = Request & { member: MemberRecord };
+type Deps = {
+  store: Store;
+  catalogue: Catalogue;
+  phraser: Phraser;
+  webOrigin: string;
+  /** Sends the magic link. When absent (local dev), the link is logged and returned to the client. */
+  sendEmail?: (to: string, link: string) => Promise<void>;
+  today?: () => string;
+};
+type AuthedRequest = Request & { member: Member };
 
 const localDate = () => new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" }); // YYYY-MM-DD
+const LOGIN_TTL_MS = 30 * 60 * 1000;
 
-export function createApp({ store, catalogue, phraser, adminToken, today = localDate }: Deps) {
+export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, today = localDate }: Deps) {
   const app = express();
   app.disable("x-powered-by");
   app.set("trust proxy", true);
@@ -39,50 +49,56 @@ export function createApp({ store, catalogue, phraser, adminToken, today = local
   const auth = async (req: Request, res: Response, next: NextFunction) => {
     const header = req.get("authorization") ?? "";
     const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-    const member = token ? await store.memberByTokenHash(hashToken(token)) : null;
+    const member = token ? await store.memberBySessionHash(hashToken(token)) : null;
     if (!member) return res.status(401).json({ error: "unauthorized" });
     (req as AuthedRequest).member = member;
     next();
   };
-  const hostOnly = (req: Request, res: Response, next: NextFunction) => {
-    if ((req as AuthedRequest).member.role !== "host") return res.status(403).json({ error: "host_only" });
-    next();
-  };
   const personaOf = (c: ContactRecord) => catalogue.personas.find((p) => p.id === c.match.personaId)!;
-  const toContact = ({ memberId: _m, groupId: _g, lastSaying: _l, ...c }: ContactRecord): Contact => c;
+  const toContact = ({ memberId: _m, lastSaying: _l, ...c }: ContactRecord): Contact => c;
 
   const api = express.Router();
 
   api.get("/health", (_req, res) => res.json({ ok: true, ai: phraser.available, catalogue: catalogue.version }));
 
-  // Published, on purpose: anyone can read how people are grouped and what we never do.
+  // Published on purpose: anyone can read how people are grouped and what we never do.
   api.get("/catalogue", (_req, res) => {
     res.json({ version: catalogue.version, personas: catalogue.personas.map(toPublic) } satisfies CatalogueResponse);
   });
 
-  api.post("/join", async (req, res) => {
-    const body = JoinRequest.safeParse(req.body);
-    if (!body.success) return res.status(400).json({ error: "invalid_request" });
+  // --- Sign-in by magic link ------------------------------------------------
+
+  api.post("/auth/link", async (req, res) => {
+    const body = MagicLinkRequest.safeParse(req.body);
+    if (!body.success) return res.status(400).json({ error: "invalid_email" });
     const token = newToken();
-    const result = await store.redeemInvite(normalizeCode(body.data.code), body.data.name, hashToken(token));
-    if (!result.ok) return res.status(result.error === "used" ? 409 : 404).json({ error: result.error });
-    const { groupId: _, ...member } = result.member;
-    res.json({ token, member } satisfies JoinResponse);
+    await store.createLogin(body.data.email, hashToken(token), new Date(Date.now() + LOGIN_TTL_MS));
+    const link = `${webOrigin}/entrar?t=${token}`;
+    if (sendEmail) {
+      await sendEmail(body.data.email, link);
+      return res.json({ sent: true } satisfies MagicLinkResponse);
+    }
+    console.log(`[dev] magic link for ${body.data.email}: ${link}`);
+    res.json({ sent: true, devLink: link } satisfies MagicLinkResponse);
   });
 
-  api.get("/me", auth, async (req, res) => {
-    const { groupId, ...member } = (req as AuthedRequest).member;
-    const invites = member.role === "host" ? await store.listInvites(groupId) : [];
-    res.json({ member, invites } satisfies MeResponse);
-  });
-
-  api.post("/invites", auth, hostOnly, async (req, res) => {
-    const body = CreateInvitesRequest.safeParse(req.body);
+  api.post("/auth/verify", async (req, res) => {
+    const body = VerifyRequest.safeParse(req.body);
     if (!body.success) return res.status(400).json({ error: "invalid_request" });
-    const groupId = (req as AuthedRequest).member.groupId;
-    const existing = await store.listInvites(groupId);
-    if (existing.length + body.data.contacts.length > MAX_INVITES_PER_GROUP) return res.status(409).json({ error: "invite_limit" });
-    res.json({ invites: await store.createInvites(groupId, body.data.contacts) });
+    const email = await store.consumeLogin(hashToken(body.data.t));
+    if (!email) return res.status(401).json({ error: "link_invalid" });
+    const member = await store.memberByEmailOrCreate(email);
+    const token = newToken();
+    await store.createSession(member.id, hashToken(token));
+    res.json({ token, member } satisfies VerifyResponse);
+  });
+
+  api.get("/me", auth, (req, res) => res.json({ member: (req as AuthedRequest).member } satisfies MeResponse));
+
+  api.put("/me", auth, async (req, res) => {
+    const body = UpdateMeRequest.safeParse(req.body);
+    if (!body.success) return res.status(400).json({ error: "invalid_request" });
+    res.json({ member: await store.setMemberName((req as AuthedRequest).member.id, body.data.name) } satisfies MeResponse);
   });
 
   // --- Pessoas -------------------------------------------------------------
@@ -107,7 +123,6 @@ export function createApp({ store, catalogue, phraser, adminToken, today = local
     const persona = catalogue.personas.find((p) => p.id === m.personaId)!;
     const contact = await store.createContact({
       memberId: member.id,
-      groupId: member.groupId,
       chips,
       match: m,
       priority: priority(catalogue, persona, chips, []),
@@ -135,7 +150,7 @@ export function createApp({ store, catalogue, phraser, adminToken, today = local
     res.json({ ok: true });
   });
 
-  /** The next step, phrased. Nickname, note and voice sample are used here and not stored. */
+  /** The next step, phrased, plus the guide. Nickname, note and voice sample are used here and not stored. */
   api.post("/contacts/:id/next", auth, async (req, res) => {
     const body = NextStepRequest.safeParse(req.body);
     if (!body.success) return res.status(400).json({ error: "invalid_request" });
@@ -170,7 +185,7 @@ export function createApp({ store, catalogue, phraser, adminToken, today = local
           relation: contact.chips.relation,
           note: body.data.note,
           voiceSample: body.data.voiceSample,
-          donts: persona.donts,
+          donts: persona.avoid.map((a) => a.what),
           maxChars: catalogue.scoring.phrasing.maxChars,
         })
         .catch((err) => (console.error("phrase failed", err), null));
@@ -188,21 +203,25 @@ export function createApp({ store, catalogue, phraser, adminToken, today = local
         ? { id: planned.content.id, url: planned.content.url, type: planned.content.type, summary: planned.content.summary, messenger: planned.content.messenger }
         : null,
       phrased,
-      donts: persona.donts,
+      donts: persona.avoid.map((a) => a.what),
     };
-    res.json({ contact: toContact(contact), step } satisfies NextStepResponse);
+    res.json({ contact: toContact(contact), step, guide: buildGuide(persona) } satisfies NextStepResponse);
   });
 
-  /** "Já mandei": the step is done, now we wait. */
+  /** "Já mandei" (or "pular"): the step is done. */
   api.post("/contacts/:id/sent", auth, async (req, res) => {
     const contact = await store.getContact((req as AuthedRequest).member.id, String(req.params.id));
     if (!contact) return res.status(404).json({ error: "not_found" });
     const stepId = String(req.body?.stepId ?? "");
     const action = ActionId.safeParse(req.body?.action);
     if (!stepId || !action.success) return res.status(400).json({ error: "invalid_request" });
+    const skipped = req.body?.skipped === true;
     const stepsDone = contact.stepsDone.includes(stepId) ? contact.stepsDone : [...contact.stepsDone, stepId];
-    const skipped = req.body?.skipped === true; // "Pular": done, but nothing was sent
-    const updated = await store.updateContact(contact.id, { stepsDone, state: skipped ? contact.state : afterSent(contact.state, action.data), lastSaying: skipped ? contact.lastSaying : null });
+    const updated = await store.updateContact(contact.id, {
+      stepsDone,
+      state: skipped ? contact.state : afterSent(contact.state, action.data),
+      lastSaying: skipped ? contact.lastSaying : null,
+    });
     res.json(toContact(updated));
   });
 
@@ -237,14 +256,6 @@ export function createApp({ store, catalogue, phraser, adminToken, today = local
     if (!body.success) return res.status(400).json({ error: "invalid_request" });
     if (!phraser.available) return res.status(503).json({ error: "ai_unavailable" });
     res.json(await phraser.classify(body.data.text));
-  });
-
-  // Issues a host code (starts a new group). Protected by ADMIN_TOKEN.
-  api.post("/admin/host-codes", async (req, res) => {
-    const given = Buffer.from(req.get("x-admin-token") ?? "");
-    const expected = Buffer.from(adminToken ?? "");
-    if (!adminToken || given.length !== expected.length || !timingSafeEqual(given, expected)) return res.status(401).json({ error: "unauthorized" });
-    res.json({ code: await store.createHostCode() });
   });
 
   app.use("/api", api);

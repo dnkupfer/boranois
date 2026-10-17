@@ -1,7 +1,7 @@
 import pg from "pg";
-import type { Invite, OutcomeId } from "@boranois/shared";
-import { newId, newInviteCode } from "../ids.js";
-import type { ContactPatch, ContactRecord, MemberRecord, NewContact, NewInteraction, RedeemResult, Store } from "./types.js";
+import type { Member, OutcomeId } from "@boranois/shared";
+import { newId } from "../ids.js";
+import type { ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
 
 // Use Neon's pooled connection string (host contains "-pooler"): Cloud Run
 // can run many instances, each with its own small pool.
@@ -9,11 +9,10 @@ export function createPool(connectionString: string) {
   return new pg.Pool({ connectionString, max: 5, ssl: { rejectUnauthorized: true } });
 }
 
-const toMember = (r: any): MemberRecord => ({ id: r.id, groupId: r.group_id, name: r.name, role: r.role });
+const toMember = (r: any): Member => ({ id: r.id, email: r.email, name: r.name });
 const toContact = (r: any): ContactRecord => ({
   id: r.id,
   memberId: r.member_id,
-  groupId: r.group_id,
   chips: r.chips,
   match: r.match,
   priority: r.priority,
@@ -28,73 +27,45 @@ const toContact = (r: any): ContactRecord => ({
 export class PostgresStore implements Store {
   constructor(private pool: pg.Pool) {}
 
-  async createHostCode() {
-    const code = newInviteCode();
-    await this.pool.query(`insert into invites (code, role) values ($1, 'host')`, [code]);
-    return code;
+  async createLogin(email: string, tokenHash: string, expiresAt: Date) {
+    await this.pool.query(`insert into logins (token_hash, email, expires_at) values ($1, $2, $3)`, [tokenHash, email, expiresAt]);
   }
 
-  async redeemInvite(code: string, name: string, tokenHash: string): Promise<RedeemResult> {
-    const client = await this.pool.connect();
-    try {
-      await client.query("begin");
-      const { rows } = await client.query(`select * from invites where code = $1 for update`, [code]);
-      const invite = rows[0];
-      if (!invite) {
-        await client.query("rollback");
-        return { ok: false, error: "not_found" };
-      }
-      if (invite.used_by) {
-        await client.query("rollback");
-        return { ok: false, error: "used" };
-      }
-      let groupId: string = invite.group_id;
-      if (!groupId) {
-        groupId = newId();
-        await client.query(`insert into groups (id) values ($1)`, [groupId]);
-      }
-      const memberId = newId();
-      const m = await client.query(
-        `insert into members (id, group_id, name, role, token_hash) values ($1, $2, $3, $4, $5) returning *`,
-        [memberId, groupId, name, invite.role, tokenHash],
-      );
-      await client.query(`update invites set used_by = $1, used_at = now() where code = $2`, [memberId, code]);
-      await client.query("commit");
-      return { ok: true, member: toMember(m.rows[0]) };
-    } catch (err) {
-      await client.query("rollback");
-      throw err;
-    } finally {
-      client.release();
-    }
+  async consumeLogin(tokenHash: string) {
+    const { rows } = await this.pool.query(
+      `update logins set used_at = now() where token_hash = $1 and used_at is null and expires_at > now() returning email`,
+      [tokenHash],
+    );
+    return rows[0]?.email ?? null;
   }
 
-  async memberByTokenHash(tokenHash: string) {
-    const { rows } = await this.pool.query(`select * from members where token_hash = $1`, [tokenHash]);
+  async memberByEmailOrCreate(email: string) {
+    const { rows } = await this.pool.query(
+      `insert into members (id, email) values ($1, $2) on conflict (email) do update set email = excluded.email returning *`,
+      [newId(), email],
+    );
+    return toMember(rows[0]);
+  }
+
+  async createSession(memberId: string, tokenHash: string) {
+    await this.pool.query(`insert into sessions (token_hash, member_id) values ($1, $2)`, [tokenHash, memberId]);
+  }
+
+  async memberBySessionHash(tokenHash: string) {
+    const { rows } = await this.pool.query(`select m.* from sessions s join members m on m.id = s.member_id where s.token_hash = $1`, [tokenHash]);
     return rows[0] ? toMember(rows[0]) : null;
   }
 
-  async listInvites(groupId: string): Promise<Invite[]> {
-    const { rows } = await this.pool.query(
-      `select i.*, m.name as used_by_name from invites i left join members m on m.id = i.used_by
-       where i.group_id = $1 order by i.created_at`,
-      [groupId],
-    );
-    return rows.map((r) => ({ code: r.code, contactName: r.contact_name, phone: r.phone, usedByName: r.used_by_name, createdAt: r.created_at.toISOString() }));
-  }
-
-  async createInvites(groupId: string, contacts: { name: string; phone?: string }[]) {
-    for (const c of contacts) {
-      await this.pool.query(`insert into invites (code, group_id, role, contact_name, phone) values ($1, $2, 'member', $3, $4)`, [newInviteCode(), groupId, c.name, c.phone ?? null]);
-    }
-    return this.listInvites(groupId);
+  async setMemberName(memberId: string, name: string) {
+    const { rows } = await this.pool.query(`update members set name = $2 where id = $1 returning *`, [memberId, name]);
+    return toMember(rows[0]);
   }
 
   async createContact(c: NewContact) {
     const { rows } = await this.pool.query(
-      `insert into contacts (id, member_id, group_id, chips, persona_id, match, priority, state, steps_done, last_saying, catalogue_version)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *`,
-      [newId(), c.memberId, c.groupId, c.chips, c.match.personaId, c.match, c.priority, c.state, JSON.stringify(c.stepsDone), c.lastSaying, c.catalogueVersion],
+      `insert into contacts (id, member_id, chips, persona_id, match, priority, state, steps_done, last_saying, catalogue_version)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *`,
+      [newId(), c.memberId, c.chips, c.match.personaId, c.match, c.priority, c.state, JSON.stringify(c.stepsDone), c.lastSaying, c.catalogueVersion],
     );
     return toContact(rows[0]);
   }

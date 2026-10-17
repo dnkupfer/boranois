@@ -1,12 +1,15 @@
 import {
   GROUPS,
+  INFLUENCERS,
   SAYINGS,
+  TRUST_LOSS,
   SITUATIONS,
   WORRIES,
   labelOf,
   type ActionId,
   type Chips,
   type ContactState,
+  type Guide,
   type Match,
   type OutcomeId,
   type Priority,
@@ -38,6 +41,14 @@ export function match(cat: Catalogue, chips: Chips): Match {
       for (const g of chips.groups) {
         const v = p.signals.groups[g];
         if (v) (score += v), because.push(`convive em ${labelOf(GROUPS, g).toLowerCase()}`);
+      }
+      for (const i of chips.influencers) {
+        const v = p.signals.influencers[i];
+        if (v) (score += v), because.push(`segue ${labelOf(INFLUENCERS, i)}`);
+      }
+      if (chips.trustLoss) {
+        const v = p.signals.trust_loss[chips.trustLoss];
+        if (v) (score += v), because.push(`parou de acreditar: ${labelOf(TRUST_LOSS, chips.trustLoss).toLowerCase()}`);
       }
       return { p, score, because };
     })
@@ -73,7 +84,7 @@ const fromScore = (n: number): Priority => (n >= 3 ? "alta" : n >= 2 ? "media" :
 
 export function priority(cat: Catalogue, persona: PersonaDef, chips: Chips, outcomes: OutcomeId[]): PriorityResult {
   if (!persona.engage) {
-    return { level: "baixa", reasons: [persona.donts[0] ?? "Melhor não engajar."], engage: false };
+    return { level: "baixa", reasons: [persona.profile.turning_point], engage: false };
   }
   const cfg = cat.scoring.priority;
   const reasons: string[] = [];
@@ -267,4 +278,19 @@ export function renderTemplate(template: string, vars: { nome: string; fato?: st
     .replaceAll("{preocupacao}", vars.preocupacao ?? "isso")
     .replace(/\s{2,}/g, " ")
     .trim();
+}
+
+// ---------------------------------------------------------------------------
+// Guide: how to think about her. Straight from the persona; no model involved.
+
+export function buildGuide(persona: PersonaDef): Guide {
+  const pr = persona.profile;
+  return {
+    personaName: persona.name,
+    read: `${pr.trust_story} Sente: ${pr.feelings.join(", ")}. Como ela se vê: ${pr.identity}`,
+    tactics: persona.tactics,
+    avoid: persona.avoid,
+    wouldBelieve: pr.would_believe,
+    turningPoint: pr.turning_point,
+  };
 }

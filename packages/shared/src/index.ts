@@ -58,6 +58,33 @@ export const SAYINGS = [
   { id: "nunca_muda", label: "“Nunca vou mudar de ideia”" },
 ] as const;
 
+// Who she follows / listens to. Real public figures and outlets; strong signals of her information world.
+export const INFLUENCERS = [
+  { id: "nikolas", label: "Nikolas Ferreira" },
+  { id: "janones", label: "André Janones" },
+  { id: "felipe_neto", label: "Felipe Neto" },
+  { id: "marcal", label: "Pablo Marçal" },
+  { id: "malafaia", label: "Silas Malafaia" },
+  { id: "padres_pastores", label: "O pastor / padre dela" },
+  { id: "jovem_pan", label: "Jovem Pan" },
+  { id: "globo", label: "Jornal Nacional / Globo" },
+  { id: "choquei", label: "Choquei e páginas de fofoca" },
+  { id: "brasil_paralelo", label: "Brasil Paralelo" },
+  { id: "nenhum", label: "Ninguém de política" },
+] as const;
+
+// When she stopped believing (in the PT / in politics).
+export const TRUST_LOSS = [
+  { id: "mensalao", label: "Mensalão (2005)" },
+  { id: "lava_jato", label: "Lava Jato / petrolão" },
+  { id: "inss", label: "Descontos do INSS (2025)" },
+  { id: "pandemia", label: "Pandemia" },
+  { id: "local", label: "Um político da cidade" },
+  { id: "nunca", label: "Nunca acreditou" },
+  { id: "ainda", label: "Ainda acredita, só desanimou" },
+  { id: "nao_sei", label: "Não sei" },
+] as const;
+
 export const FREQUENCIES = [
   { id: "diario", label: "Quase todo dia" },
   { id: "semanal", label: "Toda semana" },
@@ -73,12 +100,16 @@ export const GroupId = z.enum(ids(GROUPS));
 export const WorryId = z.enum(ids(WORRIES));
 export const SayingId = z.enum(ids(SAYINGS));
 export const FrequencyId = z.enum(ids(FREQUENCIES));
+export const InfluencerId = z.enum(ids(INFLUENCERS));
+export const TrustLossId = z.enum(ids(TRUST_LOSS));
 export type SituationId = z.infer<typeof SituationId>;
 export type RelationId = z.infer<typeof RelationId>;
 export type GroupId = z.infer<typeof GroupId>;
 export type WorryId = z.infer<typeof WorryId>;
 export type SayingId = z.infer<typeof SayingId>;
 export type FrequencyId = z.infer<typeof FrequencyId>;
+export type InfluencerId = z.infer<typeof InfluencerId>;
+export type TrustLossId = z.infer<typeof TrustLossId>;
 
 export const labelOf = (list: readonly { id: string; label: string }[], id: string) =>
   list.find((x) => x.id === id)?.label ?? id;
@@ -119,20 +150,17 @@ export const Chips = z.object({
   groups: z.array(GroupId).max(3).default([]),
   worries: z.array(WorryId).max(2).default([]),
   sayings: z.array(SayingId).max(3).default([]),
+  influencers: z.array(InfluencerId).max(3).default([]),
+  trustLoss: TrustLossId.optional(),
   frequency: FrequencyId,
   /** Member and pessoa belong to at least one group in common (computed on the member's device). */
   sharedGroup: z.boolean().default(false),
 });
 export type Chips = z.infer<typeof Chips>;
 
-export const JoinRequest = z.object({
-  code: z.string().trim().min(4).max(20),
-  name: z.string().trim().min(1).max(60),
-});
-
-export const CreateInvitesRequest = z.object({
-  contacts: z.array(z.object({ name: z.string().trim().min(1).max(60), phone: z.string().trim().max(30).optional() })).min(1).max(5),
-});
+export const MagicLinkRequest = z.object({ email: z.string().trim().toLowerCase().email().max(120) });
+export const VerifyRequest = z.object({ t: z.string().min(10).max(200) });
+export const UpdateMeRequest = z.object({ name: z.string().trim().min(1).max(60) });
 
 /** Create a pessoa. Name, phone and notes never reach the server. */
 export const CreateContactRequest = z.object({ chips: Chips, personaId: z.string().max(60).optional() });
@@ -154,15 +182,14 @@ export const InteractionRequest = z.object({
 /** Turn a pasted reply into chips. The text is not stored. */
 export const ClassifyRequest = z.object({ text: z.string().trim().min(1).max(1000) });
 
-export const MAX_INVITES_PER_GROUP = 5;
-
 // ---------------------------------------------------------------------------
 // Responses
 
-export type Member = { id: string; name: string; role: "host" | "member" };
-export type Invite = { code: string; contactName: string | null; phone: string | null; usedByName: string | null; createdAt: string };
-export type JoinResponse = { token: string; member: Member };
-export type MeResponse = { member: Member; invites: Invite[] };
+export type Member = { id: string; email: string; name: string | null };
+/** In production the link is emailed; in development it's returned so the UI can show it. */
+export type MagicLinkResponse = { sent: true; devLink?: string };
+export type VerifyResponse = { token: string; member: Member };
+export type MeResponse = { member: Member };
 
 export type Match = {
   personaId: string;
@@ -205,20 +232,41 @@ export type Step = {
   donts: string[];
 };
 
-export type NextStepResponse = { contact: Contact; step: Step };
+/** How to think about this pessoa, from her persona. Shown next to the step. */
+export type Guide = {
+  personaName: string;
+  /** One paragraph: how she got here and what she feels. */
+  read: string;
+  /** Specific, actionable: timing, channel, wording, what to do with her reply. */
+  tactics: { title: string; detail: string }[];
+  /** What not to do, each with the reason. */
+  avoid: { what: string; why: string }[];
+  /** Who she'd believe. */
+  wouldBelieve: string[];
+  turningPoint: string;
+};
+
+export type NextStepResponse = { contact: Contact; step: Step; guide: Guide };
 export type ClassifyResponse = { outcome: OutcomeId; saying: SayingId | null };
 
 export type PublicPersona = {
   id: string;
   name: string;
   situations: SituationId[];
-  description: string;
-  narrative: string;
-  values: string[];
-  worries: string[];
-  wishes: string[];
+  summary: string;
+  profile: {
+    trust_story: string;
+    feelings: string[];
+    identity: string;
+    media_diet: string[];
+    shuts_down: string[];
+    opens_up: string[];
+    would_believe: string[];
+    turning_point: string;
+  };
   engage: boolean;
-  donts: string[];
+  tactics: { title: string; detail: string }[];
+  avoid: { what: string; why: string }[];
 };
 
 export type CatalogueResponse = { version: string; personas: PublicPersona[] };

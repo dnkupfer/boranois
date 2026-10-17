@@ -1,15 +1,7 @@
-import type { Contact, ContactState, Invite, Member, OutcomeId, SayingId } from "@boranois/shared";
+import type { Contact, Member, OutcomeId, SayingId } from "@boranois/shared";
 
-export type MemberRecord = Member & { groupId: string };
-
-export type RedeemResult =
-  | { ok: true; member: MemberRecord }
-  | { ok: false; error: "not_found" | "used" };
-
-export type ContactRecord = Contact & { memberId: string; groupId: string; lastSaying: SayingId | null };
-
+export type ContactRecord = Contact & { memberId: string; lastSaying: SayingId | null };
 export type NewContact = Omit<ContactRecord, "id" | "createdAt" | "updatedAt">;
-
 export type ContactPatch = Partial<Pick<ContactRecord, "state" | "stepsDone" | "priority" | "match" | "lastSaying">>;
 
 export type NewInteraction = {
@@ -22,12 +14,14 @@ export type NewInteraction = {
 };
 
 export interface Store {
-  createHostCode(): Promise<string>;
-  /** Redeems an invite code. A host code creates a new group with the redeemer as host. */
-  redeemInvite(code: string, name: string, tokenHash: string): Promise<RedeemResult>;
-  memberByTokenHash(tokenHash: string): Promise<MemberRecord | null>;
-  listInvites(groupId: string): Promise<Invite[]>;
-  createInvites(groupId: string, contacts: { name: string; phone?: string }[]): Promise<Invite[]>;
+  // Magic-link sign-in: a short-lived login token, then a long-lived session token. Both stored hashed.
+  createLogin(email: string, tokenHash: string, expiresAt: Date): Promise<void>;
+  /** Marks the login used and returns its email, or null if unknown, used or expired. */
+  consumeLogin(tokenHash: string): Promise<string | null>;
+  memberByEmailOrCreate(email: string): Promise<Member>;
+  createSession(memberId: string, tokenHash: string): Promise<void>;
+  memberBySessionHash(tokenHash: string): Promise<Member | null>;
+  setMemberName(memberId: string, name: string): Promise<Member>;
 
   createContact(c: NewContact): Promise<ContactRecord>;
   listContacts(memberId: string): Promise<ContactRecord[]>;
@@ -38,5 +32,3 @@ export interface Store {
   insertInteraction(i: NewInteraction): Promise<void>;
   listOutcomes(contactId: string): Promise<OutcomeId[]>;
 }
-
-export type ContactStateValue = ContactState;
