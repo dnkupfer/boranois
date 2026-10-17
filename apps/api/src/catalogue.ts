@@ -3,6 +3,16 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { z } from "zod";
 import {
+  FREQUENCIES,
+  GROUPS,
+  INFLUENCERS,
+  RELATIONS,
+  SAYINGS,
+  SITUATIONS,
+  TRUST_LOSS,
+  WORRIES,
+  FrequencyId,
+  RelationId,
   ActionId,
   ContactState,
   GroupId,
@@ -13,6 +23,7 @@ import {
   SituationId,
   WorryId,
   type PublicPersona,
+  type Question,
 } from "@boranois/shared";
 
 // The catalogue is editorial content, written and reviewed by people (see content/README.md).
@@ -89,6 +100,46 @@ export const ContentSchema = z.object({
 });
 export type ContentDef = z.infer<typeof ContentSchema>;
 
+const TAXONOMIES: Record<string, readonly { id: string; label: string }[]> = {
+  SITUATIONS, RELATIONS, GROUPS, SAYINGS, WORRIES, INFLUENCERS, TRUST_LOSS, FREQUENCIES,
+};
+const TAXONOMY_SETS: Record<string, string> = {
+  SITUATIONS: "situation", RELATIONS: "relation", GROUPS: "groups", SAYINGS: "sayings", WORRIES: "worries",
+  INFLUENCERS: "influencers", TRUST_LOSS: "trustLoss", FREQUENCIES: "frequency",
+};
+
+const ChipSetsSchema = z.object({
+  sayings: z.array(SayingId).optional(),
+  worries: z.array(WorryId).optional(),
+  groups: z.array(GroupId).optional(),
+  influencers: z.array(InfluencerId).optional(),
+  trustLoss: TrustLossId.optional(),
+  situation: SituationId.optional(),
+  relation: RelationId.optional(),
+  frequency: FrequencyId.optional(),
+});
+const QuestionSchema = z.object({
+  id: z.string().regex(/^[a-z_]+$/),
+  text: z.string().min(1),
+  hint: z.string().optional(),
+  options: z.union([z.string(), z.array(z.object({ id: z.string().regex(/^[a-z0-9_]+$/), label: z.string().min(1), sets: ChipSetsSchema.optional() }))]),
+  max: z.number().int().min(1),
+  optional: z.boolean().default(false),
+  allowCustom: z.boolean().default(false),
+  next: z.union([z.string(), z.record(z.string(), z.string()), z.null()]),
+});
+const QuestionsSchema = z.object({ start: z.string(), questions: z.array(QuestionSchema).min(1) });
+
+/** Expands taxonomy names into options whose `sets` point at that taxonomy's chip. */
+function expandQuestion(q: z.infer<typeof QuestionSchema>): Question {
+  if (typeof q.options !== "string") return { ...q, options: q.options };
+  const list = TAXONOMIES[q.options];
+  const key = TAXONOMY_SETS[q.options];
+  if (!list) throw new Error(`question ${q.id}: unknown taxonomy ${q.options}`);
+  const single = key === "situation" || key === "relation" || key === "frequency" || key === "trustLoss";
+  return { ...q, options: list.map((o) => ({ id: o.id, label: o.label, sets: { [key]: single ? o.id : [o.id] } as Question["options"][number]["sets"] })) };
+}
+
 const DefaultsSchema = z.object({
   steps: z.array(StepSchema),
   followups: z.array(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), title: z.string(), template: z.string() })),
@@ -116,6 +167,7 @@ export type Catalogue = {
   contents: ContentDef[];
   defaults: z.infer<typeof DefaultsSchema>;
   scoring: Scoring;
+  questions: { start: string; questions: Question[] };
 };
 
 export function loadCatalogue(dir = process.env.CONTENT_DIR ?? resolve(process.cwd(), "../../content")): Catalogue {
@@ -126,12 +178,14 @@ export function loadCatalogue(dir = process.env.CONTENT_DIR ?? resolve(process.c
   const contents = z.array(ContentSchema).parse(read("contents.json"));
   const defaults = DefaultsSchema.parse(read("defaults.json"));
   const scoring = ScoringSchema.parse(read("scoring.json"));
+  const qraw = QuestionsSchema.parse(read("questions.json"));
+  const questions = { start: qraw.start, questions: qraw.questions.map(expandQuestion) };
 
-  const problems = check({ personas, facts, contents, defaults });
+  const problems = [...check({ personas, facts, contents, defaults }), ...checkQuestions(questions)];
   if (problems.length) throw new Error(`Catalogue problems:\n- ${problems.join("\n- ")}`);
 
   const version = createHash("sha256")
-    .update(JSON.stringify({ personas, facts, contents, defaults, scoring }))
+    .update(JSON.stringify({ personas, facts, contents, defaults, scoring, questions }))
     .digest("hex")
     .slice(0, 10);
 
@@ -142,7 +196,35 @@ export function loadCatalogue(dir = process.env.CONTENT_DIR ?? resolve(process.c
     contents: contents.filter((c) => c.approved),
     defaults,
     scoring,
+    questions,
   };
+}
+
+/** Every `next` must exist, every path must end, and the situation must be asked on every path. */
+export function checkQuestions(qs: { start: string; questions: Question[] }): string[] {
+  const problems: string[] = [];
+  const byId = new Map(qs.questions.map((q) => [q.id, q]));
+  if (!byId.has(qs.start)) problems.push(`questions: start ${qs.start} not found`);
+  const nextIds = (q: Question) => (q.next === null ? [] : typeof q.next === "string" ? [q.next] : Object.values(q.next));
+  for (const q of qs.questions) {
+    for (const n of nextIds(q)) if (!byId.has(n)) problems.push(`question ${q.id}: next ${n} not found`);
+    if (typeof q.next === "object" && q.next !== null) {
+      for (const k of Object.keys(q.next)) if (k !== "*" && !q.options.some((o) => o.id === k)) problems.push(`question ${q.id}: next for unknown option ${k}`);
+      if (!("*" in q.next) && !q.optional && !q.allowCustom && q.options.some((o) => !(o.id in (q.next as object)))) problems.push(`question ${q.id}: option without next and no "*"`);
+    }
+  }
+  // Cycle check and "situation asked" check by walking every path (the tree is small).
+  const walk = (id: string, seen: string[], sawSituation: boolean) => {
+    if (seen.includes(id)) return problems.push(`questions: cycle at ${id}`);
+    const q = byId.get(id);
+    if (!q) return;
+    const asksSituation = sawSituation || q.options.some((o) => o.sets?.situation);
+    const nexts = nextIds(q);
+    if (nexts.length === 0 && !asksSituation) problems.push(`questions: path ending at ${id} never asked the situation`);
+    for (const n of new Set(nexts)) walk(n, [...seen, id], asksSituation);
+  };
+  walk(qs.start, [], false);
+  return problems;
 }
 
 /** Referential checks a schema can't express. */

@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-import type { Member, OutcomeId } from "@boranois/shared";
+import type { ChipStats, Member, OutcomeId } from "@boranois/shared";
 import { newId } from "../ids.js";
 import type { ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
 
@@ -9,13 +9,21 @@ import type { ContactPatch, ContactRecord, NewContact, NewInteraction, Store } f
 type LoginRow = { tokenHash: string; email: string; expiresAt: string; usedAt: string | null };
 type SessionRow = { tokenHash: string; memberId: string };
 type InteractionRow = NewInteraction & { id: string; createdAt: string };
-type Data = { members: Member[]; logins: LoginRow[]; sessions: SessionRow[]; contacts: ContactRecord[]; interactions: InteractionRow[] };
+type Data = {
+  members: Member[];
+  logins: LoginRow[];
+  sessions: SessionRow[];
+  contacts: ContactRecord[];
+  interactions: InteractionRow[];
+  chipUsage: Record<string, number>;
+  chipProposals: Record<string, number>;
+};
 
 export class FileStore implements Store {
   private data: Data;
 
   constructor(private path: string) {
-    const empty: Data = { members: [], logins: [], sessions: [], contacts: [], interactions: [] };
+    const empty: Data = { members: [], logins: [], sessions: [], contacts: [], interactions: [], chipUsage: {}, chipProposals: {} };
     try {
       this.data = { ...empty, ...JSON.parse(readFileSync(path, "utf8")) };
     } catch {
@@ -103,5 +111,25 @@ export class FileStore implements Store {
 
   async listOutcomes(contactId: string): Promise<OutcomeId[]> {
     return this.data.interactions.filter((i) => i.contactId === contactId).map((i) => i.outcome);
+  }
+
+  async countChipUsage(questionId: string, optionId: string) {
+    const k = `${questionId}|${optionId}`;
+    this.data.chipUsage[k] = (this.data.chipUsage[k] ?? 0) + 1;
+    this.save();
+  }
+
+  async countChipProposal(questionId: string, text: string) {
+    const k = `${questionId}|${text.toLowerCase()}`;
+    this.data.chipProposals[k] = (this.data.chipProposals[k] ?? 0) + 1;
+    this.save();
+  }
+
+  async chipStats(): Promise<ChipStats> {
+    const split = (k: string) => k.split("|", 2) as [string, string];
+    return {
+      usage: Object.entries(this.data.chipUsage).map(([k, count]) => ({ questionId: split(k)[0], optionId: split(k)[1], count })),
+      proposals: Object.entries(this.data.chipProposals).map(([k, count]) => ({ questionId: split(k)[0], text: split(k)[1], count })).sort((a, b) => b.count - a.count),
+    };
   }
 }

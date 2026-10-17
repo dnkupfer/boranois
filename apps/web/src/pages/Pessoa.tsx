@@ -28,7 +28,11 @@ export function Pessoa() {
     setBusy(true);
     try {
       const r = await api<NextStepResponse>(`/contacts/${id}/next`, {
-        body: { nickname: priv.nickname, note: priv.note || undefined, voiceSample: profile.get().voiceSample || undefined },
+        body: {
+          nickname: priv.nickname,
+          note: [priv.note, priv.customChips.length ? `Sobre ela: ${priv.customChips.join("; ")}` : ""].filter(Boolean).join("\n") || undefined,
+          voiceSample: profile.get().voiceSample || undefined,
+        },
       });
       setContact(r.contact);
       setStep(r.step);
@@ -38,7 +42,8 @@ export function Pessoa() {
     } finally {
       setBusy(false);
     }
-  }, [id, priv.nickname, priv.note]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   useEffect(() => {
     loadNext().catch(() => navigate("/"));

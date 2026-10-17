@@ -97,6 +97,31 @@ describe("conversation flow", () => {
   });
 });
 
+describe("question flow", () => {
+  it("loads and every option maps to known chips", () => {
+    const ids = new Set(cat.questions.questions.map((q) => q.id));
+    assert.ok(ids.has(cat.questions.start));
+    for (const q of cat.questions.questions) for (const o of q.options) assert.ok(o.id && o.label, `${q.id}/${o.id}`);
+  });
+  it("a typical path yields chips the engine matches", () => {
+    // tia que não foi: situação → por quê → desanimou → confiança → influências → preocupações
+    const walk = ["relacao:familia", "frequencia:semanal", "grupos:familia", "situacao:nao_votou", "nao_votou_porque:desanimou", "confianca:inss", "influencias:choquei", "preocupacoes:custo_de_vida"];
+    const sets: Record<string, unknown> = { sayings: [], worries: [], groups: [], influencers: [] };
+    for (const step of walk) {
+      const [qid, oid] = step.split(":");
+      const q = cat.questions.questions.find((q) => q.id === qid)!;
+      const o = q.options.find((o) => o.id === oid)!;
+      assert.ok(o, step);
+      for (const [k, v] of Object.entries(o.sets ?? {})) {
+        if (Array.isArray(v)) (sets[k] as string[]).push(...v);
+        else sets[k] = v;
+      }
+    }
+    const chips = Chips.parse(sets);
+    assert.equal(match(cat, chips).personaId, "nao_adianta");
+  });
+});
+
 describe("templates", () => {
   it("renders placeholders and collapses whitespace", () => {
     assert.equal(renderTemplate("Oi {nome}, olha: {fato}  fim", { nome: "tia", fato: "X." }), "Oi tia, olha: X. fim");

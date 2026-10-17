@@ -1,6 +1,7 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import {
   ActionId,
+  ChipUsageRequest,
   ClassifyRequest,
   CreateContactRequest,
   InteractionRequest,
@@ -16,6 +17,7 @@ import {
   type MeResponse,
   type Member,
   type NextStepResponse,
+  type QuestionsResponse,
   type Step,
   type VerifyResponse,
 } from "@boranois/shared";
@@ -65,6 +67,21 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
   api.get("/catalogue", (_req, res) => {
     res.json({ version: catalogue.version, personas: catalogue.personas.map(toPublic) } satisfies CatalogueResponse);
   });
+
+  // The question flow, public so the "adicionar pessoa" screens are content-driven.
+  api.get("/questions", (_req, res) => res.json(catalogue.questions satisfies QuestionsResponse));
+
+  /** Anonymous chip counts. Lets us learn which chips are used and which are missing. */
+  api.post("/chips/usage", auth, async (req, res) => {
+    const body = ChipUsageRequest.safeParse(req.body);
+    if (!body.success) return res.status(400).json({ error: "invalid_request" });
+    for (const a of body.data.answers) {
+      for (const o of a.optionIds) await store.countChipUsage(a.questionId, o);
+      for (const t of a.custom) await store.countChipProposal(a.questionId, t);
+    }
+    res.json({ ok: true });
+  });
+  api.get("/chips/stats", auth, async (_req, res) => res.json(await store.chipStats()));
 
   // --- Sign-in by magic link ------------------------------------------------
 

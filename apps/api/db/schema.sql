@@ -50,3 +50,18 @@ create table if not exists interactions (
   created_at         timestamptz not null default now()
 );
 create index if not exists interactions_contact_idx on interactions (contact_id);
+
+-- Which chips people choose, and which they type in. Counts only: never linked to a member or a pessoa.
+create table if not exists chip_usage (
+  question_id  text not null,
+  option_id    text not null,
+  count        integer not null default 0,
+  primary key (question_id, option_id)
+);
+
+create table if not exists chip_proposals (
+  question_id  text not null,
+  text         text not null,
+  count        integer not null default 0,
+  primary key (question_id, text)
+);

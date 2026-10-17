@@ -1,5 +1,5 @@
 import pg from "pg";
-import type { Member, OutcomeId } from "@boranois/shared";
+import type { ChipStats, Member, OutcomeId } from "@boranois/shared";
 import { newId } from "../ids.js";
 import type { ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
 
@@ -119,5 +119,28 @@ export class PostgresStore implements Store {
   async listOutcomes(contactId: string): Promise<OutcomeId[]> {
     const { rows } = await this.pool.query(`select outcome from interactions where contact_id = $1 order by created_at`, [contactId]);
     return rows.map((r) => r.outcome);
+  }
+
+  async countChipUsage(questionId: string, optionId: string) {
+    await this.pool.query(
+      `insert into chip_usage (question_id, option_id, count) values ($1, $2, 1) on conflict (question_id, option_id) do update set count = chip_usage.count + 1`,
+      [questionId, optionId],
+    );
+  }
+
+  async countChipProposal(questionId: string, text: string) {
+    await this.pool.query(
+      `insert into chip_proposals (question_id, text, count) values ($1, $2, 1) on conflict (question_id, text) do update set count = chip_proposals.count + 1`,
+      [questionId, text.toLowerCase()],
+    );
+  }
+
+  async chipStats(): Promise<ChipStats> {
+    const u = await this.pool.query(`select question_id, option_id, count from chip_usage order by count desc`);
+    const pr = await this.pool.query(`select question_id, text, count from chip_proposals order by count desc`);
+    return {
+      usage: u.rows.map((r) => ({ questionId: r.question_id, optionId: r.option_id, count: Number(r.count) })),
+      proposals: pr.rows.map((r) => ({ questionId: r.question_id, text: r.text, count: Number(r.count) })),
+    };
   }
 }

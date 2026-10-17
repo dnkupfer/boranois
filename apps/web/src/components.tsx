@@ -44,24 +44,44 @@ export function PriorityBadge({ level, engage }: { level: Priority; engage: bool
   return <span className={`badge ${level}`}>{PRIORITY_LABEL[level]}</span>;
 }
 
-/** A row of tappable chips. Single or multi select. */
+/**
+ * A row of tappable chips. Single or multi select. With `onCustomChange`, a "+ outra"
+ * chip lets the person type one in; typed chips are selected and listed alongside.
+ */
 export function ChipGroup<T extends string>({
   options,
   value,
   onChange,
   max,
+  custom = [],
+  onCustomChange,
 }: {
   options: readonly { id: T; label: string }[];
   value: T[];
   onChange: (next: T[]) => void;
   max?: number;
+  custom?: string[];
+  onCustomChange?: (next: string[]) => void;
 }) {
+  const [adding, setAdding] = useState(false);
+  const [draft, setDraft] = useState("");
+
   const toggle = (id: T) => {
     if (value.includes(id)) return onChange(value.filter((v) => v !== id));
     if (max === 1) return onChange([id]);
-    if (max && value.length >= max) return;
+    if (max && value.length + custom.length >= max) return;
     onChange([...value, id]);
   };
+
+  const addCustom = () => {
+    const text = draft.trim();
+    setDraft("");
+    setAdding(false);
+    if (!text || !onCustomChange || custom.includes(text)) return;
+    if (max === 1) onChange([]);
+    onCustomChange([...custom, text]);
+  };
+
   return (
     <div className="chips">
       {options.map((o) => (
@@ -69,16 +89,33 @@ export function ChipGroup<T extends string>({
           {o.label}
         </button>
       ))}
+      {custom.map((c) => (
+        <button type="button" key={`c:${c}`} className="chip on custom" onClick={() => onCustomChange?.(custom.filter((x) => x !== c))} title="Tirar">
+          {c} ×
+        </button>
+      ))}
+      {onCustomChange && !adding && (
+        <button type="button" className="chip add" onClick={() => setAdding(true)}>+ outra</button>
+      )}
+      {onCustomChange && adding && (
+        <form
+          className="chip-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            addCustom();
+          }}
+        >
+          <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Escreva com suas palavras" maxLength={60} autoFocus onBlur={addCustom} />
+        </form>
+      )}
     </div>
   );
 }
 
-export function Steps({ current, total }: { current: number; total: number }) {
+export function Progress({ value }: { value: number }) {
   return (
-    <div className="stepper" aria-label={`Passo ${current} de ${total}`}>
-      {Array.from({ length: total }, (_, i) => (
-        <span key={i} className={i < current ? "on" : ""} />
-      ))}
+    <div className="progress" aria-hidden>
+      <span style={{ width: `${Math.round(Math.min(1, Math.max(0, value)) * 100)}%` }} />
     </div>
   );
 }

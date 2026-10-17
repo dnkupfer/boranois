@@ -1,4 +1,4 @@
-import type { Contact, Member, OutcomeId, SayingId } from "@boranois/shared";
+import type { ChipStats, Contact, Member, OutcomeId, SayingId } from "@boranois/shared";
 
 export type ContactRecord = Contact & { memberId: string; lastSaying: SayingId | null };
 export type NewContact = Omit<ContactRecord, "id" | "createdAt" | "updatedAt">;
@@ -31,4 +31,9 @@ export interface Store {
 
   insertInteraction(i: NewInteraction): Promise<void>;
   listOutcomes(contactId: string): Promise<OutcomeId[]>;
+
+  // Anonymous counts: which chips get chosen, which get typed in. Never linked to a member or a pessoa.
+  countChipUsage(questionId: string, optionId: string): Promise<void>;
+  countChipProposal(questionId: string, text: string): Promise<void>;
+  chipStats(): Promise<ChipStats>;
 }

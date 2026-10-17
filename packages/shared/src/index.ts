@@ -153,6 +153,8 @@ export const Chips = z.object({
   influencers: z.array(InfluencerId).max(3).default([]),
   trustLoss: TrustLossId.optional(),
   frequency: FrequencyId,
+  /** Answers that don't map to a taxonomy (e.g. "trabalhou no domingo"). Categorical only. */
+  tags: z.array(z.string().max(40)).max(12).default([]),
   /** Member and pessoa belong to at least one group in common (computed on the member's device). */
   sharedGroup: z.boolean().default(false),
 });
@@ -177,6 +179,11 @@ export const InteractionRequest = z.object({
   outcome: OutcomeId,
   /** When the pessoa disagreed: what she said, as a chip. */
   saying: SayingId.optional(),
+});
+
+/** Which chips were chosen, and which were typed in. Anonymous: counted, never linked to a member or a pessoa. */
+export const ChipUsageRequest = z.object({
+  answers: z.array(z.object({ questionId: z.string().max(40), optionIds: z.array(z.string().max(40)).max(12), custom: z.array(z.string().trim().min(1).max(60)).max(5).default([]) })).max(30),
 });
 
 /** Turn a pasted reply into chips. The text is not stored. */
@@ -270,3 +277,21 @@ export type PublicPersona = {
 };
 
 export type CatalogueResponse = { version: string; personas: PublicPersona[] };
+
+// --- The question flow (one question at a time, branching) ---
+
+export type ChipSets = { sayings?: SayingId[]; worries?: WorryId[]; groups?: GroupId[]; influencers?: InfluencerId[]; trustLoss?: TrustLossId; situation?: SituationId; relation?: RelationId; frequency?: FrequencyId };
+export type QuestionOption = { id: string; label: string; sets?: ChipSets };
+export type Question = {
+  id: string;
+  text: string;
+  hint?: string;
+  options: QuestionOption[];
+  max: number;
+  optional: boolean;
+  allowCustom: boolean;
+  /** Next question id, or per-option map ("*" default). null ends the flow. */
+  next: string | Record<string, string> | null;
+};
+export type QuestionsResponse = { start: string; questions: Question[] };
+export type ChipStats = { usage: { questionId: string; optionId: string; count: number }[]; proposals: { questionId: string; text: string; count: number }[] };

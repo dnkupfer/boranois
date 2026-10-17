@@ -83,10 +83,14 @@ button:disabled { opacity: 0.5; cursor: default; }
 .chip { min-height: 44px; padding: 8px 14px; border-radius: 22px; border: 2px solid var(--border); background: #fff; color: var(--text); font-weight: 500; }
 .chip.on { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-dark); font-weight: 700; }
 
-/* Stepper */
-.stepper { display: flex; gap: 6px; margin: 4px 0 8px; }
-.stepper span { flex: 1; height: 6px; border-radius: 3px; background: var(--border); }
-.stepper span.on { background: var(--primary); }
+.chip.add { border-style: dashed; color: var(--primary); }
+.chip.custom { border-color: var(--primary); }
+.chip-form { display: inline-flex; }
+.chip-form input { margin: 0; min-height: 44px; padding: 8px 14px; border-radius: 22px; width: 240px; max-width: 70vw; }
+
+/* Progress */
+.progress { height: 6px; border-radius: 3px; background: var(--border); margin: 4px 0 8px; overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--primary); transition: width 200ms ease; }
 
 /* Priority badges */
 .badge { display: inline-block; padding: 4px 12px; border-radius: 14px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
