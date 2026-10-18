@@ -9,9 +9,13 @@
   ],
   "scripts": {
     "dev": "concurrently -n api,web -c blue,green \"npm run dev -w @boranois/api\" \"npm run dev -w @boranois/web\"",
-    "build": "./scripts/zip-extension.sh && npm run build -w @boranois/api && npm run build -w @boranois/web",
+    "build": "npm run build -w @boranois/api && npm run build -w @boranois/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "extension:zip": "./scripts/zip-extension.sh"
+    "extension:zip": "./scripts/zip-extension.sh",
+    "test": "npm test -w @boranois/api",
+    "deploy:prod": "PROJECT=boranois ./scripts/deploy.sh",
+    "deploy:prod:api": "PROJECT=boranois ./scripts/deploy.sh api",
+    "deploy:prod:web": "PROJECT=boranois ./scripts/deploy.sh web"
   },
   "devDependencies": {
     "concurrently": "^10.0.6"

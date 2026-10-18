@@ -1,46 +1,82 @@
 -- Idempotent schema; run with `npm run db:migrate -w @boranois/api`.
+-- Nothing here identifies the pessoas: their names, phones and notes stay on the member's device.
 
-create table if not exists groups (
-  id            text primary key,
-  objective     text,
-  created_at    timestamptz not null default now()
-);
-
+-- email is null for an anonymous session; the tool works without an account.
 create table if not exists members (
   id          text primary key,
-  group_id    text references groups(id),
-  name        text not null,
-  role        text not null check (role in ('host', 'member')),
-  token_hash  text not null unique,
+  email       text unique,
+  name        text,
   created_at  timestamptz not null default now()
 );
 
--- group_id is null for host codes: redeeming one creates a new group.
-create table if not exists invites (
-  code          text primary key,
-  group_id      text references groups(id),
-  role          text not null check (role in ('host', 'member')),
-  contact_name  text,
-  phone         text,
-  used_by       text references members(id),
-  used_at       timestamptz,
-  created_at    timestamptz not null default now()
+-- Magic-link sign-in. Tokens are stored hashed; a login is single-use and short-lived.
+create table if not exists logins (
+  token_hash  text primary key,
+  email       text not null,
+  expires_at  timestamptz not null,
+  used_at     timestamptz,
+  created_at  timestamptz not null default now()
 );
-create index if not exists invites_group_idx on invites (group_id);
 
-create table if not exists checks (
+create table if not exists sessions (
+  token_hash  text primary key,
+  member_id   text not null references members(id),
+  created_at  timestamptz not null default now()
+);
+
+create table if not exists contacts (
   id                 text primary key,
-  group_id           text not null references groups(id),
   member_id          text not null references members(id),
-  objective          text not null,
-  post_url           text,
-  handle             text,
-  caption            text not null,
-  score              integer not null,
-  decision           text not null check (decision in ('share', 'skip', 'unclear')),
-  reason             text not null,
-  suggested_comment  text,
-  scorer             text not null,
+  chips              jsonb not null,
+  persona_id         text not null,
+  match              jsonb not null,
+  priority           jsonb not null,
+  state              text not null,
+  steps_done         jsonb not null default '[]',
+  last_saying        text,
+  last_sent_at       timestamptz,
+  catalogue_version  text not null,
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now()
+);
+create index if not exists contacts_member_idx on contacts (member_id);
+
+create table if not exists interactions (
+  id                 text primary key,
+  contact_id         text not null references contacts(id) on delete cascade,
+  member_id          text not null references members(id),
+  step_id            text not null,
+  outcome            text not null,
+  saying             text,
+  catalogue_version  text not null,
   created_at         timestamptz not null default now()
 );
-create index if not exists checks_group_created_idx on checks (group_id, created_at desc);
+create index if not exists interactions_contact_idx on interactions (contact_id);
+
+-- Which chips people choose, and which they type in. Counts only: never linked to a member or a pessoa.
+create table if not exists chip_usage (
+  question_id  text not null,
+  option_id    text not null,
+  count        integer not null default 0,
+  primary key (question_id, option_id)
+);
+
+create table if not exists chip_proposals (
+  question_id  text not null,
+  text         text not null,
+  count        integer not null default 0,
+  mapped       text,
+  primary key (question_id, text)
+);
+
+-- Product analytics. aid is a random per-device id created only after consent; never a member id, name or text.
+create table if not exists events (
+  id     text primary key,
+  aid    text not null,
+  name   text not null,
+  path   text not null default '',
+  props  jsonb not null default '{}',
+  ts     timestamptz not null
+);
+create index if not exists events_ts_idx on events (ts);
+create index if not exists events_aid_idx on events (aid, ts);

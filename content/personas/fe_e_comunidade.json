@@ -1,0 +1,169 @@
+{
+  "id": "fe_e_comunidade",
+  "name": "Quem vive a fé e a comunidade",
+  "situations": [
+    "lula_para_flavio",
+    "branco_nulo",
+    "flavio_sem_conviccao",
+    "indeciso",
+    "votou_outro"
+  ],
+  "default_for": [],
+  "summary": "Se importa com justiça, com os pobres e com a família. Na igreja ouve que a esquerda é contra Deus. Não vê os escândalos do Flávio porque não aparecem onde ela olha.",
+  "profile": {
+    "trust_story": "Cresceu na igreja; a fé é o centro da vida e da comunidade. Nos últimos anos o pastor e o grupo da igreja passaram a dizer que a esquerda é contra a família e contra Deus; vídeos do Malafaia e do Nikolas circulam no grupo. Ela não odeia o Lula: tem medo do que dizem que ele representa. Os escândalos do Flávio não aparecem onde ela olha e, quando aparecem, vêm de fontes que ela aprendeu a desconfiar (Globo, “esquerda”).",
+    "feelings": [
+      "medo pela família",
+      "lealdade à comunidade",
+      "desconforto com conflito"
+    ],
+    "identity": "“Sou de Deus, não de política.”",
+    "media_diet": [
+      "grupo da igreja",
+      "Malafaia",
+      "Nikolas",
+      "o pastor",
+      "louvores no Instagram"
+    ],
+    "shuts_down": [
+      "qualquer crítica à igreja",
+      "matéria da Globo",
+      "“você foi enganada”",
+      "discussão sobre pautas de costumes"
+    ],
+    "opens_up": [
+      "valores em comum (cuidar dos pobres, honestidade, família)",
+      "uma voz de dentro da fé",
+      "ser convidada a olhar com a mesma régua para os dois lados"
+    ],
+    "would_believe": [
+      "irmão ou irmã de igreja",
+      "um pastor ou padre que ela respeite",
+      "a própria Bíblia (justiça para o pobre, a viúva, o órfão)"
+    ],
+    "turning_point": "Perceber que votar em quem cuida do pobre e do trabalhador é um ato de fé, e que a honestidade vale para os dois lados: olhar para o Flávio com a mesma régua."
+  },
+  "signals": {
+    "sayings": {
+      "esquerda_familia": 6,
+      "lula_ladrao": 2
+    },
+    "worries": {
+      "valores_familia": 3
+    },
+    "groups": {
+      "igreja_evangelica": 2,
+      "igreja_catolica": 1
+    },
+    "influencers": {
+      "malafaia": 3,
+      "padres_pastores": 2,
+      "nikolas": 1
+    },
+    "trust_loss": {
+      "nunca": 1
+    }
+  },
+  "engage": true,
+  "priority_base": "media",
+  "wait_hours": 48,
+  "tactics": [
+    {
+      "title": "Fale de valores, não de candidato",
+      "detail": "“Quem cuida de quem precisa.” Deixe ela chegar ao nome. Se você diz o nome primeiro, ela ouve “campanha”."
+    },
+    {
+      "title": "Só conteúdo de dentro da fé",
+      "detail": "Pastor, padre, irmão de igreja. Fora isso, nada. Se não tiver, pergunte mais e espere. Um link errado custa a conversa inteira."
+    },
+    {
+      "title": "Peça a mesma régua",
+      "detail": "“Olha com o mesmo olhar para os dois lados.” Não diga o que ela vai encontrar; deixe ela achar. O que ela acha sozinha, ela acredita."
+    },
+    {
+      "title": "Nunca no domingo de manhã nem no horário do culto",
+      "detail": "Terça ou quinta à noite. Domingo é dela e de Deus."
+    },
+    {
+      "title": "Se você também é da fé, diga",
+      "detail": "“Eu oro sobre isso também.” Se não é, não finja: fale da família e de cuidar do próximo."
+    },
+    {
+      "title": "Pergunte quem ela mais respeita na igreja",
+      "detail": "E se ela já ouviu o que essa pessoa pensa. Às vezes o caminho é por outra pessoa, não por você."
+    },
+    {
+      "title": "Áudio curto, tom de carinho",
+      "detail": "Texto parece debate. Voz parece família."
+    }
+  ],
+  "avoid": [
+    {
+      "what": "Criticar a igreja, o pastor ou o Malafaia",
+      "why": "Você ataca a comunidade dela, e ela defende a comunidade de você."
+    },
+    {
+      "what": "Mandar matéria de jornal ou vídeo de político de esquerda",
+      "why": "Para ela não vale, e prova que você está “do lado de lá”."
+    },
+    {
+      "what": "Discutir pautas de costumes",
+      "why": "Não é onde ela decide, e é onde a conversa morre."
+    }
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Comece pelos valores em comum",
+      "why": "Vocês querem as mesmas coisas: justiça, família, honestidade. A conversa começa aí, não na política.",
+      "template": "{nome}, uma coisa que eu admiro em você é como você cuida da família e de quem precisa. Posso te perguntar como você tá vendo essa eleição? Não é pra discutir, é que eu confio no seu julgamento."
+    },
+    {
+      "id": "voz_de_dentro",
+      "action": "enviar_conteudo",
+      "when": [
+        "conversando"
+      ],
+      "title": "Mande uma voz da própria fé",
+      "why": "Ela só ouve quem é do grupo dela. Um pastor, um padre, um irmão de igreja falando é o que pode abrir espaço. Sem isso, não mande nada.",
+      "template": "Vi esse aqui e pensei em você. É um irmão de fé falando, curtinho: {conteudo}"
+    },
+    {
+      "id": "justica",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Ligue a fé à vida real",
+      "why": "Cuidar dos pobres e da família é um valor dela. Um fato concreto sobre isso, de fonte que ela respeite.",
+      "facts": [],
+      "template": "Sobre cuidar de quem precisa, que eu sei que é importante pra você: {fato}"
+    },
+    {
+      "id": "fechar",
+      "action": "oferecer_ajuda",
+      "when": [
+        "conversando"
+      ],
+      "title": "Deixe com Deus e com ela",
+      "why": "Pressão é desrespeito. Ela decide em oração, e tudo bem.",
+      "template": "Pensa com calma, e com Deus. Eu respeito a sua decisão, seja qual for. Só queria que você ouvisse também quem é da nossa fé e pensa diferente."
+    }
+  ],
+  "objections": {
+    "esquerda_familia": {
+      "title": "“A esquerda é contra a família”",
+      "template": "Eu entendo de onde vem isso. Mas olha pra mim, pra nossa família: a gente é de esquerda? Não. A gente é de cuidar um do outro. É isso que eu tô olhando nessa eleição: quem cuida de quem precisa.",
+      "facts": []
+    },
+    "lula_ladrao": {
+      "title": "“O Lula é ladrão”",
+      "template": "Eu sei que muita gente acredita nisso, e não vou te pedir pra mudar de ideia por mim. Só te peço uma coisa: olha com o mesmo olhar pros dois lados. Posso te mandar uma coisa de uma fonte que você confia?",
+      "facts": []
+    }
+  }
+}

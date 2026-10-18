@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "match": {
+    "comment": "Situation is a hard filter. Then signals add up. If the runner-up is within `uncertainMargin`, the UI asks the member to pick.",
+    "uncertainMargin": 2,
+    "minScore": 1
+  },
+  "priority": {
+    "comment": "Levels: alta=3, media=2, baixa=1. Modifiers add to the persona's base, then the result is clamped to 1..3.",
+    "sharedGroup": 1,
+    "frequency": { "diario": 1, "semanal": 0, "raro": -1 },
+    "sayings": { "nunca_muda": -2 },
+    "outcomes": { "respondeu_bem": 1, "fez_pergunta": 1, "cortou_assunto": -1, "nao_vai_votar": -1, "vai_votar": 3, "votou": 3 }
+  },
+  "phrasing": { "maxChars": 450 }
+}

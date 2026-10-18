@@ -1,34 +1,47 @@
-import type { Decision, FeedItem, Group, Invite, Member, ObjectiveId } from "@boranois/shared";
+import type { AnalyticsEvent, ChipStats, Contact, Member, OutcomeId, SayingId } from "@boranois/shared";
 
-export type MemberRecord = Member & { groupId: string };
+export type ContactRecord = Contact & { memberId: string; lastSaying: SayingId | null };
+export type NewContact = Omit<ContactRecord, "id" | "createdAt" | "updatedAt">;
+export type ContactPatch = Partial<Pick<ContactRecord, "state" | "stepsDone" | "priority" | "match" | "lastSaying" | "lastSentAt">>;
 
-export type NewCheck = {
-  groupId: string;
+export type NewInteraction = {
+  contactId: string;
   memberId: string;
-  objective: ObjectiveId;
-  postUrl: string | null;
-  handle: string | null;
-  caption: string;
-  score: number;
-  decision: Decision;
-  reason: string;
-  suggestedComment: string | null;
-  scorer: string;
+  stepId: string;
+  outcome: OutcomeId;
+  saying: SayingId | null;
+  catalogueVersion: string;
 };
 
-export type RedeemResult =
-  | { ok: true; member: MemberRecord; group: Group }
-  | { ok: false; error: "not_found" | "used" };
-
 export interface Store {
-  createHostCode(): Promise<string>;
-  /** Redeems an invite code. A host code creates a new group with the redeemer as host. */
-  redeemInvite(code: string, name: string, tokenHash: string): Promise<RedeemResult>;
-  memberByTokenHash(tokenHash: string): Promise<MemberRecord | null>;
-  getGroup(groupId: string): Promise<Group>;
-  updateGroup(groupId: string, objective: ObjectiveId): Promise<Group>;
-  listInvites(groupId: string): Promise<Invite[]>;
-  createInvites(groupId: string, contacts: { name: string; phone?: string }[]): Promise<Invite[]>;
-  insertCheck(check: NewCheck): Promise<string>;
-  listSharedChecks(groupId: string, limit: number): Promise<FeedItem[]>;
+  // Magic-link sign-in: a short-lived login token, then a long-lived session token. Both stored hashed.
+  createLogin(email: string, tokenHash: string, expiresAt: Date): Promise<void>;
+  /** Marks the login used and returns its email, or null if unknown, used or expired. */
+  consumeLogin(tokenHash: string): Promise<string | null>;
+  memberByEmailOrCreate(email: string): Promise<Member>;
+  /** An account-less member: the tool works without e-mail. */
+  createAnonMember(): Promise<Member>;
+  /** Attaches an e-mail to an anonymous member. If the e-mail already has a member, moves the pessoas there and returns it. */
+  linkEmail(memberId: string, email: string): Promise<Member>;
+  createSession(memberId: string, tokenHash: string): Promise<void>;
+  memberBySessionHash(tokenHash: string): Promise<Member | null>;
+  setMemberName(memberId: string, name: string): Promise<Member>;
+
+  createContact(c: NewContact): Promise<ContactRecord>;
+  listContacts(memberId: string): Promise<ContactRecord[]>;
+  getContact(memberId: string, id: string): Promise<ContactRecord | null>;
+  updateContact(id: string, patch: ContactPatch): Promise<ContactRecord>;
+  deleteContact(memberId: string, id: string): Promise<void>;
+
+  insertInteraction(i: NewInteraction): Promise<void>;
+  listOutcomes(contactId: string): Promise<OutcomeId[]>;
+
+  // Anonymous counts: which chips get chosen, which get typed in. Never linked to a member or a pessoa.
+  countChipUsage(questionId: string, optionId: string): Promise<void>;
+  countChipProposal(questionId: string, text: string, mapped?: string | null): Promise<void>;
+  chipStats(): Promise<ChipStats>;
+
+  // Analytics: anonymous events, kept for aggregation only.
+  insertEvents(events: AnalyticsEvent[]): Promise<void>;
+  listEvents(sinceDays: number): Promise<AnalyticsEvent[]>;
 }

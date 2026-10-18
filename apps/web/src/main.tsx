@@ -3,13 +3,16 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { SessionProvider, useSession } from "./session";
 import { Entrar } from "./pages/Entrar";
-import { Painel } from "./pages/Painel";
-import { Extensao } from "./pages/Extensao";
+import { Pessoas } from "./pages/Pessoas";
+import { NovaPessoa } from "./pages/NovaPessoa";
+import { Pessoa } from "./pages/Pessoa";
+import { ComoFunciona } from "./pages/ComoFunciona";
 import "./styles.css";
 
+/** Waits for the (anonymous or e-mail) session to exist. Nothing is gated behind an account. */
 function RequireSession({ children }: { children: React.ReactNode }) {
   const { token } = useSession();
-  return token ? children : <Navigate to="/entrar" replace />;
+  return token ? children : <p className="muted" style={{ padding: 24 }}>Um momento…</p>;
 }
 
 createRoot(document.getElementById("root")!).render(
@@ -18,8 +21,10 @@ createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <Routes>
           <Route path="/entrar" element={<Entrar />} />
-          <Route path="/" element={<RequireSession><Painel /></RequireSession>} />
-          <Route path="/extensao" element={<Extensao />} />
+          <Route path="/como-funciona" element={<ComoFunciona />} />
+          <Route path="/" element={<RequireSession><Pessoas /></RequireSession>} />
+          <Route path="/nova" element={<RequireSession><NovaPessoa /></RequireSession>} />
+          <Route path="/pessoa/:id" element={<RequireSession><Pessoa /></RequireSession>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

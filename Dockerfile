@@ -22,6 +22,8 @@ COPY apps/web/package.json apps/web/
 RUN npm ci --omit=dev -w @boranois/api
 COPY --from=build /app/apps/api/dist apps/api/dist
 COPY apps/api/db apps/api/db
+COPY content /app/content
+ENV CONTENT_DIR=/app/content
 WORKDIR /app/apps/api
 USER node
 CMD ["node", "dist/index.js"]

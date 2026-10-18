@@ -1,0 +1,172 @@
+{
+  "id": "nenhum_dos_dois",
+  "name": "Quem não gosta de nenhum dos dois",
+  "situations": [
+    "nao_votou",
+    "branco_nulo",
+    "indeciso",
+    "votou_outro"
+  ],
+  "default_for": [
+    "branco_nulo"
+  ],
+  "summary": "Votou no PT por convicção, se decepcionou, e se recusa a “dar o voto de novo”. Não quer o Flávio; não quer ser torcida.",
+  "profile": {
+    "trust_story": "Votou no PT por convicção. 2013 e 2016 abalaram; a Lava Jato doeu. Voltou em 2022 “pra tirar o Bolsonaro”, esperava mais e sentiu que o governo não entregou: preço, escândalo do INSS, política como sempre. Não vai pro Flávio (“é a mesma família”). Então anula: “não me representam”.",
+    "feelings": [
+      "decepção",
+      "orgulho ferido",
+      "coerência como refúgio"
+    ],
+    "identity": "“Eu penso por mim. Não sou torcida.”",
+    "media_diet": [
+      "jornalistas independentes no Instagram",
+      "Felipe Neto às vezes",
+      "podcasts",
+      "lê manchete, não lê a matéria"
+    ],
+    "shuts_down": [
+      "defesa do governo",
+      "“voto útil”",
+      "chantagem (“se o Flávio ganhar a culpa é sua”)"
+    ],
+    "opens_up": [
+      "reconhecerem que a crítica dela é legítima e perguntarem o que ela faria"
+    ],
+    "would_believe": [
+      "alguém que critica o governo junto com ela e mesmo assim vai votar",
+      "um dado concreto sobre o que muda na vida dela"
+    ],
+    "turning_point": "Separar “aprovar o governo” de “escolher entre dois futuros”. O voto não é nota para o governo; é escolher quem decide salário, aposentadoria e direitos nos próximos quatro anos."
+  },
+  "signals": {
+    "sayings": {
+      "nenhum_dos_dois": 5,
+      "todos_iguais": 3,
+      "raiva": 2,
+      "nao_melhorou": 2
+    },
+    "worries": {
+      "corrupcao": 1
+    },
+    "influencers": {
+      "felipe_neto": 1
+    },
+    "trust_loss": {
+      "lava_jato": 1,
+      "inss": 1,
+      "ainda": 1
+    }
+  },
+  "engage": true,
+  "priority_base": "alta",
+  "wait_hours": 48,
+  "tactics": [
+    {
+      "title": "Comece concordando com uma crítica específica dela",
+      "detail": "Diga qual: “aquilo do INSS foi inaceitável mesmo”. Só depois pergunte. Sem isso, ela te lê como defensor."
+    },
+    {
+      "title": "Pergunte o que ela teria feito diferente",
+      "detail": "“Se fosse você no governo, o que faria?” Quem responde já está pensando como eleitora, não como juíza."
+    },
+    {
+      "title": "O nulo some, sem chantagem",
+      "detail": "Diga “no 2º turno o nulo não é contado, ele desaparece; seu protesto não fica registrado”. Nunca “nulo é voto no Flávio”."
+    },
+    {
+      "title": "Fale do que é diferente na vida dela",
+      "detail": "Aposentadoria, CLT, salário mínimo. Uma frase, com fonte. “Os dois são iguais” morre num exemplo concreto."
+    },
+    {
+      "title": "Texto, não áudio",
+      "detail": "Ela gosta de argumento e de tempo para pensar. Áudio parece pressão."
+    },
+    {
+      "title": "Dois dias entre mensagens",
+      "detail": "Pressão confirma que você é torcida. Silêncio diz que você confia no julgamento dela."
+    }
+  ],
+  "avoid": [
+    {
+      "what": "Defender o governo ou listar conquistas",
+      "why": "Ela lista as falhas de volta, e a conversa vira placar."
+    },
+    {
+      "what": "Dizer “voto nulo é voto no Flávio”",
+      "why": "É a frase que ela mais odeia: vira chantagem, e você perde a credibilidade."
+    },
+    {
+      "what": "Mandar vídeo do Lula",
+      "why": "Ela não quer ouvir o Lula. Quer ser ouvida."
+    }
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Reconheça a decepção antes de qualquer coisa",
+      "why": "Ela espera que você defenda o governo. Se você não fizer isso, ela escuta.",
+      "template": "{nome}, posso te perguntar uma coisa sem briga? Você anulou no 1º turno, né? O que mais te decepcionou? Eu não vou tentar te convencer, só quero entender. Tem coisa que me decepcionou também."
+    },
+    {
+      "id": "branco_nao_conta",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Explique o que o nulo faz no 2º turno",
+      "why": "Muita gente acha que anular é um protesto registrado. No 2º turno, é o mesmo que não ir.",
+      "facts": [
+        "branco_nao_conta"
+      ],
+      "template": "Só uma coisa que eu acho que vale saber: {fato}"
+    },
+    {
+      "id": "voto_pesa",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Mostre quem decide essa eleição",
+      "why": "Ela se sente irrelevante. Os números mostram que o grupo dela é o que decide.",
+      "facts": [
+        "quaest_ausentes",
+        "abstencao_33mi"
+      ],
+      "template": "Olha isso: {fato} Ou seja, quem está decepcionado como você é quem vai decidir."
+    },
+    {
+      "id": "ajuda",
+      "action": "oferecer_ajuda",
+      "when": [
+        "conversando"
+      ],
+      "title": "Deixe a porta aberta",
+      "why": "Sem pressão. Quem se sente respeitado volta sozinho.",
+      "template": "Seja o que for que você decidir, tá tudo bem. Se quiser conversar mais, me chama. E domingo, se quiser companhia pra ir votar, eu vou junto."
+    }
+  ],
+  "objections": {
+    "nao_melhorou": {
+      "title": "“Não melhorou nada”",
+      "template": "Pra você não melhorou, e eu acredito. A pergunta que eu me faço é: com o outro, melhora ou piora? Qual é a coisa que mais pesa pra você hoje?",
+      "facts": []
+    },
+    "todos_iguais": {
+      "title": "“São todos iguais”",
+      "template": "Eu entendo o cansaço. Mas tem coisa que não é igual: o que cada um quer fazer com salário, aposentadoria e direito de quem trabalha. Posso te mandar uma coisa curta sobre isso?",
+      "facts": []
+    },
+    "raiva": {
+      "title": "Ela anulou de raiva",
+      "template": "Raiva é justa. Só que no 2º turno o voto nulo não registra raiva nenhuma, ele some. Se a raiva é com quem te decepcionou, me diz: o que teria que mudar?",
+      "facts": [
+        "branco_nao_conta"
+      ]
+    }
+  }
+}

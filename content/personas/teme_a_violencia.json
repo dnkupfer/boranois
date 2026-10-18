@@ -1,0 +1,153 @@
+{
+  "id": "teme_a_violencia",
+  "name": "Quem teme a violência",
+  "situations": [
+    "lula_para_flavio",
+    "flavio_sem_conviccao",
+    "indeciso",
+    "votou_outro"
+  ],
+  "default_for": [],
+  "summary": "Vive com medo real. Acredita que o Flávio vai ser duro com bandido e que o Lula “passa a mão na cabeça”. Não é cruel; está com medo.",
+  "profile": {
+    "trust_story": "Já foi assaltada, ou alguém da família foi; mora ou trabalha onde a violência é parte do dia. Ouviu por anos que “a esquerda passa a mão na cabeça de bandido” e que a direita “bota ordem”. Não conhece dados; conhece medo. O Flávio promete dureza, e dureza soa como proteção.",
+    "feelings": [
+      "medo",
+      "impotência",
+      "raiva de quem “defende bandido”"
+    ],
+    "identity": "“Quero proteger minha família. Ordem.”",
+    "media_diet": [
+      "Jovem Pan",
+      "páginas de notícia policial",
+      "grupo do bairro",
+      "Nikolas"
+    ],
+    "shuts_down": [
+      "“a violência caiu”",
+      "“direitos humanos”",
+      "qualquer coisa que soe a defesa de criminoso"
+    ],
+    "opens_up": [
+      "levarem o medo dela a sério e perguntarem o que aconteceu",
+      "ouvir alguém que vive a mesma realidade (um policial, um morador)"
+    ],
+    "would_believe": [
+      "policial",
+      "morador do bairro",
+      "alguém que passou pelo mesmo"
+    ],
+    "turning_point": "Comparar o que cada um fez e promete em segurança de forma concreta (efetivo, integração, iluminação, armas), e perceber que dureza sem plano não protege."
+  },
+  "signals": {
+    "sayings": {
+      "bandido_medo": 6
+    },
+    "worries": {
+      "seguranca": 3
+    },
+    "groups": {
+      "seguranca_publica": 1
+    },
+    "influencers": {
+      "jovem_pan": 2,
+      "nikolas": 1
+    },
+    "trust_loss": {
+      "nao_sei": 1
+    }
+  },
+  "engage": true,
+  "priority_base": "media",
+  "wait_hours": 48,
+  "tactics": [
+    {
+      "title": "Pergunte o que aconteceu, e ouça",
+      "detail": "Repita o que ela sentiu. Nada de política nos primeiros dois dias. O medo precisa ser reconhecido antes de qualquer número."
+    },
+    {
+      "title": "Nunca cite estatística de queda da violência",
+      "detail": "Para ela é mentira, porque o medo é real. O número ofende; a pergunta aproxima."
+    },
+    {
+      "title": "Pergunte o que ele vai fazer de diferente, na prática",
+      "detail": "“O que o Flávio vai fazer, concretamente?” Se ela não souber responder, você plantou a dúvida. Não responda por ela."
+    },
+    {
+      "title": "Só uma voz de policial ou morador",
+      "detail": "Se tiver alguém que vive a mesma realidade e pensa diferente, mande essa. Nada mais. Comentarista é ruído."
+    },
+    {
+      "title": "Mesma região? Mesmo lado do medo",
+      "detail": "“Quero a mesma coisa que você.” Vocês do mesmo lado; a divergência é só sobre quem entrega."
+    },
+    {
+      "title": "Palavras do bairro",
+      "detail": "Iluminação, policiamento, câmera, integração entre polícias. Palavras que descrevem a rua dela, não a política."
+    }
+  ],
+  "avoid": [
+    {
+      "what": "Dizer que a violência diminuiu",
+      "why": "Para ela é uma mentira que a ofende."
+    },
+    {
+      "what": "Entrar em “direitos humanos” ou “polícia mata”",
+      "why": "Ela te coloca do lado do bandido, e acabou."
+    },
+    {
+      "what": "Chamar o medo de exagero ou preconceito",
+      "why": "Ela nunca mais fala de política com você."
+    }
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Reconheça o medo",
+      "why": "Ela precisa sentir que você leva a segurança dela a sério.",
+      "template": "{nome}, como tá a coisa aí no bairro? Aqui também tá tenso. Eu queria entender o que te faz pensar que o Flávio resolve isso, de verdade, sem briga."
+    },
+    {
+      "id": "fato",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Um fato sobre segurança, de fonte que ela respeite",
+      "why": "Sem dado concreto sobre o que cada um fez e quer fazer em segurança, não mande nada. Pergunte mais.",
+      "facts": [],
+      "template": "Sobre segurança, uma coisa que eu achei importante: {fato}"
+    },
+    {
+      "id": "conteudo",
+      "action": "enviar_conteudo",
+      "when": [
+        "conversando"
+      ],
+      "title": "Mande quem vive a mesma realidade",
+      "why": "Um policial, um morador da mesma região: ela ouve. Um comentarista, não.",
+      "template": "Vi esse aqui, é alguém que vive a mesma coisa que a gente: {conteudo}"
+    },
+    {
+      "id": "fechar",
+      "action": "oferecer_ajuda",
+      "when": [
+        "conversando"
+      ],
+      "title": "Deixe a decisão com ela",
+      "why": "Ela decide pela família. Respeite.",
+      "template": "Pensa nisso. O que eu quero é o mesmo que você: a gente sair de casa sem medo. Me conta o que decidir."
+    }
+  ],
+  "objections": {
+    "bandido_medo": {
+      "title": "“Bandido tem que ter medo”",
+      "template": "Concordo que quem faz mal tem que responder. A pergunta que eu faço é: o que cada um fez de verdade, e o que promete que dá pra cumprir? O que o Flávio vai fazer de diferente, na prática?",
+      "facts": []
+    }
+  }
+}

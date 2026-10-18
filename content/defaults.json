@@ -1,0 +1,77 @@
+{
+  "comment": "Steps used when a persona has no step for the contact's state.",
+  "steps": [
+    {
+      "id": "d_aguardando",
+      "action": "lembrar",
+      "when": [
+        "aguardando"
+      ],
+      "title": "Esperando a resposta",
+      "why": "Mandar de novo cedo parece cobrança. Se você achar que já deu tempo, um lembrete leve.",
+      "template": "{nome}, sem pressa! Só pra saber se você viu minha mensagem 🙂"
+    },
+    {
+      "id": "d_cortou",
+      "action": "pausar",
+      "when": [
+        "cortou"
+      ],
+      "title": "Deixe quieto por agora",
+      "why": "Insistir custa a relação. No sábado, um “oi” sem política reabre a porta.",
+      "template": ""
+    },
+    {
+      "id": "d_vai_votar",
+      "action": "lembrar",
+      "when": [
+        "vai_votar"
+      ],
+      "title": "Combine o dia",
+      "why": "Quem diz que vai e combina com alguém, vai mesmo.",
+      "template": "Que bom, {nome}! Vai de manhã ou de tarde? Se quiser, a gente vai junto."
+    },
+    {
+      "id": "d_votou",
+      "action": "parar",
+      "when": [
+        "votou"
+      ],
+      "title": "Agradeça",
+      "why": "Pronto. Um obrigado sincero e nada mais.",
+      "template": "Valeu, {nome}! Obrigado de verdade."
+    },
+    {
+      "id": "d_perdido",
+      "action": "parar",
+      "when": [
+        "perdido"
+      ],
+      "title": "Respeite a decisão",
+      "why": "A escolha é dela. Seu tempo rende mais com outra pessoa.",
+      "template": ""
+    },
+    {
+      "id": "d_pausado",
+      "action": "pausar",
+      "when": [
+        "pausado"
+      ],
+      "title": "Em pausa",
+      "why": "Você pausou essa conversa.",
+      "template": ""
+    }
+  ],
+  "followups": [
+    {
+      "date": "2026-10-24",
+      "title": "Véspera",
+      "template": "{nome}, amanhã é o dia. Já sabe onde vota?"
+    },
+    {
+      "date": "2026-10-25",
+      "title": "Dia da eleição",
+      "template": "Bom dia, {nome}! Já foi votar? Qualquer coisa me chama."
+    }
+  ]
+}

@@ -1,54 +1,66 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import type { MeResponse } from "@boranois/shared";
+import type { Member, MeResponse, VerifyResponse } from "@boranois/shared";
 import { api, ApiError, getToken, setToken } from "./api";
-import { disconnectExtension, useExtension } from "./extension";
 
 type Session = {
   token: string | null;
-  me: MeResponse | null;
-  extension: ReturnType<typeof useExtension>;
-  signIn: (token: string) => void;
+  member: Member | null;
+  aiAvailable: boolean;
+  emailAvailable: boolean;
+  signIn: (token: string, member: Member) => void;
   signOut: () => void;
-  refresh: () => Promise<void>;
+  setMember: (m: Member) => void;
 };
 
 const SessionContext = createContext<Session>(null!);
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [token, setTokenState] = useState(getToken);
-  const [me, setMe] = useState<MeResponse | null>(null);
-  const extension = useExtension(token);
+  const [member, setMember] = useState<Member | null>(null);
+  const [aiAvailable, setAiAvailable] = useState(false);
+  const [emailAvailable, setEmailAvailable] = useState(false);
 
   const signOut = useCallback(() => {
     setToken(null);
     setTokenState(null);
-    setMe(null);
-    disconnectExtension();
+    setMember(null);
   }, []);
 
-  const refresh = useCallback(async () => {
-    if (!getToken()) return;
-    try {
-      setMe(await api<MeResponse>("/me"));
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) signOut();
+  // No account needed: without a session, start an anonymous one. E-mail is optional, for other devices.
+  useEffect(() => {
+    if (!token) {
+      api<VerifyResponse>("/auth/anon", { body: {} })
+        .then((r) => {
+          setToken(r.token);
+          setTokenState(r.token);
+          setMember(r.member);
+        })
+        .catch(() => {});
+      return;
     }
-  }, [signOut]);
+    api<MeResponse>("/me")
+      .then((r) => setMember(r.member))
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) signOut();
+      });
+  }, [token, signOut]);
 
   useEffect(() => {
-    refresh();
-  }, [token, refresh]);
+    api<{ ai: boolean; email: boolean }>("/health")
+      .then((h) => {
+        setAiAvailable(h.ai);
+        setEmailAvailable(h.email);
+      })
+      .catch(() => {});
+  }, []);
 
-  const signIn = (t: string) => {
+  const signIn = (t: string, m: Member) => {
     setToken(t);
     setTokenState(t);
+    setMember(m);
   };
 
-  return (
-    <SessionContext.Provider value={{ token, me, extension, signIn, signOut, refresh }}>
-      {children}
-    </SessionContext.Provider>
-  );
+  return <SessionContext.Provider value={{ token, member, aiAvailable, emailAvailable, signIn, signOut, setMember }}>{children}</SessionContext.Provider>;
 }
 
 export const useSession = () => useContext(SessionContext);

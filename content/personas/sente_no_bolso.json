@@ -1,0 +1,162 @@
+{
+  "id": "sente_no_bolso",
+  "name": "Quem sente no bolso",
+  "situations": [
+    "lula_para_flavio",
+    "flavio_sem_conviccao",
+    "indeciso",
+    "votou_outro"
+  ],
+  "default_for": [
+    "lula_para_flavio",
+    "flavio_sem_conviccao",
+    "indeciso",
+    "votou_outro"
+  ],
+  "summary": "Votou no Lula esperando o mercado ficar mais barato. Não ficou. Quer tentar o outro. Não é ideologia; é teste.",
+  "profile": {
+    "trust_story": "Votou no Lula em 2022 esperando a vida melhorar no mercado. O preço não baixou como esperava; o gás, o aluguel, a luz. Não acompanha índice; acompanha o carrinho. Conclui: “não mudou com ele, vou tentar o outro”. O escândalo do INSS pesou: “e ainda roubam”.",
+    "feelings": [
+      "aperto",
+      "cansaço",
+      "pragmatismo",
+      "uma teimosia: “não voto por fé”"
+    ],
+    "identity": "“Trabalho duro. Quero resultado, não discurso.”",
+    "media_diet": [
+      "Instagram de humor e consumo",
+      "Choquei",
+      "Marçal às vezes (“ele fala de dinheiro”)",
+      "grupo do trabalho"
+    ],
+    "shuts_down": [
+      "“a economia vai bem”",
+      "IPCA, PIB",
+      "ataque ao Flávio (soa a desespero)"
+    ],
+    "opens_up": [
+      "alguém reconhecer que está apertado e falar de salário, aposentadoria e CLT em termos concretos"
+    ],
+    "would_believe": [
+      "colega de trabalho na mesma vida",
+      "um fato com fonte sobre o que cada um quer fazer com salário, aposentadoria e direitos"
+    ],
+    "turning_point": "Comparar o que cada um quer fazer com a conta dela (não com “a economia”): salário mínimo, aposentadoria, CLT, escala de trabalho."
+  },
+  "signals": {
+    "sayings": {
+      "nao_melhorou": 6
+    },
+    "worries": {
+      "custo_de_vida": 3,
+      "emprego": 2,
+      "aposentadoria": 2
+    },
+    "influencers": {
+      "marcal": 2,
+      "choquei": 1
+    },
+    "trust_loss": {
+      "ainda": 1,
+      "inss": 1
+    }
+  },
+  "engage": true,
+  "priority_base": "media",
+  "wait_hours": 24,
+  "tactics": [
+    {
+      "title": "Uma conta, uma comparação",
+      "detail": "Pergunte qual conta pesa mais (mercado, aluguel, gás) e responda só sobre aquela. Quem fala de tudo não convence de nada."
+    },
+    {
+      "title": "Fale do que cada um quer fazer, não do que foi feito",
+      "detail": "“Foi feito” ela não sentiu. “Vai fazer” ela pode comparar."
+    },
+    {
+      "title": "Palavras do carrinho, não do noticiário",
+      "detail": "Troque “economia” por “o seu salário, a sua aposentadoria, o seu direito”."
+    },
+    {
+      "title": "Se ela cita o Marçal, não desqualifique",
+      "detail": "Pergunte “o que ele falou que fez sentido pra você?” e responda a isso. Desqualificar o Marçal é desqualificar ela."
+    },
+    {
+      "title": "Voz de trabalhador, não de político",
+      "detail": "Alguém que vive a mesma vida explicando o que muda para ele. Político falando de economia é ruído."
+    },
+    {
+      "title": "Texto curto, à noite",
+      "detail": "Depois do trabalho. De manhã ela não lê."
+    }
+  ],
+  "avoid": [
+    {
+      "what": "Dizer que a economia melhorou ou citar índice",
+      "why": "No carrinho dela não melhorou. Você perde a conversa na primeira frase."
+    },
+    {
+      "what": "Atacar o Flávio",
+      "why": "Ela não está apaixonada por ele; está testando. Ataque parece desespero."
+    },
+    {
+      "what": "Prometer que vai melhorar",
+      "why": "Ela já ouviu promessa. Compare planos."
+    }
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Pergunte o que mais pesa",
+      "why": "Ela tem uma conta específica na cabeça. Descubra qual.",
+      "template": "{nome}, o que mais tá pesando aí em casa? Mercado, aluguel, gás? Aqui tá difícil também, e eu queria entender como você tá vendo essa eleição."
+    },
+    {
+      "id": "o_que_cada_um_quer",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Compare o que cada um quer fazer com o bolso dela",
+      "why": "A decisão dela é prática. Dê um fato prático, com fonte, sobre a preocupação que ela citou.",
+      "facts": [],
+      "template": "Então olha, sobre {preocupacao}: {fato}"
+    },
+    {
+      "id": "conteudo",
+      "action": "enviar_conteudo",
+      "when": [
+        "conversando"
+      ],
+      "title": "Mande uma voz parecida com a dela",
+      "why": "Ela confia em quem vive a mesma vida. Um trabalhador falando vale mais que um político.",
+      "template": "Vi esse aqui e lembrei de você, é curtinho: {conteudo}"
+    },
+    {
+      "id": "fechar",
+      "action": "oferecer_ajuda",
+      "when": [
+        "conversando"
+      ],
+      "title": "Deixe ela concluir",
+      "why": "Quem decide sozinha mantém a decisão.",
+      "template": "Pensa nisso com calma. Seja o que for, me conta o que decidiu. E domingo, se quiser, a gente vai junto."
+    }
+  ],
+  "objections": {
+    "nao_melhorou": {
+      "title": "“Não melhorou nada”",
+      "template": "Pra você não, e eu acredito. A pergunta é o que vem agora: o que cada um promete pra salário, aposentadoria e direito de quem trabalha. Posso te mandar uma coisa curta sobre isso?",
+      "facts": []
+    },
+    "todos_iguais": {
+      "title": "“São todos iguais”",
+      "template": "No bolso, não são. Me diz a sua maior conta hoje que eu te mostro o que cada um quer fazer com ela.",
+      "facts": []
+    }
+  }
+}

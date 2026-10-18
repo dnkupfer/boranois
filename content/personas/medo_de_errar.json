@@ -1,0 +1,152 @@
+{
+  "id": "medo_de_errar",
+  "name": "Quem tem medo de errar",
+  "situations": [
+    "nao_votou",
+    "branco_nulo",
+    "indeciso",
+    "votou_outro"
+  ],
+  "default_for": [],
+  "summary": "Não se sente informada para escolher e prefere não votar a votar “errado”. Quer permissão e um guia de duas frases.",
+  "profile": {
+    "trust_story": "Nunca acompanhou política. Vê todo mundo brigando e cada um dizendo uma coisa. Alguma vez se sentiu enganada (uma corrente que repassou, um voto de que se arrependeu) e decidiu: “não entendo, então não me meto”.",
+    "feelings": [
+      "insegurança",
+      "vergonha de não saber",
+      "medo de ser culpada se der errado"
+    ],
+    "identity": "“Sou simples, não entendo dessas coisas.”",
+    "media_diet": [
+      "grupo da família (onde chegam as correntes)",
+      "TV aberta",
+      "igreja"
+    ],
+    "shuts_down": [
+      "texto longo",
+      "vocabulário de político",
+      "qualquer coisa que pareça prova ou cobrança"
+    ],
+    "opens_up": [
+      "permissão (“ninguém entende tudo”)",
+      "explicação em duas frases",
+      "companhia"
+    ],
+    "would_believe": [
+      "filha, sobrinha ou vizinha de confiança que explique sem fazer ela se sentir burra"
+    ],
+    "turning_point": "Um critério só, ligado à vida dela (“quem cuida da sua aposentadoria, da sua saúde?”), e alguém para ir junto."
+  },
+  "signals": {
+    "sayings": {
+      "medo_piorar": 6,
+      "nenhum_dos_dois": 1
+    },
+    "worries": {},
+    "influencers": {
+      "nenhum": 1,
+      "padres_pastores": 1
+    },
+    "trust_loss": {
+      "nunca": 1,
+      "nao_sei": 1
+    }
+  },
+  "engage": true,
+  "priority_base": "alta",
+  "wait_hours": 24,
+  "tactics": [
+    {
+      "title": "Um critério único",
+      "detail": "“Pensa só numa coisa: o que mais pesa pra você?” Responda a isso em duas frases. Nada mais. Três argumentos é zero argumento."
+    },
+    {
+      "title": "Explique o ato de votar",
+      "detail": "“Você digita o número, aparece a foto, você confere e confirma. Não tem como errar: a urna mostra antes.” O medo de errar é também medo da máquina."
+    },
+    {
+      "title": "Número e foto num print simples",
+      "detail": "Sem texto de campanha, sem logo. Só o número e o rosto, para ela guardar no celular."
+    },
+    {
+      "title": "Vá junto e diga o número na fila",
+      "detail": "Companhia vale mais que argumento. Combine o horário."
+    },
+    {
+      "title": "Áudio curto, até 40 segundos",
+      "detail": "Tom de conversa. Texto grande ela não lê e se sente cobrada."
+    },
+    {
+      "title": "Corrente falsa? Não corrija na hora",
+      "detail": "Pergunte “onde você viu isso?”. No dia seguinte, mande a versão certa de uma fonte que ela já confia. Corrigir na hora é humilhar."
+    }
+  ],
+  "avoid": [
+    {
+      "what": "Mandar link, PDF ou vídeo longo",
+      "why": "Ela não abre e se sente cobrada."
+    },
+    {
+      "what": "Rir de uma dúvida ou de uma corrente",
+      "why": "Ela fecha e não volta."
+    },
+    {
+      "what": "Dizer “é óbvio”",
+      "why": "Para ela nada é óbvio. É vergonha."
+    }
+  ],
+  "steps": [
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Dê permissão para não saber",
+      "why": "A vergonha de não entender é o que a mantém longe. Tire isso primeiro.",
+      "template": "{nome}, ninguém entende tudo de política, eu também não. Se você quiser, eu te explico só o que importa pra você, em duas frases. Pode ser?"
+    },
+    {
+      "id": "uma_coisa",
+      "action": "abrir_conversa",
+      "when": [
+        "conversando"
+      ],
+      "title": "Uma coisa só, concreta",
+      "why": "Ela precisa de um critério simples para decidir, ligado à vida dela.",
+      "template": "Pensa só numa coisa: o que mais pesa pra você hoje, {nome}? Preço das coisas, saúde, trabalho? Me diz, que eu te conto o que cada um quer fazer sobre isso. Sem enrolação."
+    },
+    {
+      "id": "pode_votar",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Mostre que votar é simples",
+      "why": "Parte do medo é do processo. Documento, lugar, horário.",
+      "facts": [
+        "documentos",
+        "onde_votar",
+        "pode_votar_2turno"
+      ],
+      "template": "E votar é rápido: {fato} Você digita o número, aparece a foto, confere e confirma. Se quiser, a gente vai junto."
+    },
+    {
+      "id": "ajuda",
+      "action": "oferecer_ajuda",
+      "when": [
+        "conversando"
+      ],
+      "title": "Vá junto",
+      "why": "Para quem tem medo, companhia resolve mais que argumento.",
+      "template": "Domingo eu passo aí e a gente vai junto, que tal? Aí qualquer dúvida você me pergunta na hora."
+    }
+  ],
+  "objections": {
+    "medo_piorar": {
+      "title": "“E se piorar?”",
+      "template": "Esse medo é justo. Pensa assim: se você não vota, outra pessoa decide por você, e pode ser alguém que não pensa em você. Votar é só dizer o que você quer. O resto a gente acompanha junto.",
+      "facts": []
+    }
+  }
+}

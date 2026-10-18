@@ -1,7 +1,7 @@
 import pg from "pg";
-import type { FeedItem, Group, Invite, ObjectiveId } from "@boranois/shared";
-import { newId, newInviteCode } from "../ids.js";
-import type { MemberRecord, NewCheck, RedeemResult, Store } from "./types.js";
+import type { AnalyticsEvent, ChipStats, Member, OutcomeId } from "@boranois/shared";
+import { newId } from "../ids.js";
+import type { ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
 
 // Use Neon's pooled connection string (host contains "-pooler"): Cloud Run
 // can run many instances, each with its own small pool.
@@ -9,47 +9,65 @@ export function createPool(connectionString: string) {
   return new pg.Pool({ connectionString, max: 5, ssl: { rejectUnauthorized: true } });
 }
 
-const toGroup = (r: any): Group => ({ id: r.id, objective: r.objective });
-const toMember = (r: any): MemberRecord => ({ id: r.id, groupId: r.group_id, name: r.name, role: r.role });
+const toMember = (r: any): Member => ({ id: r.id, email: r.email, name: r.name });
+const toContact = (r: any): ContactRecord => ({
+  id: r.id,
+  memberId: r.member_id,
+  chips: r.chips,
+  match: r.match,
+  priority: r.priority,
+  state: r.state,
+  stepsDone: r.steps_done,
+  lastSaying: r.last_saying,
+  lastSentAt: r.last_sent_at ? r.last_sent_at.toISOString() : null,
+  catalogueVersion: r.catalogue_version,
+  createdAt: r.created_at.toISOString(),
+  updatedAt: r.updated_at.toISOString(),
+});
 
 export class PostgresStore implements Store {
   constructor(private pool: pg.Pool) {}
 
-  async createHostCode() {
-    const code = newInviteCode();
-    await this.pool.query(`insert into invites (code, role) values ($1, 'host')`, [code]);
-    return code;
+  async createLogin(email: string, tokenHash: string, expiresAt: Date) {
+    await this.pool.query(`insert into logins (token_hash, email, expires_at) values ($1, $2, $3)`, [tokenHash, email, expiresAt]);
   }
 
-  async redeemInvite(code: string, name: string, tokenHash: string): Promise<RedeemResult> {
+  async consumeLogin(tokenHash: string) {
+    const { rows } = await this.pool.query(
+      `update logins set used_at = now() where token_hash = $1 and used_at is null and expires_at > now() returning email`,
+      [tokenHash],
+    );
+    return rows[0]?.email ?? null;
+  }
+
+  async memberByEmailOrCreate(email: string) {
+    const { rows } = await this.pool.query(
+      `insert into members (id, email) values ($1, $2) on conflict (email) do update set email = excluded.email returning *`,
+      [newId(), email],
+    );
+    return toMember(rows[0]);
+  }
+
+  async createAnonMember() {
+    const { rows } = await this.pool.query(`insert into members (id) values ($1) returning *`, [newId()]);
+    return toMember(rows[0]);
+  }
+
+  async linkEmail(memberId: string, email: string) {
     const client = await this.pool.connect();
     try {
       await client.query("begin");
-      const { rows } = await client.query(`select * from invites where code = $1 for update`, [code]);
-      const invite = rows[0];
-      if (!invite) {
-        await client.query("rollback");
-        return { ok: false, error: "not_found" };
+      const { rows } = await client.query(`select * from members where email = $1`, [email]);
+      const existing = rows[0];
+      if (existing && existing.id !== memberId) {
+        await client.query(`update contacts set member_id = $1 where member_id = $2`, [existing.id, memberId]);
+        await client.query(`update interactions set member_id = $1 where member_id = $2`, [existing.id, memberId]);
+        await client.query("commit");
+        return toMember(existing);
       }
-      if (invite.used_by) {
-        await client.query("rollback");
-        return { ok: false, error: "used" };
-      }
-
-      let groupId: string = invite.group_id;
-      if (!groupId) {
-        groupId = newId();
-        await client.query(`insert into groups (id) values ($1)`, [groupId]);
-      }
-      const memberId = newId();
-      const m = await client.query(
-        `insert into members (id, group_id, name, role, token_hash) values ($1, $2, $3, $4, $5) returning *`,
-        [memberId, groupId, name, invite.role, tokenHash],
-      );
-      await client.query(`update invites set used_by = $1, used_at = now() where code = $2`, [memberId, code]);
-      const g = await client.query(`select * from groups where id = $1`, [groupId]);
+      const me = await client.query(`update members set email = $2 where id = $1 returning *`, [memberId, email]);
       await client.query("commit");
-      return { ok: true, member: toMember(m.rows[0]), group: toGroup(g.rows[0]) };
+      return toMember(me.rows[0]);
     } catch (err) {
       await client.query("rollback");
       throw err;
@@ -58,74 +76,118 @@ export class PostgresStore implements Store {
     }
   }
 
-  async memberByTokenHash(tokenHash: string) {
-    const { rows } = await this.pool.query(`select * from members where token_hash = $1`, [tokenHash]);
+  async createSession(memberId: string, tokenHash: string) {
+    await this.pool.query(`insert into sessions (token_hash, member_id) values ($1, $2)`, [tokenHash, memberId]);
+  }
+
+  async memberBySessionHash(tokenHash: string) {
+    const { rows } = await this.pool.query(`select m.* from sessions s join members m on m.id = s.member_id where s.token_hash = $1`, [tokenHash]);
     return rows[0] ? toMember(rows[0]) : null;
   }
 
-  async getGroup(groupId: string) {
-    const { rows } = await this.pool.query(`select * from groups where id = $1`, [groupId]);
-    return toGroup(rows[0]);
+  async setMemberName(memberId: string, name: string) {
+    const { rows } = await this.pool.query(`update members set name = $2 where id = $1 returning *`, [memberId, name]);
+    return toMember(rows[0]);
   }
 
-  async updateGroup(groupId: string, objective: ObjectiveId) {
-    const { rows } = await this.pool.query(`update groups set objective = $2 where id = $1 returning *`, [groupId, objective]);
-    return toGroup(rows[0]);
-  }
-
-  async listInvites(groupId: string): Promise<Invite[]> {
+  async createContact(c: NewContact) {
     const { rows } = await this.pool.query(
-      `select i.*, m.name as used_by_name from invites i
-       left join members m on m.id = i.used_by
-       where i.group_id = $1 order by i.created_at`,
-      [groupId],
+      `insert into contacts (id, member_id, chips, persona_id, match, priority, state, steps_done, last_saying, last_sent_at, catalogue_version)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *`,
+      [newId(), c.memberId, c.chips, c.match.personaId, c.match, c.priority, c.state, JSON.stringify(c.stepsDone), c.lastSaying, c.lastSentAt, c.catalogueVersion],
     );
-    return rows.map((r) => ({
-      code: r.code,
-      contactName: r.contact_name,
-      phone: r.phone,
-      usedByName: r.used_by_name,
-      createdAt: r.created_at.toISOString(),
-    }));
+    return toContact(rows[0]);
   }
 
-  async createInvites(groupId: string, contacts: { name: string; phone?: string }[]) {
-    for (const c of contacts) {
-      await this.pool.query(
-        `insert into invites (code, group_id, role, contact_name, phone) values ($1, $2, 'member', $3, $4)`,
-        [newInviteCode(), groupId, c.name, c.phone ?? null],
-      );
-    }
-    return this.listInvites(groupId);
+  async listContacts(memberId: string) {
+    const { rows } = await this.pool.query(`select * from contacts where member_id = $1 order by created_at`, [memberId]);
+    return rows.map(toContact);
   }
 
-  async insertCheck(c: NewCheck) {
-    const id = newId();
+  async getContact(memberId: string, id: string) {
+    const { rows } = await this.pool.query(`select * from contacts where member_id = $1 and id = $2`, [memberId, id]);
+    return rows[0] ? toContact(rows[0]) : null;
+  }
+
+  async updateContact(id: string, patch: ContactPatch) {
+    const { rows } = await this.pool.query(
+      `update contacts set
+         state = coalesce($2, state),
+         steps_done = coalesce($3, steps_done),
+         priority = coalesce($4, priority),
+         match = coalesce($5, match),
+         persona_id = coalesce($6, persona_id),
+         last_saying = case when $7::boolean then $8 else last_saying end,
+         last_sent_at = coalesce($9, last_sent_at),
+         updated_at = now()
+       where id = $1 returning *`,
+      [
+        id,
+        patch.state ?? null,
+        patch.stepsDone ? JSON.stringify(patch.stepsDone) : null,
+        patch.priority ?? null,
+        patch.match ?? null,
+        patch.match?.personaId ?? null,
+        patch.lastSaying !== undefined,
+        patch.lastSaying ?? null,
+        patch.lastSentAt ?? null,
+      ],
+    );
+    return toContact(rows[0]);
+  }
+
+  async deleteContact(memberId: string, id: string) {
+    await this.pool.query(`delete from contacts where member_id = $1 and id = $2`, [memberId, id]);
+  }
+
+  async insertInteraction(i: NewInteraction) {
     await this.pool.query(
-      `insert into checks (id, group_id, member_id, objective, post_url, handle, caption, score, decision, reason, suggested_comment, scorer)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-      [id, c.groupId, c.memberId, c.objective, c.postUrl, c.handle, c.caption, c.score, c.decision, c.reason, c.suggestedComment, c.scorer],
+      `insert into interactions (id, contact_id, member_id, step_id, outcome, saying, catalogue_version) values ($1, $2, $3, $4, $5, $6, $7)`,
+      [newId(), i.contactId, i.memberId, i.stepId, i.outcome, i.saying, i.catalogueVersion],
     );
-    return id;
   }
 
-  async listSharedChecks(groupId: string, limit: number): Promise<FeedItem[]> {
-    const { rows } = await this.pool.query(
-      `select c.*, m.name as checked_by from checks c join members m on m.id = c.member_id
-       where c.group_id = $1 and c.decision = 'share'
-       order by c.created_at desc limit $2`,
-      [groupId, limit],
+  async listOutcomes(contactId: string): Promise<OutcomeId[]> {
+    const { rows } = await this.pool.query(`select outcome from interactions where contact_id = $1 order by created_at`, [contactId]);
+    return rows.map((r) => r.outcome);
+  }
+
+  async countChipUsage(questionId: string, optionId: string) {
+    await this.pool.query(
+      `insert into chip_usage (question_id, option_id, count) values ($1, $2, 1) on conflict (question_id, option_id) do update set count = chip_usage.count + 1`,
+      [questionId, optionId],
     );
-    return rows.map((r) => ({
-      id: r.id,
-      postUrl: r.post_url,
-      handle: r.handle,
-      captionExcerpt: r.caption.slice(0, 200),
-      score: r.score,
-      reason: r.reason,
-      suggestedComment: r.suggested_comment,
-      checkedBy: r.checked_by,
-      createdAt: r.created_at.toISOString(),
-    }));
+  }
+
+  async countChipProposal(questionId: string, text: string, mapped: string | null = null) {
+    await this.pool.query(
+      `insert into chip_proposals (question_id, text, count, mapped) values ($1, $2, 1, $3)
+       on conflict (question_id, text) do update set count = chip_proposals.count + 1, mapped = coalesce(excluded.mapped, chip_proposals.mapped)`,
+      [questionId, text.toLowerCase(), mapped],
+    );
+  }
+
+  async insertEvents(events: AnalyticsEvent[]) {
+    const values: unknown[] = [];
+    const rows = events.map((e, i) => {
+      values.push(newId(), e.aid, e.name, e.path, e.props, e.ts);
+      const b = i * 6;
+      return `($${b + 1}, $${b + 2}, $${b + 3}, $${b + 4}, $${b + 5}, $${b + 6})`;
+    });
+    await this.pool.query(`insert into events (id, aid, name, path, props, ts) values ${rows.join(", ")}`, values);
+  }
+
+  async listEvents(sinceDays: number) {
+    const { rows } = await this.pool.query(`select aid, name, path, props, ts from events where ts >= now() - ($1 || ' days')::interval order by ts`, [sinceDays]);
+    return rows.map((r) => ({ aid: r.aid, name: r.name, path: r.path, props: r.props, ts: r.ts.toISOString() }));
+  }
+
+  async chipStats(): Promise<ChipStats> {
+    const u = await this.pool.query(`select question_id, option_id, count from chip_usage order by count desc`);
+    const pr = await this.pool.query(`select question_id, text, count, mapped from chip_proposals order by count desc`);
+    return {
+      usage: u.rows.map((r) => ({ questionId: r.question_id, optionId: r.option_id, count: Number(r.count) })),
+      proposals: pr.rows.map((r) => ({ questionId: r.question_id, text: r.text, count: Number(r.count), mapped: r.mapped ?? null })),
+    };
   }
 }

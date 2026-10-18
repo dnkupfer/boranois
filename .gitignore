@@ -8,3 +8,4 @@ apps/api/.data/
 *.log
 .DS_Store
 apps/web/public/boranois-extensao.zip
+content/proposals/
