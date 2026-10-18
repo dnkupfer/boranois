@@ -22,7 +22,7 @@ export function NovaPessoa() {
   const [path, setPath] = useState<string[]>([]); // question ids asked so far, in order
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [busy, setBusy] = useState(false);
-  const [thinking, setThinking] = useState(false);
+  const [thinkingFor, setThinkingFor] = useState<string | null>(null);
   const [blocked, setBlocked] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,37 +71,58 @@ export function NovaPessoa() {
     if (autoAdvance) setTimeout(() => advance(q, a), 160);
   };
 
-  /** A typed answer: ask the model where it fits. Without AI it's kept as a tag and the tree's default applies. */
+  /**
+   * A typed answer. The chip is stored at once (so it shows, survives "Voltar" and enables "Continuar");
+   * the model's interpretation fills in afterwards. Without AI, the chip is kept as a tag and the tree's default applies.
+   */
   const onCustom = async (q: Question, custom: string[]) => {
     const a = answer(q.id);
     const added = custom.find((c) => !a.custom.includes(c));
-    if (!added) return setAnswer(q, { ...a, custom }, false);
+    const stored: Answer = { optionIds: q.max === 1 ? [] : a.optionIds, custom, interpreted: added ? undefined : a.interpreted };
+    setAnswers((prev) => ({ ...prev, [q.id]: stored }));
     setBlocked(null);
+    if (!added) return;
+    if (!aiAvailable) return setAnswers((prev) => ({ ...prev, [q.id]: { ...stored, interpreted: null } }));
+
+    setThinkingFor(q.id);
     let interpreted: Interpretation | null = null;
-    if (aiAvailable) {
-      setThinking(true);
-      try {
-        interpreted = await api<Interpretation>("/chips/interpret", { body: { questionId: q.id.startsWith("ai_") ? q.id.slice(3).split("_")[0] : q.id, text: added } });
-      } catch {
-        interpreted = null;
-      } finally {
-        setThinking(false);
-      }
+    try {
+      const questionId = q.id.startsWith("ai_") ? q.id.slice(3).split("_")[0] : q.id;
+      interpreted = await api<Interpretation>("/chips/interpret", { body: { questionId, text: added } });
+    } catch {
+      interpreted = null;
+    } finally {
+      setThinkingFor(null);
     }
+
     if (interpreted?.blocked) {
       setBlocked(interpreted.blocked);
+      setAnswers((prev) => ({ ...prev, [q.id]: { ...stored, custom: custom.filter((c) => c !== added), interpreted: null } }));
       return;
     }
-    const next: Answer = { optionIds: q.max === 1 ? [] : a.optionIds, custom, interpreted };
+    const withResult: Answer = { ...stored, interpreted };
+    setAnswers((prev) => ({ ...prev, [q.id]: withResult }));
+
     if (interpreted?.followup) {
       const id = `ai_${q.id}_${path.length}`;
-      const fq: Question = { id, text: interpreted.followup.text, options: interpreted.followup.options, max: 1, optional: true, allowCustom: false, next: nextOf(q, { ...next, interpreted: { ...interpreted, nextQuestionId: null } }) };
+      const fq: Question = {
+        id,
+        text: interpreted.followup.text,
+        options: interpreted.followup.options,
+        max: 1,
+        optional: true,
+        allowCustom: false,
+        next: nextOf(q, { ...withResult, interpreted: { ...interpreted, nextQuestionId: null } }),
+      };
       setExtra((e) => ({ ...e, [id]: fq }));
-      setAnswers((prev) => ({ ...prev, [q.id]: next }));
-      setTimeout(() => setPath((p) => [...p, id]), 160);
+      setPath((p) => (p[p.length - 1] === q.id ? [...p, id] : p)); // only if still on this question
       return;
     }
-    setAnswer(q, next, q.max === 1);
+    if (q.max === 1) {
+      const n = nextOf(q, withResult);
+      if (n) setPath((p) => (p[p.length - 1] === q.id ? [...p, n] : p));
+      else setScreen("nota");
+    }
   };
 
   const back = () => {
@@ -197,7 +218,7 @@ export function NovaPessoa() {
           q={current}
           nome={nome}
           answer={answer(current.id)}
-          thinking={thinking}
+          thinking={thinkingFor === current.id}
           blocked={blocked}
           onAnswer={(a, auto) => setAnswer(current, a, auto)}
           onCustom={(custom) => onCustom(current, custom)}
@@ -248,8 +269,10 @@ function QuestionCard({
       {answer.interpreted?.rationale && !thinking && <p className="muted small">{answer.interpreted.rationale}</p>}
       <div className="row between">
         <button className="link" onClick={onBack}>← Voltar</button>
-        {(!single || q.optional || answer.custom.length > 0) && (
-          <button className={answered ? "primary" : "secondary"} disabled={thinking} onClick={onContinue}>{answered ? "Continuar" : q.optional ? "Pular" : "Continuar"}</button>
+        {(!single || q.optional || answered) && (
+          <button className={answered ? "primary" : "secondary"} disabled={thinking || (answered && answer.interpreted === undefined && answer.optionIds.length === 0)} onClick={onContinue}>
+            {answered ? "Continuar" : q.optional ? "Pular" : "Continuar"}
+          </button>
         )}
       </div>
     </section>

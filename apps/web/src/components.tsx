@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import type { Priority } from "@boranois/shared";
 import { useSession } from "./session";
@@ -65,6 +65,7 @@ export function ChipGroup<T extends string>({
 }) {
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState("");
+  const committing = useRef(false); // Enter and blur both fire; commit once.
 
   const toggle = (id: T) => {
     if (value.includes(id)) return onChange(value.filter((v) => v !== id));
@@ -74,9 +75,12 @@ export function ChipGroup<T extends string>({
   };
 
   const addCustom = () => {
+    if (committing.current) return;
+    committing.current = true;
     const text = draft.trim();
     setDraft("");
     setAdding(false);
+    setTimeout(() => (committing.current = false), 0);
     if (!text || !onCustomChange || custom.includes(text)) return;
     if (max === 1) onChange([]);
     onCustomChange([...custom, text]);
