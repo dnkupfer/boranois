@@ -52,6 +52,10 @@ export function Pessoas() {
     <Layout>
       <header className="intro">
         <h1>Convença alguém que você conhece a ir votar</h1>
+        <p className="subtitle">
+          Não são dicas. É um método com base científica, testado em campo.{" "}
+          <Link to="/como-funciona#metodo">Veja a ciência por trás</Link>.
+        </p>
         <ol className="points">
           <li>Redes importam. Mas quem decide o voto é quem está perto.</li>
           <li>Opinião não vem de fatos. Vem do grupo.</li>

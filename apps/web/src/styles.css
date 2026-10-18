@@ -128,7 +128,8 @@ ol.plain li, ul.plain li { margin-bottom: 10px; }
 
 /* The five rules: always on the home, read in three seconds */
 .intro { margin: 24px 0 36px; }
-.intro h1 { font-size: 2.6rem; line-height: 1.1; margin: 0 0 32px; letter-spacing: -0.02em; }
+.intro h1 { font-size: 2.6rem; line-height: 1.1; margin: 0 0 12px; letter-spacing: -0.02em; }
+.intro .subtitle { font-size: 1.15rem; color: var(--muted); margin: 0 0 28px; }
 .points { list-style: none; padding: 0; margin: 0; counter-reset: pt; }
 .points li {
   counter-increment: pt; position: relative; padding: 8px 0 8px 60px; margin-bottom: 18px;
