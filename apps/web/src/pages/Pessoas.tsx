@@ -57,11 +57,13 @@ export function Pessoas() {
   return (
     <Layout>
       <header className="intro">
-        <h1>Faça alguém que você conhece ir votar.</h1>
-        <p>
-          O Boranois é uma ferramenta para <strong>influenciar eleitores</strong>: você descreve uma pessoa que conhece, o app
-          diz como ela pensa e o que dizer, você manda do seu WhatsApp. Influenciar, não manipular: só o que é verdade, e ela decide.
-        </p>
+        <h1>Convença alguém que você conhece a ir votar</h1>
+        <ol className="plain">
+          <li>As redes são fundamentais. Mas o que mais importa na hora de decidir são as pessoas próximas.</li>
+          <li>Opinião não é fato. É identificação de grupo.</li>
+          <li>O Boranois ajuda você a entender a pessoa que você quer influenciar e dá dicas de como conversar.</li>
+          <li>Manipular é convencer alguém a fazer algo contra os interesses dela. Influenciar é convencer alguém a fazer algo a favor dos interesses dela.</li>
+        </ol>
       </header>
 
       <section className="card howto">

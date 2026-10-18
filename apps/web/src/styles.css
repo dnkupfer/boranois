@@ -129,7 +129,8 @@ ol.plain li, ul.plain li { margin-bottom: 10px; }
 
 /* The five rules: always on the home, read in three seconds */
 .intro h1 { font-size: 1.9rem; line-height: 1.2; margin: 8px 0 10px; }
-.intro p { margin: 0 0 8px; }
+.intro ol { margin: 0 0 8px; padding-left: 24px; }
+.intro li { margin-bottom: 8px; }
 .card.howto ol { margin: 0; padding-left: 24px; }
 .card.howto li { margin-bottom: 8px; }
 .card.rules { background: var(--primary); border-color: var(--primary); color: var(--primary-text); padding: 16px 20px; }
