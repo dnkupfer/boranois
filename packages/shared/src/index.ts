@@ -198,6 +198,29 @@ export const ChipUsageRequest = z.object({
 /** A typed answer ("+ outra") to interpret. The text is counted anonymously, never linked to a pessoa. */
 export const InterpretRequest = z.object({ questionId: z.string().max(40), text: z.string().trim().min(1).max(80) });
 
+/**
+ * A turn with the coach. The whole conversation travels with the request and lives only in the member's
+ * browser tab: the server stores none of it.
+ */
+export const CoachRequest = z.object({
+  nickname: z.string().trim().max(40),
+  note: z.string().trim().max(800).optional(),
+  voiceSample: z.string().trim().max(600).optional(),
+  /** What the pessoa replied, verbatim, when this turn starts from a reply. */
+  reply: z.string().trim().max(1500).optional(),
+  messages: z.array(z.object({ role: z.enum(["user", "coach"]), text: z.string().trim().min(1).max(1500) })).max(16).default([]),
+});
+export type CoachMessage = z.infer<typeof CoachRequest>["messages"][number];
+export type CoachResponse = {
+  /** The coach's reading and advice, short. */
+  text: string;
+  /** A message the member could send next, in their voice; null when the advice is "don't send anything yet". */
+  suggestedMessage: string | null;
+  /** When the turn started from a reply: what happened, as chips, to pre-fill. */
+  outcome: OutcomeId | null;
+  saying: SayingId | null;
+};
+
 /** Turn a pasted reply into chips. The text is not stored. */
 export const ClassifyRequest = z.object({ text: z.string().trim().min(1).max(1000) });
 

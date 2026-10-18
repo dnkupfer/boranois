@@ -58,8 +58,16 @@ export function Entrar() {
           <h1>Conversar com quem você conhece</h1>
           <p>
             Faltam poucos dias para o 2º turno. Você conhece alguém que não votou, votou em branco ou está em dúvida. O Boranois
-            te ajuda a saber com quem falar primeiro e o que dizer, do seu jeito.
+            te ajuda a saber com quem falar primeiro e como conversar, do seu jeito.
           </p>
+          <div className="card accent">
+            <p><strong>Não é sobre fatos. É sobre escutar.</strong></p>
+            <p className="small">
+              Ninguém muda de ideia derrotado num debate; muda quando se sente seguro para duvidar, com alguém em quem confia.
+              O app te ajuda a ouvir, a fazer as perguntas certas e a resistir à tentação de mandar link.{" "}
+              <a href="/como-funciona">Entenda o método</a>.
+            </p>
+          </div>
           <form onSubmit={sendLink} className="card">
             <label>
               Seu e-mail

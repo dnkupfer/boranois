@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { OUTCOMES, SAYINGS, type ClassifyResponse, type Contact, type Guide, type NextStepResponse, type OutcomeId, type SayingId, type Step } from "@boranois/shared";
+import { OUTCOMES, SAYINGS, type CoachMessage, type CoachResponse, type Contact, type Guide, type NextStepResponse, type OutcomeId, type SayingId, type Step } from "@boranois/shared";
 import { api } from "../api";
 import { ChipGroup, CopyButton, Layout, PriorityBadge } from "../components";
 import { privateContacts, profile, whatsappLink } from "../local";
@@ -24,6 +24,8 @@ export function Pessoa() {
   const [busy, setBusy] = useState(false);
   const [showWhy, setShowWhy] = useState(false);
   const [showRead, setShowRead] = useState(true);
+  /** A message the coach proposed; replaces the next step's template once. */
+  const [suggestion, setSuggestion] = useState<string | null>(null);
 
   const loadNext = useCallback(async () => {
     setBusy(true);
@@ -40,6 +42,10 @@ export function Pessoa() {
       setGuide(r.guide);
       setMessage(r.step.message ?? "");
       setPhase("step");
+      setSuggestion((s) => {
+        if (s && r.step.message !== null) setMessage(s);
+        return null;
+      });
     } finally {
       setBusy(false);
     }
@@ -133,7 +139,15 @@ export function Pessoa() {
       ) : phase === "step" ? (
         <StepCard step={step} message={message} setMessage={setMessage} phone={priv.phone} busy={busy} onSent={() => sent(false)} onSkip={() => sent(true)} />
       ) : (
-        <OutcomeCard busy={busy} aiAvailable={aiAvailable} onOutcome={outcome} />
+        <OutcomeCard
+          contactId={id}
+          nickname={priv.nickname}
+          note={[priv.note, priv.customChips.length ? `Sobre ela: ${priv.customChips.join("; ")}` : ""].filter(Boolean).join("\n") || undefined}
+          busy={busy}
+          aiAvailable={aiAvailable}
+          onOutcome={outcome}
+          onSuggestion={setSuggestion}
+        />
       )}
 
       <section className="card">
@@ -256,24 +270,41 @@ function WaitCard({
   );
 }
 
-function OutcomeCard({ busy, aiAvailable, onOutcome }: { busy: boolean; aiAvailable: boolean; onOutcome: (o: OutcomeId, s?: SayingId) => void }) {
+type ChatTurn = { role: "user" | "coach"; text: string; suggestion?: string | null };
+
+/**
+ * After a message: what did she say, and what's the next move. Paste her reply and the coach reads it through
+ * her persona; keep asking. The conversation lives in this tab only.
+ */
+function OutcomeCard({
+  contactId, nickname, note, busy, aiAvailable, onOutcome, onSuggestion,
+}: { contactId: string; nickname: string; note?: string; busy: boolean; aiAvailable: boolean; onOutcome: (o: OutcomeId, s?: SayingId) => void; onSuggestion: (text: string) => void }) {
   const [picked, setPicked] = useState<OutcomeId[]>([]);
   const [saying, setSaying] = useState<SayingId[]>([]);
-  const [pasted, setPasted] = useState("");
-  const [classifying, setClassifying] = useState(false);
-  const [classifyError, setClassifyError] = useState<string | null>(null);
+  const [reply, setReply] = useState("");
+  const [chat, setChat] = useState<ChatTurn[]>([]);
+  const [question, setQuestion] = useState("");
+  const [thinking, setThinking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const started = chat.length > 0;
 
-  const classify = async () => {
-    setClassifying(true);
-    setClassifyError(null);
+  const ask = async (text: string, fromReply: boolean) => {
+    setThinking(true);
+    setError(null);
+    const history: CoachMessage[] = chat.map((t) => ({ role: t.role, text: t.text }));
+    if (!fromReply) history.push({ role: "user", text });
     try {
-      const r = await api<ClassifyResponse>("/classify", { body: { text: pasted } });
-      setPicked([r.outcome]);
-      setSaying(r.saying ? [r.saying] : []);
+      const r = await api<CoachResponse>(`/contacts/${contactId}/coach`, {
+        body: { nickname, note, voiceSample: profile.get().voiceSample || undefined, reply: fromReply ? text : undefined, messages: history },
+      });
+      setChat([...(fromReply ? [{ role: "user" as const, text: `Ela disse: “${text}”` }] : [...chat, { role: "user" as const, text }]), { role: "coach", text: r.text, suggestion: r.suggestedMessage }]);
+      if (r.outcome) setPicked([r.outcome]);
+      if (r.saying) setSaying([r.saying]);
+      setQuestion("");
     } catch {
-      setClassifyError("Não consegui ler a resposta agora. Marque abaixo o que aconteceu.");
+      setError("O coach não está disponível agora. Marque abaixo o que aconteceu.");
     } finally {
-      setClassifying(false);
+      setThinking(false);
     }
   };
 
@@ -282,15 +313,46 @@ function OutcomeCard({ busy, aiAvailable, onOutcome }: { busy: boolean; aiAvaila
     <section className="card step-card">
       <p className="eyebrow">Depois</p>
       <h2>O que ela respondeu?</h2>
-      <p className="muted">Se ainda não respondeu, volte depois. Mandar de novo agora parece cobrança.</p>
-      {aiAvailable && (
+      {aiAvailable && !started && (
         <label>
-          Cole a resposta dela, se quiser <span className="muted">(não fica guardado)</span>
-          <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={2} />
-          {pasted && <button type="button" className="secondary" disabled={classifying} onClick={classify}>{classifying ? "Lendo…" : "Entender a resposta"}</button>}
-          {classifyError && <p className="error small">{classifyError}</p>}
+          Cole a resposta dela <span className="muted">(não fica guardado)</span>
+          <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="O que ela escreveu, do jeito que escreveu" />
+          {reply.trim() && (
+            <button type="button" className="secondary" disabled={thinking} onClick={() => ask(reply.trim(), true)}>
+              {thinking ? "Lendo…" : "O que está por trás disso?"}
+            </button>
+          )}
         </label>
       )}
+      {started && (
+        <div className="chat">
+          {chat.map((t, i) => (
+            <div key={i} className={`bubble ${t.role}`}>
+              <p>{t.text}</p>
+              {t.suggestion && (
+                <div className="suggestion">
+                  <p className="small muted">Mensagem sugerida:</p>
+                  <blockquote>{t.suggestion}</blockquote>
+                  <button type="button" className="secondary" onClick={() => onSuggestion(t.suggestion!)}>Usar como próxima mensagem</button>
+                </div>
+              )}
+            </div>
+          ))}
+          <form
+            className="row"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (question.trim()) ask(question.trim(), false);
+            }}
+          >
+            <input value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Pergunte ao coach: e se ela mandar um vídeo? quero ser mais direto…" disabled={thinking} />
+            <button className="secondary" disabled={thinking || !question.trim()}>{thinking ? "…" : "Perguntar"}</button>
+          </form>
+        </div>
+      )}
+      {error && <p className="error small">{error}</p>}
+
+      <p className="label">O que aconteceu?</p>
       <ChipGroup options={OUTCOMES} value={picked} onChange={setPicked} max={1} />
       {o === "discordou" && (
         <>
@@ -301,6 +363,7 @@ function OutcomeCard({ busy, aiAvailable, onOutcome }: { busy: boolean; aiAvaila
       <div className="row">
         <button className="primary" disabled={!o || busy} onClick={() => onOutcome(o!, saying[0])}>Ver o próximo passo</button>
       </div>
+      <p className="muted small">Se ela ainda não respondeu, volte depois. Mandar de novo agora parece cobrança.</p>
     </section>
   );
 }

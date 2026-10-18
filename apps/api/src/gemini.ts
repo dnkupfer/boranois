@@ -21,6 +21,8 @@ import {
   WorryId,
   labelOf,
   type ClassifyResponse,
+  type CoachMessage,
+  type CoachResponse,
   type Interpretation,
   type Question,
 } from "@boranois/shared";
@@ -47,7 +49,46 @@ export interface Phraser {
   classify(text: string): Promise<ClassifyResponse>;
   /** Maps a typed answer onto the question tree. Output is validated against the tree before use. */
   interpret(question: Question, allQuestions: Question[], text: string): Promise<Interpretation>;
+  /** A turn with the coach, grounded in the persona and the fact bank. */
+  coach(ctx: CoachContext, input: CoachInput): Promise<CoachResponse>;
 }
+
+export type CoachContext = {
+  personaName: string;
+  profile: { trust_story: string; feelings: string[]; identity: string; shuts_down: string[]; opens_up: string[]; would_believe: string[]; turning_point: string };
+  tactics: { title: string; detail: string }[];
+  avoid: { what: string; why: string }[];
+  /** Verified facts the coach may use, with their sources. Nothing outside this list. */
+  facts: { id: string; text: string; sourceName: string }[];
+  state: string;
+  stepsDone: string[];
+  maxChars: number;
+};
+export type CoachInput = { nickname: string; relation: RelationId; note?: string; voiceSample?: string; reply?: string; messages: CoachMessage[] };
+
+const COACH_SYSTEM = `Você é um coach de conversas para um voluntário que está falando, por WhatsApp, com uma pessoa que ele conhece (a "pessoa"), antes do 2º turno de 2026 no Brasil. O objetivo é que a pessoa vá votar e, se estiver em dúvida, considere votar no Lula, por decisão própria.
+
+O método, que você segue e ensina:
+- Não é sobre fatos. É sobre pertencimento. Ninguém muda de ideia derrotado num debate; muda quando se sente seguro para duvidar, dentro do próprio grupo.
+- Ouvir primeiro. Perguntas que fazem pensar valem mais que respostas: "como você chegou a essa ideia?", "de 0 a 10, quanta certeza?", "o que te faria pensar diferente?", "o que ele vai fazer de diferente, na prática?".
+- Histórias pessoais, não argumentos. Experiência vivida do voluntário ou de alguém do mesmo grupo da pessoa.
+- Resistir à tentação dos fatos. Fato só quando pedido, um de cada vez, e só os da lista fornecida, com a fonte.
+- Respeito: a pessoa decide. Nunca pressionar, culpar, ironizar ou insistir.
+
+Regras duras:
+- Use apenas os fatos listados no contexto. Nunca invente números, datas, nomes, escândalos ou links. Se não houver fato para o que o voluntário pede, diga isso e sugira uma pergunta.
+- Respeite o perfil da pessoa: o que a fecha, o que a abre, em quem ela acredita, e a lista "evite".
+- Seja curto: no máximo dois parágrafos pequenos de leitura (text). Linguagem simples, em português do Brasil.
+- suggested_message: uma mensagem pronta para enviar, no jeito de falar do voluntário (use a amostra, se houver), com no máximo uma pergunta, sem hashtags, dentro do limite de caracteres. Se o melhor movimento for esperar ou não mandar nada, deixe null e explique no text.
+- Quando a conversa começar com a resposta da pessoa, classifique: outcome (respondeu_bem, fez_pergunta, discordou, cortou_assunto, sem_resposta, vai_votar, votou, nao_vai_votar) e saying (a frase mais próxima do que ela disse, ou null). Em turnos seguintes, outcome e saying ficam null.
+Responda só o JSON.`;
+
+const CoachOutput = z.object({
+  text: z.string().min(1).max(1200),
+  suggested_message: z.string().max(600).nullable(),
+  outcome: OutcomeId.nullable(),
+  saying: SayingId.nullable(),
+});
 
 const PHRASE_SYSTEM = `Você reescreve uma mensagem de WhatsApp para que ela soe como a pessoa que vai enviá-la (o "remetente"), mantendo exatamente o mesmo sentido.
 
@@ -212,6 +253,58 @@ export class GeminiPhraser implements Phraser {
     return this.guarded(() => this.classifyUncached(text));
   }
 
+  async coach(ctx: CoachContext, input: CoachInput): Promise<CoachResponse> {
+    return this.guarded(async () => {
+      const context = [
+        `Pessoa: "${input.nickname}" (${labelOf(RELATIONS, input.relation).toLowerCase()} do voluntário). Perfil: ${ctx.personaName}.`,
+        `Como ela chegou aqui: ${ctx.profile.trust_story}`,
+        `Sente: ${ctx.profile.feelings.join(", ")}. Como se vê: ${ctx.profile.identity}`,
+        `O que a fecha: ${ctx.profile.shuts_down.join("; ")}. O que a abre: ${ctx.profile.opens_up.join("; ")}. Em quem acredita: ${ctx.profile.would_believe.join("; ")}.`,
+        `O que pode virar a chave: ${ctx.profile.turning_point}`,
+        `Táticas para ela:\n- ${ctx.tactics.map((t) => `${t.title}: ${t.detail}`).join("\n- ")}`,
+        `Evite:\n- ${ctx.avoid.map((a) => `${a.what} (${a.why})`).join("\n- ")}`,
+        `Fatos disponíveis (use só estes, cite a fonte):\n- ${ctx.facts.map((f) => `[${f.id}] ${f.text} (fonte: ${f.sourceName})`).join("\n- ") || "(nenhum)"}`,
+        `Estado da conversa: ${ctx.state}. Passos já dados: ${ctx.stepsDone.join(", ") || "nenhum"}.`,
+        input.note ? `O que o voluntário sabe sobre ela: ${input.note}` : "",
+        input.voiceSample ? `Como o voluntário escreve:\n"""${input.voiceSample}"""` : "",
+        `Limite da mensagem sugerida: ${ctx.maxChars} caracteres.`,
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+
+      const history = input.messages.map((m) => ({ role: m.role === "coach" ? "model" : "user", parts: [{ text: m.text }] }));
+      const opening = input.reply
+        ? `A pessoa respondeu isto:\n"""${input.reply}"""\n\nO que está por trás disso, e qual é o melhor próximo movimento?`
+        : null;
+      const contents = [
+        { role: "user", parts: [{ text: `CONTEXTO\n\n${context}` }] },
+        { role: "model", parts: [{ text: "Entendido. Vou seguir o método e usar só os fatos listados." }] },
+        ...(opening ? [{ role: "user", parts: [{ text: opening }] }] : []),
+        ...history,
+      ];
+      const res = await this.ai.models.generateContent({
+        model: this.model,
+        contents,
+        config: { systemInstruction: COACH_SYSTEM, responseMimeType: "application/json", responseJsonSchema: strip(CoachOutput) },
+      });
+      const parsed = res.text ? CoachOutput.safeParse(JSON.parse(res.text)) : null;
+      if (!parsed?.success) throw new Error("coach: no usable output");
+      const out = parsed.data;
+
+      // The suggestion may rephrase, never add: numbers and links must come from the facts or the conversation.
+      let suggested = out.suggested_message?.trim() || null;
+      if (suggested) {
+        const allowed = [...ctx.facts.map((f) => f.text), input.reply ?? "", input.note ?? "", ...input.messages.map((m) => m.text)].join("\n");
+        const problems = validatePhrasing(suggested, { template: allowed, factText: null, contentSummary: null, note: undefined, maxChars: ctx.maxChars });
+        if (problems.length) {
+          console.warn("coach suggestion rejected:", problems);
+          suggested = null;
+        }
+      }
+      return { text: out.text.trim(), suggestedMessage: suggested, outcome: out.outcome, saying: out.saying };
+    });
+  }
+
   private async classifyUncached(text: string): Promise<ClassifyResponse> {
     const res = await this.ai.models.generateContent({
       model: this.model,
@@ -241,6 +334,9 @@ export class NoPhraser implements Phraser {
   }
   async interpret(): Promise<Interpretation> {
     throw new Error("interpretation unavailable");
+  }
+  async coach(): Promise<CoachResponse> {
+    throw new Error("coach unavailable");
   }
 }
 

@@ -3,6 +3,7 @@ import {
   ActionId,
   ChipUsageRequest,
   ClassifyRequest,
+  CoachRequest,
   InterpretRequest,
   CreateContactRequest,
   InteractionRequest,
@@ -288,6 +289,38 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
       lastSaying: body.data.outcome === "discordou" ? (body.data.saying ?? null) : null,
     });
     res.json(toContact(updated));
+  });
+
+  /** A turn with the coach. Nothing from the conversation is stored. */
+  api.post("/contacts/:id/coach", auth, async (req, res) => {
+    const body = CoachRequest.safeParse(req.body);
+    if (!body.success) return res.status(400).json({ error: "invalid_request" });
+    if (!phraser.available) return res.status(503).json({ error: "ai_unavailable" });
+    const contact = await store.getContact((req as AuthedRequest).member.id, String(req.params.id));
+    if (!contact) return res.status(404).json({ error: "not_found" });
+    const persona = personaOf(contact);
+    const facts = catalogue.facts
+      .filter((f) => f.situations.length === 0 || f.situations.includes(contact.chips.situation))
+      .map((f) => ({ id: f.id, text: f.text, sourceName: f.sourceName }));
+    try {
+      const out = await phraser.coach(
+        {
+          personaName: persona.name,
+          profile: persona.profile,
+          tactics: persona.tactics,
+          avoid: persona.avoid,
+          facts,
+          state: contact.state,
+          stepsDone: contact.stepsDone,
+          maxChars: catalogue.scoring.phrasing.maxChars,
+        },
+        { nickname: body.data.nickname || "ela", relation: contact.chips.relation, note: body.data.note, voiceSample: body.data.voiceSample, reply: body.data.reply, messages: body.data.messages },
+      );
+      res.json(out);
+    } catch (err) {
+      if (err instanceof AiUnavailable) return res.status(503).json({ error: err.reason === "quota" ? "ai_quota" : "ai_error" });
+      throw err;
+    }
   });
 
   /** Turns a pasted reply into chips. The text is not stored. */
