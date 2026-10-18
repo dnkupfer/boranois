@@ -6,6 +6,24 @@ export function ComoFunciona() {
       <h1>Como funciona</h1>
 
       <section className="card">
+        <h2>O que é isto</h2>
+        <p>
+          Uma ferramenta para <strong>influenciar eleitores</strong>: ajudar pessoas que você conhece a irem votar no dia 25 e,
+          se estiverem em dúvida, a decidirem com calma, ouvindo alguém em quem confiam. Você.
+        </p>
+        <h2>Influenciar não é manipular</h2>
+        <p>
+          A diferença está no interesse de quem ouve. <strong>Influenciar</strong> é ajudar alguém a decidir no interesse dela:
+          com o que é verdade, ouvindo o que ela pensa, e respeitando a decisão final, mesmo que seja outra.{" "}
+          <strong>Manipular</strong> é levar alguém a agir contra o próprio interesse: com mentira, medo, culpa ou pressão.
+        </p>
+        <p>
+          O teste: <em>se ela soubesse exatamente o que você está fazendo e por quê, ela te agradeceria ou se sentiria usada?</em>{" "}
+          Tudo neste app passa por esse teste. Os perfis são públicos, os fatos têm fonte, e nenhuma mensagem sai sem a sua mão.
+        </p>
+      </section>
+
+      <section className="card">
         <h2>O método</h2>
         <p>
           Ninguém muda de ideia derrotado num debate. As pessoas mudam quando se sentem seguras para duvidar, e isso

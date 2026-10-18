@@ -55,16 +55,21 @@ export function Entrar() {
     <Layout narrow>
       {phase === "email" && (
         <>
-          <h1>Conversar com quem você conhece</h1>
+          <h1>Uma ferramenta para influenciar eleitores</h1>
           <p>
             Faltam poucos dias para o 2º turno. Você conhece alguém que não votou, votou em branco ou está em dúvida. O Boranois
-            te ajuda a saber com quem falar primeiro e como conversar, do seu jeito.
+            te ajuda a saber com quem falar primeiro e como conversar, do seu jeito, para que essa pessoa vá votar e decida melhor.
           </p>
           <div className="card accent">
-            <p><strong>Não é sobre fatos. É sobre escutar.</strong></p>
+            <p><strong>Influenciar não é manipular.</strong></p>
             <p className="small">
-              Ninguém muda de ideia derrotado num debate; muda quando se sente seguro para duvidar, com alguém em quem confia.
-              O app te ajuda a ouvir, a fazer as perguntas certas e a resistir à tentação de mandar link.{" "}
+              Influenciar é ajudar alguém a decidir <em>no interesse dela</em>: com o que é verdade, ouvindo, e respeitando a
+              decisão final. Manipular é levar alguém a agir <em>contra o próprio interesse</em>: com mentira, medo ou pressão.
+              O teste é simples: se ela soubesse exatamente o que você está fazendo e por quê, ela te agradeceria ou se
+              sentiria usada?
+            </p>
+            <p className="small">
+              Aqui só se faz o primeiro. Sem fatos inventados, sem pressão, sem mensagem que você não mandaria na frente dela.{" "}
               <a href="/como-funciona">Entenda o método</a>.
             </p>
           </div>
