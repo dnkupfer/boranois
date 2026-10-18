@@ -216,21 +216,27 @@ export function NovaPessoa() {
       <Progress value={progress} />
 
       {screen === "quem" && (
-        <section className="card">
+        <form
+          className="card"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (nickname.trim() && flow) setScreen("pergunta");
+          }}
+        >
           <h1>Quem é?</h1>
           <p className="muted small">Nome e telefone ficam só no seu aparelho.</p>
           <label>
             Como você chama essa pessoa?
-            <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="tia Lu, Zé do mercado…" autoFocus />
+            <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="tia Lu, Zé do mercado…" autoFocus enterKeyHint="next" />
           </label>
           <label>
             WhatsApp (com DDD) <span className="muted">(opcional)</span>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="11 99999-0000" />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="11 99999-0000" enterKeyHint="go" />
           </label>
           <div className="row end">
-            <button className="primary" disabled={!nickname.trim() || !flow} onClick={() => setScreen("pergunta")}>Continuar</button>
+            <button type="submit" className="primary" disabled={!nickname.trim() || !flow}>Continuar</button>
           </div>
-        </section>
+        </form>
       )}
 
       {screen === "pergunta" && current && (
@@ -252,7 +258,16 @@ export function NovaPessoa() {
         <section className="card">
           <h1>Mais alguma coisa sobre {nome}?</h1>
           <p className="muted small">Fica só no seu aparelho. Ajuda a escrever as mensagens do seu jeito.</p>
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={4} placeholder="ex.: o filho está desempregado; ela adora o neto; foi assaltada em março" autoFocus />
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && !busy) submit();
+            }}
+            rows={4}
+            placeholder="ex.: o filho está desempregado; ela adora o neto; foi assaltada em março"
+            autoFocus
+          />
           {error && <p className="error">{error}</p>}
           <div className="row between">
             <button className="link" onClick={back}>← Voltar</button>
