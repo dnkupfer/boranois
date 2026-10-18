@@ -148,3 +148,6 @@ ol.plain li, ul.plain li { margin-bottom: 10px; }
 .card.rules ol { margin: 0; padding-left: 24px; font-size: 1.15rem; font-weight: 700; line-height: 1.9; }
 .card.rules p { margin: 8px 0 0; }
 .card.rules a { color: var(--primary-text); opacity: 0.85; }
+
+.card.coach { border-color: var(--primary-soft); background: #fbfdfc; }
+.card.coach textarea { min-height: 64px; }

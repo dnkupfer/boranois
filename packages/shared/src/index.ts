@@ -148,7 +148,12 @@ export type Priority = (typeof PRIORITIES)[number];
 // ---------------------------------------------------------------------------
 // Requests
 
+export const GenderId = z.enum(["f", "m"]);
+export type GenderId = z.infer<typeof GenderId>;
+
 export const Chips = z.object({
+  /** How to refer to the pessoa. The catalogue is written in the feminine and inflected for "m". */
+  gender: GenderId.default("f"),
   situation: SituationId,
   relation: RelationId,
   groups: z.array(GroupId).default([]),

@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Chips, nextTargets, type ChipSets, type Contact, type Interpretation, type Question, type QuestionsResponse } from "@boranois/shared";
+import { Chips, nextTargets, type ChipSets, type Contact, type GenderId, type Interpretation, type Question, type QuestionsResponse } from "@boranois/shared";
+
+const GENDERS = [
+  { id: "f", label: "Ela" },
+  { id: "m", label: "Ele" },
+] as const;
 import { api } from "../api";
 import { ChipGroup, Layout, Progress } from "../components";
 import { privateContacts, profile } from "../local";
@@ -25,6 +30,7 @@ export function NovaPessoa() {
   const [extra, setExtra] = useState<Record<string, Question>>({});
   const [screen, setScreen] = useState<Screen>("quem");
   const [nickname, setNickname] = useState("");
+  const [gender, setGender] = useState<GenderId[]>([]);
   const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
   const [visits, setVisits] = useState<Visit[]>([]);
@@ -189,6 +195,7 @@ export function NovaPessoa() {
       }
       const mine = profile.get().groups;
       const chips = Chips.parse({
+        gender: gender[0],
         situation, relation, frequency,
         sayings: merged.sayings, worries: merged.worries, groups: merged.groups, influencers: merged.influencers, trustLoss: merged.trustLoss,
         tags: merged.tags.slice(0, 30),
@@ -220,7 +227,7 @@ export function NovaPessoa() {
           className="card"
           onSubmit={(e) => {
             e.preventDefault();
-            if (nickname.trim() && flow) setScreen("pergunta");
+            if (nickname.trim() && gender.length && flow) setScreen("pergunta");
           }}
         >
           <h1>Quem é?</h1>
@@ -229,12 +236,14 @@ export function NovaPessoa() {
             Como você chama essa pessoa?
             <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="tia Lu, Zé do mercado…" autoFocus enterKeyHint="next" />
           </label>
+          <p className="label">Falo de…</p>
+          <ChipGroup options={GENDERS} value={gender} onChange={setGender} max={1} />
           <label>
             WhatsApp (com DDD) <span className="muted">(opcional)</span>
             <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="11 99999-0000" enterKeyHint="go" />
           </label>
           <div className="row end">
-            <button type="submit" className="primary" disabled={!nickname.trim() || !flow}>Continuar</button>
+            <button type="submit" className="primary" disabled={!nickname.trim() || !gender.length || !flow}>Continuar</button>
           </div>
         </form>
       )}

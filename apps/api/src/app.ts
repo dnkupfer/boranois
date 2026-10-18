@@ -26,6 +26,7 @@ import {
 import { toPublic, type Catalogue } from "./catalogue.js";
 import { afterOutcome, afterSent, buildGuide, match, nextStep, priority, renderTemplate } from "./engine.js";
 import { AiUnavailable, type Phraser } from "./gemini.js";
+import { inflect, inflectDeep } from "./gender.js";
 import { hashToken, newToken } from "./ids.js";
 import type { Store } from "./store/index.js";
 import type { ContactRecord } from "./store/types.js";
@@ -205,6 +206,7 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
     const contact = await store.getContact((req as AuthedRequest).member.id, String(req.params.id));
     if (!contact) return res.status(404).json({ error: "not_found" });
     const persona = personaOf(contact);
+    const g = contact.chips.gender;
 
     const planned = nextStep(catalogue, {
       persona,
@@ -218,7 +220,7 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
     const nome = body.data.nickname || "você";
     const preocupacao = contact.chips.worries[0] ? labelOf(WORRIES, contact.chips.worries[0]).toLowerCase() : undefined;
     const template = planned.template
-      ? renderTemplate(planned.template, { nome, fato: planned.fact?.text, conteudo: planned.content?.url, preocupacao })
+      ? inflect(renderTemplate(planned.template, { nome, fato: planned.fact?.text, conteudo: planned.content?.url, preocupacao }), g)
       : "";
 
     let message: string | null = template || null;
@@ -231,9 +233,10 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
           contentSummary: planned.content?.summary ?? null,
           nickname: nome,
           relation: contact.chips.relation,
+          gender: g,
           note: body.data.note,
           voiceSample: body.data.voiceSample,
-          donts: persona.avoid.map((a) => a.what),
+          donts: persona.avoid.map((a) => inflect(a.what, g)),
           maxChars: catalogue.scoring.phrasing.maxChars,
         })
         .catch((err) => (console.error("phrase failed", err), null));
@@ -243,18 +246,18 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
     const step: Step = {
       id: planned.id,
       action: planned.action,
-      title: planned.title,
-      why: planned.why,
+      title: inflect(planned.title, g),
+      why: inflect(planned.why, g),
       message,
       fact: planned.fact ? { id: planned.fact.id, text: planned.fact.text, sourceName: planned.fact.sourceName, sourceUrl: planned.fact.sourceUrl } : null,
       content: planned.content
         ? { id: planned.content.id, url: planned.content.url, type: planned.content.type, summary: planned.content.summary, messenger: planned.content.messenger }
         : null,
       phrased,
-      donts: persona.avoid.map((a) => a.what),
+      donts: persona.avoid.map((a) => inflect(a.what, g)),
       waitHours: planned.waitHours,
     };
-    res.json({ contact: toContact(contact), step, guide: buildGuide(persona) } satisfies NextStepResponse);
+    res.json({ contact: toContact(contact), step, guide: inflectDeep(buildGuide(persona), g) } satisfies NextStepResponse);
   });
 
   /** "Já mandei" (or "pular"): the step is done. */
@@ -313,12 +316,14 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
       .filter((f) => f.situations.length === 0 || f.situations.includes(contact.chips.situation))
       .map((f) => ({ id: f.id, text: f.text, sourceName: f.sourceName }));
     try {
+      const g = contact.chips.gender;
       const out = await phraser.coach(
         {
           personaName: persona.name,
-          profile: persona.profile,
-          tactics: persona.tactics,
-          avoid: persona.avoid,
+          profile: inflectDeep(persona.profile, g),
+          tactics: inflectDeep(persona.tactics, g),
+          avoid: inflectDeep(persona.avoid, g),
+          gender: g,
           facts,
           state: contact.state,
           stepsDone: contact.stepsDone,

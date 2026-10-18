@@ -45,6 +45,20 @@ export const privateContacts = {
   },
 };
 
+export type CoachTurn = { role: "user" | "coach"; text: string; suggestion?: string | null };
+const COACH_KEY = "boranois.coach";
+
+/** The coach conversation for each pessoa. Device only; never sent except as context for the next turn. */
+export const coachThreads = {
+  get: (contactId: string): CoachTurn[] => read<Record<string, CoachTurn[]>>(COACH_KEY, {})[contactId] ?? [],
+  set: (contactId: string, turns: CoachTurn[]) => write(COACH_KEY, { ...read<Record<string, CoachTurn[]>>(COACH_KEY, {}), [contactId]: turns.slice(-16) }),
+  remove: (contactId: string) => {
+    const all = read<Record<string, CoachTurn[]>>(COACH_KEY, {});
+    delete all[contactId];
+    write(COACH_KEY, all);
+  },
+};
+
 export const profile = {
   get: (): Profile => read<Profile>(PROFILE_KEY, { groups: [], voiceSample: "" }),
   set: (p: Profile) => write(PROFILE_KEY, p),

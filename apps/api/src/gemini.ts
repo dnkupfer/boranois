@@ -36,6 +36,7 @@ export type PhraseInput = {
   contentSummary: string | null;
   nickname: string;
   relation: RelationId;
+  gender: "f" | "m";
   note?: string;
   voiceSample?: string;
   donts: string[];
@@ -63,6 +64,7 @@ export type CoachContext = {
   state: string;
   stepsDone: string[];
   maxChars: number;
+  gender: "f" | "m";
 };
 export type CoachInput = { nickname: string; relation: RelationId; note?: string; voiceSample?: string; reply?: string; messages: CoachMessage[] };
 
@@ -198,7 +200,7 @@ export class GeminiPhraser implements Phraser {
   private async phraseUncached(input: PhraseInput): Promise<string | null> {
     const prompt = [
       `Limite: ${input.maxChars} caracteres.`,
-      `Destinatária: "${input.nickname}" (${labelOf(RELATIONS, input.relation).toLowerCase()} do remetente).`,
+      `${input.gender === "m" ? "Destinatário" : "Destinatária"}: "${input.nickname}" (${labelOf(RELATIONS, input.relation).toLowerCase()} do remetente; ${input.gender === "m" ? "homem, use 'ele'" : "mulher, use 'ela'"}).`,
       input.note ? `O que o remetente sabe sobre ela (só contexto, não cite isso na mensagem): ${input.note}` : "",
       input.voiceSample ? `Amostra de como o remetente escreve:\n"""${input.voiceSample}"""` : "",
       input.factText ? `Fato que deve continuar na mensagem, fiel: """${input.factText}"""` : "",
@@ -256,7 +258,7 @@ export class GeminiPhraser implements Phraser {
   async coach(ctx: CoachContext, input: CoachInput): Promise<CoachResponse> {
     return this.guarded(async () => {
       const context = [
-        `Pessoa: "${input.nickname}" (${labelOf(RELATIONS, input.relation).toLowerCase()} do voluntário). Perfil: ${ctx.personaName}.`,
+        `Pessoa: "${input.nickname}" (${labelOf(RELATIONS, input.relation).toLowerCase()} do voluntário; ${ctx.gender === "m" ? "homem: use 'ele'" : "mulher: use 'ela'"}). Perfil: ${ctx.personaName}.`,
         `Como ela chegou aqui: ${ctx.profile.trust_story}`,
         `Sente: ${ctx.profile.feelings.join(", ")}. Como se vê: ${ctx.profile.identity}`,
         `O que a fecha: ${ctx.profile.shuts_down.join("; ")}. O que a abre: ${ctx.profile.opens_up.join("; ")}. Em quem acredita: ${ctx.profile.would_believe.join("; ")}.`,
