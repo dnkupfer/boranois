@@ -88,7 +88,11 @@ export function NovaPessoa() {
     let interpreted: Interpretation | null = null;
     try {
       const questionId = q.id.startsWith("ai_") ? q.id.slice(3).split("_")[0] : q.id;
-      interpreted = await api<Interpretation>("/chips/interpret", { body: { questionId, text: added } });
+      // Never make the person wait on the network: after 8s we go on without the interpretation.
+      interpreted = await Promise.race([
+        api<Interpretation>("/chips/interpret", { body: { questionId, text: added } }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
+      ]);
     } catch {
       interpreted = null;
     } finally {
@@ -264,13 +268,13 @@ function QuestionCard({
         custom={q.allowCustom ? answer.custom : undefined}
         onCustomChange={q.allowCustom ? onCustom : undefined}
       />
-      {thinking && <p className="muted small">Entendendo…</p>}
+      {thinking && <p className="muted small">Entendendo… (pode continuar)</p>}
       {blocked && <p className="error small">{blocked}</p>}
       {answer.interpreted?.rationale && !thinking && <p className="muted small">{answer.interpreted.rationale}</p>}
       <div className="row between">
         <button className="link" onClick={onBack}>← Voltar</button>
         {(!single || q.optional || answered) && (
-          <button className={answered ? "primary" : "secondary"} disabled={thinking || (answered && answer.interpreted === undefined && answer.optionIds.length === 0)} onClick={onContinue}>
+          <button className={answered ? "primary" : "secondary"} onClick={onContinue}>
             {answered ? "Continuar" : q.optional ? "Pular" : "Continuar"}
           </button>
         )}
