@@ -1,37 +1,104 @@
 {
   "id": "tem_certeza",
   "name": "Quem tem certeza",
-  "situations": ["flavio_convicto", "lula_para_flavio", "branco_nulo", "nao_votou"],
-  "default_for": ["flavio_convicto"],
+  "situations": [
+    "flavio_convicto",
+    "lula_para_flavio",
+    "branco_nulo",
+    "nao_votou",
+    "flavio_sem_conviccao",
+    "indeciso",
+    "votou_outro"
+  ],
+  "default_for": [
+    "flavio_convicto"
+  ],
   "summary": "Para ela a história é clara: o PT roubou e a esquerda ameaça a fé e a família. Não é burra nem má; está certa de que sabe. Não engaje.",
   "profile": {
     "trust_story": "A história, para ela, é clara: o PT roubou (mensalão, Lava Jato) e a esquerda ameaça a família e a fé. Ouve isso há anos de quem confia: família, igreja, Nikolas, Malafaia, Jovem Pan. A imprensa “mente”. Não é burra nem má; está certa de que sabe.",
-    "feelings": ["convicção", "lealdade", "desconfiança da “mídia”", "às vezes, prazer em discutir"],
+    "feelings": [
+      "convicção",
+      "lealdade",
+      "desconfiança da “mídia”",
+      "às vezes, prazer em discutir"
+    ],
     "identity": "“Eu sei o que vi. Não sou manipulada.”",
-    "media_diet": ["Nikolas", "Malafaia", "Jovem Pan", "Brasil Paralelo", "grupos da família", "bloqueia o resto"],
-    "shuts_down": ["tudo que não venha de dentro"],
-    "opens_up": ["não nesta semana"],
-    "would_believe": ["só vozes de dentro, e ainda assim só em assuntos não eleitorais"],
+    "media_diet": [
+      "Nikolas",
+      "Malafaia",
+      "Jovem Pan",
+      "Brasil Paralelo",
+      "grupos da família",
+      "bloqueia o resto"
+    ],
+    "shuts_down": [
+      "tudo que não venha de dentro"
+    ],
+    "opens_up": [
+      "não nesta semana"
+    ],
+    "would_believe": [
+      "só vozes de dentro, e ainda assim só em assuntos não eleitorais"
+    ],
     "turning_point": "Não há, em oito dias. Guarde a relação para depois da eleição."
   },
   "signals": {
-    "sayings": { "nunca_muda": 10, "lula_ladrao": 4 },
-    "influencers": { "nikolas": 2, "malafaia": 1, "jovem_pan": 1, "brasil_paralelo": 2 },
-    "trust_loss": { "mensalao": 2, "lava_jato": 1 }
+    "sayings": {
+      "nunca_muda": 10,
+      "lula_ladrao": 4
+    },
+    "influencers": {
+      "nikolas": 2,
+      "malafaia": 1,
+      "jovem_pan": 1,
+      "brasil_paralelo": 2
+    },
+    "trust_loss": {
+      "mensalao": 2,
+      "lava_jato": 1
+    }
   },
   "engage": false,
   "priority_base": "baixa",
   "tactics": [
-    { "title": "Não engaje", "detail": "Nem fato, nem vídeo, nem ironia. Qualquer coisa vira prova de que você “foi doutrinada”." },
-    { "title": "Se ela puxar o assunto, mude", "detail": "“A gente não vai concordar, e eu gosto de você. Me conta do neto.” Dito com carinho, encerra sem ferir." },
-    { "title": "Se ela mandar um vídeo, responda à pessoa, não ao vídeo", "detail": "“Vi, obrigada por mandar.” E só. Responder ao conteúdo é entrar no ringue." },
-    { "title": "Guarde a energia", "detail": "Cada hora com ela é uma hora a menos com alguém em dúvida. E a relação continua depois do dia 25." }
+    {
+      "title": "Não engaje",
+      "detail": "Nem fato, nem vídeo, nem ironia. Qualquer coisa vira prova de que você “foi doutrinada”."
+    },
+    {
+      "title": "Se ela puxar o assunto, mude",
+      "detail": "“A gente não vai concordar, e eu gosto de você. Me conta do neto.” Dito com carinho, encerra sem ferir."
+    },
+    {
+      "title": "Se ela mandar um vídeo, responda à pessoa, não ao vídeo",
+      "detail": "“Vi, obrigada por mandar.” E só. Responder ao conteúdo é entrar no ringue."
+    },
+    {
+      "title": "Guarde a energia",
+      "detail": "Cada hora com ela é uma hora a menos com alguém em dúvida. E a relação continua depois do dia 25."
+    }
   ],
   "avoid": [
-    { "what": "Tentar “só um fato”", "why": "Não existe “só um fato” com quem tem certeza. Só desgaste, e uma relação a menos." }
+    {
+      "what": "Tentar “só um fato”",
+      "why": "Não existe “só um fato” com quem tem certeza. Só desgaste, e uma relação a menos."
+    }
   ],
   "steps": [
-    { "id": "nao_engajar", "action": "parar", "when": ["novo", "conversando", "objecao", "cortou", "aguardando"], "title": "Não engaje", "why": "Convicção forte não muda em uma semana. Seu tempo rende mais com alguém em dúvida. Mantenha a relação; a política, deixe fora.", "template": "" }
+    {
+      "id": "nao_engajar",
+      "action": "parar",
+      "when": [
+        "novo",
+        "conversando",
+        "objecao",
+        "cortou",
+        "aguardando"
+      ],
+      "title": "Não engaje",
+      "why": "Convicção forte não muda em uma semana. Seu tempo rende mais com alguém em dúvida. Mantenha a relação; a política, deixe fora.",
+      "template": ""
+    }
   ],
   "objections": {}
 }

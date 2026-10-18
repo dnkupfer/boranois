@@ -37,7 +37,11 @@
         "branco_nulo": "nulo_porque",
         "lula_para_flavio": "mudando_porque",
         "flavio_convicto": "convicto",
-        "*": "frases"
+        "*": "frases",
+        "flavio_sem_conviccao": "mudando_porque",
+        "indeciso": "mudando_porque",
+        "votou_outro": "mudando_porque",
+        "vai_votar_lula": "preocupacoes"
       },
       "allowCustom": true
     },
@@ -196,7 +200,7 @@
     },
     {
       "id": "mudando_porque",
-      "text": "O que ela diz sobre isso?",
+      "text": "O que ela diz sobre a eleição?",
       "allowCustom": true,
       "options": [
         {

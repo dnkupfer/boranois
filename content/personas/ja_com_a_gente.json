@@ -1,0 +1,95 @@
+{
+  "id": "ja_com_a_gente",
+  "name": "Quem já está com a gente",
+  "situations": [
+    "vai_votar_lula"
+  ],
+  "default_for": [
+    "vai_votar_lula"
+  ],
+  "summary": "Vai votar no Lula. O risco é só não ir. Combine o dia e peça ajuda: ela também conhece gente em dúvida.",
+  "profile": {
+    "trust_story": "Decidida. Acompanha, se irrita com o outro lado, às vezes cansa das brigas. Não precisa de argumento; precisa de dia e hora, e de um motivo para fazer mais do que votar.",
+    "feelings": [
+      "convicção",
+      "ansiedade com o resultado",
+      "vontade de ajudar sem saber como"
+    ],
+    "identity": "“Eu voto, sempre votei. Não sou eu o problema.”",
+    "media_diet": [
+      "Janones",
+      "Felipe Neto",
+      "grupos do partido ou do trabalho"
+    ],
+    "shuts_down": [
+      "ser tratada como quem precisa ser convencida"
+    ],
+    "opens_up": [
+      "um pedido concreto: “você conhece alguém que não votou?”"
+    ],
+    "would_believe": [
+      "você"
+    ],
+    "turning_point": "Transformar um voto em dois: ela combina o dia e conversa com uma pessoa que conhece."
+  },
+  "signals": {
+    "sayings": {},
+    "worries": {},
+    "groups": {},
+    "influencers": {
+      "janones": 1
+    },
+    "trust_loss": {
+      "ainda": 1
+    }
+  },
+  "engage": true,
+  "priority_base": "baixa",
+  "tactics": [
+    {
+      "title": "Não convença; combine",
+      "detail": "“Domingo, que horas você vai?” Hora marcada é o que impede o imprevisto de virar abstenção."
+    },
+    {
+      "title": "Peça um nome",
+      "detail": "“Você conhece alguém que não votou no 1º turno?” Ela conhece. Um voto vira dois."
+    },
+    {
+      "title": "Mande o link do app",
+      "detail": "Se ela topar, é o jeito mais fácil de ela saber o que dizer para a pessoa dela."
+    },
+    {
+      "title": "Não gaste tempo discutindo o outro lado com ela",
+      "detail": "É gostoso e inútil. Esse tempo rende mais com quem está em dúvida."
+    }
+  ],
+  "avoid": [
+    {
+      "what": "Mandar argumento, vídeo ou pesquisa",
+      "why": "Ela já decidiu. Vira ruído e tira tempo de quem precisa."
+    }
+  ],
+  "steps": [
+    {
+      "id": "combinar",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Combine o dia",
+      "why": "Quem combina, vai. Simples assim.",
+      "template": "{nome}, domingo que horas você vai votar? Vamos juntos?"
+    },
+    {
+      "id": "um_nome",
+      "action": "abrir_conversa",
+      "when": [
+        "conversando"
+      ],
+      "title": "Peça um nome",
+      "why": "Ela conhece alguém que ficou em casa. Transforme um voto em dois.",
+      "template": "Me ajuda numa coisa: você conhece alguém que não votou no 1º turno, ou que tá em dúvida? Eu te mostro um jeito fácil de conversar com essa pessoa."
+    }
+  ],
+  "objections": {}
+}

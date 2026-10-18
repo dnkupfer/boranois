@@ -8,6 +8,10 @@ export const SITUATIONS = [
   { id: "nao_votou", label: "Não votou no 1º turno" },
   { id: "branco_nulo", label: "Votou branco ou nulo" },
   { id: "lula_para_flavio", label: "Votou no Lula e está pensando no Flávio" },
+  { id: "flavio_sem_conviccao", label: "Vai votar no Flávio, mas sem convicção" },
+  { id: "indeciso", label: "Está em dúvida entre os dois" },
+  { id: "votou_outro", label: "Votou em outro candidato no 1º turno" },
+  { id: "vai_votar_lula", label: "Vai votar no Lula" },
   { id: "flavio_convicto", label: "Vai votar no Flávio e defende" },
 ] as const;
 

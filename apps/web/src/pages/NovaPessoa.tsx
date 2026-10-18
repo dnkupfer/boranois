@@ -120,7 +120,8 @@ export function NovaPessoa() {
       setAnswers((prev) => ({ ...prev, [q.id]: { ...stored, custom: custom.filter((c) => c !== added), interpreted: null } }));
       return;
     }
-    const withResult: Answer = { ...stored, interpreted };
+    // The model placed it on an existing option: tick that option (the person can change it) and keep the text.
+    const withResult: Answer = { ...stored, interpreted, optionIds: q.max === 1 && interpreted?.optionId ? [interpreted.optionId] : stored.optionIds };
     setAnswers((prev) => ({ ...prev, [q.id]: withResult }));
 
     if (interpreted?.followup) {
@@ -284,8 +285,8 @@ function QuestionCard({
         custom={q.allowCustom ? answer.custom : undefined}
         onCustomChange={q.allowCustom ? onCustom : undefined}
       />
-      {thinking && <p className="muted small">Entendendo… (pode continuar)</p>}
-      {needsOption(q, answer) && <p className="small"><strong>Para eu saber por onde começar, marque também a mais próxima.</strong> Sua resposta fica guardada do mesmo jeito.</p>}
+      {thinking && <p className="muted small">{needsOption(q, answer) ? "Entendendo…" : "Entendendo… (pode continuar)"}</p>}
+      {needsOption(q, answer) && !thinking && <p className="small"><strong>Para eu saber por onde começar, marque também a mais próxima.</strong> Sua resposta fica guardada do mesmo jeito.</p>}
       {blocked && <p className="error small">{blocked}</p>}
       {answer.interpreted?.rationale && !thinking && <p className="muted small">{answer.interpreted.rationale}</p>}
       <div className="row between">
