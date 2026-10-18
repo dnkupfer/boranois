@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-import type { ChipStats, Member, OutcomeId } from "@boranois/shared";
+import type { AnalyticsEvent, ChipStats, Member, OutcomeId } from "@boranois/shared";
 import { newId } from "../ids.js";
 import type { ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
 
@@ -17,13 +17,14 @@ type Data = {
   interactions: InteractionRow[];
   chipUsage: Record<string, number>;
   chipProposals: Record<string, { count: number; mapped: string | null }>;
+  events: AnalyticsEvent[];
 };
 
 export class FileStore implements Store {
   private data: Data;
 
   constructor(private path: string) {
-    const empty: Data = { members: [], logins: [], sessions: [], contacts: [], interactions: [], chipUsage: {}, chipProposals: {} };
+    const empty: Data = { members: [], logins: [], sessions: [], contacts: [], interactions: [], chipUsage: {}, chipProposals: {}, events: [] };
     try {
       this.data = { ...empty, ...JSON.parse(readFileSync(path, "utf8")) };
     } catch {
@@ -145,6 +146,16 @@ export class FileStore implements Store {
     const cur = this.data.chipProposals[k] ?? { count: 0, mapped: null };
     this.data.chipProposals[k] = { count: cur.count + 1, mapped: mapped ?? cur.mapped };
     this.save();
+  }
+
+  async insertEvents(events: AnalyticsEvent[]) {
+    this.data.events.push(...events);
+    this.save();
+  }
+
+  async listEvents(sinceDays: number) {
+    const since = Date.now() - sinceDays * 86400000;
+    return this.data.events.filter((e) => new Date(e.ts).getTime() >= since);
   }
 
   async chipStats(): Promise<ChipStats> {

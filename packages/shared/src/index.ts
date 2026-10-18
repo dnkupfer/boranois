@@ -227,6 +227,36 @@ export type CoachResponse = {
   saying: SayingId | null;
 };
 
+// --- Analytics: anonymous device id, no names, no texts, only after consent ---
+
+export const EVENT_NAMES = [
+  "page_view",
+  "consent",
+  "nova_start", "nova_question", "nova_custom", "nova_leave", "nova_done",
+  "step_shown", "step_sent", "step_skipped", "nudge_sent", "outcome",
+  "coach_ask", "coach_reply", "suggestion_used",
+  "signin_link", "signin_done",
+] as const;
+export const EventName = z.enum(EVENT_NAMES);
+export type EventName = z.infer<typeof EventName>;
+
+export const EventsRequest = z.object({
+  /** Random per-device id, created with consent, never the member id. */
+  aid: z.string().regex(/^[A-Za-z0-9_-]{8,40}$/),
+  events: z
+    .array(
+      z.object({
+        name: EventName,
+        path: z.string().max(120).default(""),
+        props: z.record(z.string().max(30), z.union([z.string().max(80), z.number(), z.boolean()])).default({}),
+        ts: z.string().datetime(),
+      }),
+    )
+    .min(1)
+    .max(50),
+});
+export type AnalyticsEvent = z.infer<typeof EventsRequest>["events"][number] & { aid: string };
+
 /** Turn a pasted reply into chips. The text is not stored. */
 export const ClassifyRequest = z.object({ text: z.string().trim().min(1).max(1000) });
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Chips, nextTargets, type ChipSets, type Contact, type GenderId, type Interpretation, type Question, type QuestionsResponse } from "@boranois/shared";
 
@@ -6,6 +6,7 @@ const GENDERS = [
   { id: "f", label: "Ela" },
   { id: "m", label: "Ele" },
 ] as const;
+import { track } from "../analytics";
 import { api } from "../api";
 import { ChipGroup, Layout, Progress } from "../components";
 import { privateContacts, profile } from "../local";
@@ -40,12 +41,26 @@ export function NovaPessoa() {
   const [blocked, setBlocked] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const doneRef = useRef(false);
+  const lastQuestionRef = useRef<string>("");
   useEffect(() => {
+    track("nova_start");
     api<QuestionsResponse>("/questions").then((f) => {
       setFlow(f);
       setVisits([{ id: f.start, queue: [] }]);
     });
+    return () => {
+      if (!doneRef.current) track("nova_leave", { lastQuestion: lastQuestionRef.current });
+    };
   }, []);
+  useEffect(() => {
+    const id = visits[visits.length - 1]?.id;
+    if (screen === "pergunta" && id) {
+      lastQuestionRef.current = id;
+      track("nova_question", { questionId: id, index: visits.length });
+    }
+    if (screen === "nota") lastQuestionRef.current = "(nota)";
+  }, [visits, screen]);
 
   const byId = useMemo(() => {
     const m = new Map(flow?.questions.map((q) => [q.id, q]) ?? []);
@@ -104,6 +119,7 @@ export function NovaPessoa() {
     setAnswers((prev) => ({ ...prev, [q.id]: stored }));
     setBlocked(null);
     if (!added) return;
+    track("nova_custom", { questionId: q.id });
     if (!aiAvailable) return setAnswers((prev) => ({ ...prev, [q.id]: { ...stored, interpreted: null } }));
 
     setThinkingFor(q.id);
@@ -203,6 +219,8 @@ export function NovaPessoa() {
         sharedGroup: merged.groups.some((g) => mine.includes(g as never)),
       });
       const contact = await api<Contact>("/contacts", { body: { chips } });
+      doneRef.current = true;
+      track("nova_done", { persona: contact.match.personaId, priority: contact.priority.level, questions: asked.length });
       privateContacts.set(contact.id, { nickname: nickname.trim(), phone: phone.trim(), note: note.trim(), customChips: customAll });
       // Anonymous: which chips were used. Typed answers were already counted when interpreted.
       const real = asked.filter((qid) => !qid.startsWith("ai_"));

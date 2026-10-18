@@ -13,6 +13,7 @@ createApp({
   catalogue,
   phraser,
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:5173",
+  adminToken: process.env.ADMIN_TOKEN,
   // TODO: plug an email provider here for production; until then magic links are logged.
 }).listen(port, () => {
   console.log(

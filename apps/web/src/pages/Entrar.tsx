@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import type { MagicLinkResponse, MeResponse, VerifyResponse } from "@boranois/shared";
+import { track } from "../analytics";
 import { api } from "../api";
 import { Layout } from "../components";
 import { useSession } from "../session";
@@ -23,6 +24,7 @@ export function Entrar() {
     if (!t) return;
     api<VerifyResponse>("/auth/verify", { body: { t, anonToken } })
       .then((r) => {
+        track("signin_done");
         signIn(r.token, r.member);
         if (r.member.name) navigate("/", { replace: true });
         else setPhase("name");
@@ -38,6 +40,7 @@ export function Entrar() {
     setBusy(true);
     try {
       const r = await api<MagicLinkResponse>("/auth/link", { body: { email } });
+      track("signin_link");
       setDevLink(r.devLink ?? null);
       setPhase("sent");
     } finally {

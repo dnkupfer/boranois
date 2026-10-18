@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { OUTCOMES, SAYINGS, type CoachMessage, type CoachResponse, type Contact, type Guide, type NextStepResponse, type OutcomeId, type SayingId, type Step } from "@boranois/shared";
+import { track } from "../analytics";
 import { api } from "../api";
 import { ChipGroup, CopyButton, Layout, PriorityBadge } from "../components";
 import { coachThreads, privateContacts, profile, whatsappLink, type CoachTurn } from "../local";
@@ -44,6 +45,7 @@ export function Pessoa() {
       setGuide(r.guide);
       setMessage(r.step.message ?? "");
       setPhase("step");
+      track("step_shown", { stepId: r.step.id, action: r.step.action, state: r.contact.state, phrased: r.step.phrased });
     } finally {
       setBusy(false);
     }
@@ -58,6 +60,7 @@ export function Pessoa() {
     if (!step) return;
     const c = await api<Contact>(`/contacts/${id}/sent`, { body: { stepId: step.id, action: step.action, skipped } });
     setContact(c);
+    track(skipped ? "step_skipped" : "step_sent", { stepId: step.id, action: step.action });
     if (skipped || !isSending(step)) await loadNext();
     else setPhase("outcome");
   };
@@ -67,6 +70,7 @@ export function Pessoa() {
     setBusy(true);
     try {
       await api<Contact>(`/contacts/${id}/interactions`, { body: { stepId: step.id, outcome: o, saying } });
+      track("outcome", { stepId: step.id, outcome: o, saying: saying ?? "" });
       setPrefill(null);
       await loadNext();
     } finally {
@@ -78,6 +82,7 @@ export function Pessoa() {
   const nudged = async () => {
     if (!step) return;
     await api<Contact>(`/contacts/${id}/sent`, { body: { stepId: step.id, action: step.action } });
+    track("nudge_sent", { stepId: step.id });
     await loadNext();
   };
 
@@ -96,6 +101,7 @@ export function Pessoa() {
 
   /** The coach proposed a message: put it in the step's box and scroll there. */
   const useSuggestion = (text: string) => {
+    track("suggestion_used");
     setMessage(text);
     setPhase("step");
     setTimeout(() => stepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
@@ -337,6 +343,7 @@ function CoachCard({
       const r = await api<CoachResponse>(`/contacts/${contactId}/coach`, {
         body: { nickname, note, voiceSample: profile.get().voiceSample || undefined, reply: asReply ? t : undefined, messages: history.slice(-16) },
       });
+      track(asReply ? "coach_reply" : "coach_ask", { turn: Math.floor(chat.length / 2) + 1, outcome: r.outcome ?? "" });
       const mine: CoachTurn = { role: "user", text: asReply ? `${P.Ela} disse: “${t}”` : t };
       setChat([...chat, mine, { role: "coach", text: r.text, suggestion: r.suggestedMessage }]);
       setText("");

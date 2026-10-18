@@ -68,6 +68,13 @@ export function ComoFunciona() {
         <p className="muted small">
           Os perfis são públicos: <a href="/api/catalogue" target="_blank" rel="noreferrer">veja o catálogo completo</a>.
         </p>
+        <h2>Privacidade e medição</h2>
+        <p className="small">
+          O app guarda no seu aparelho o que precisa para funcionar: sua sessão e as pessoas que você adiciona. Isso não precisa
+          de permissão. Se você aceitar, medimos o uso de forma anônima (que telas são abertas, onde as pessoas param, quantas
+          mensagens são enviadas), com um identificador aleatório do aparelho, nunca com nomes, telefones, anotações ou
+          mensagens. Os dados ficam no nosso próprio servidor; nada vai para terceiros.
+        </p>
       </section>
     </Layout>
   );

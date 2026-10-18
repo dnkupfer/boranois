@@ -1,4 +1,4 @@
-import type { ChipStats, Contact, Member, OutcomeId, SayingId } from "@boranois/shared";
+import type { AnalyticsEvent, ChipStats, Contact, Member, OutcomeId, SayingId } from "@boranois/shared";
 
 export type ContactRecord = Contact & { memberId: string; lastSaying: SayingId | null };
 export type NewContact = Omit<ContactRecord, "id" | "createdAt" | "updatedAt">;
@@ -40,4 +40,8 @@ export interface Store {
   countChipUsage(questionId: string, optionId: string): Promise<void>;
   countChipProposal(questionId: string, text: string, mapped?: string | null): Promise<void>;
   chipStats(): Promise<ChipStats>;
+
+  // Analytics: anonymous events, kept for aggregation only.
+  insertEvents(events: AnalyticsEvent[]): Promise<void>;
+  listEvents(sinceDays: number): Promise<AnalyticsEvent[]>;
 }

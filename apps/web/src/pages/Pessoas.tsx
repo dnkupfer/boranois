@@ -39,14 +39,15 @@ export function Pessoas() {
     api<{ contacts: Contact[] }>("/contacts").then((r) => setContacts(r.contacts));
   }, []);
 
+  // One list: people waiting for your move first, then by priority; finished ones last.
+  const turn = (c: Contact) => (YOUR_TURN.includes(c.state) && c.state !== "novo" && c.priority.engage ? 0 : 1);
   const sorted = [...(contacts ?? [])].sort(
     (a, b) =>
       Number(DONE.includes(a.state)) - Number(DONE.includes(b.state)) ||
+      turn(a) - turn(b) ||
       Number(!a.priority.engage) - Number(!b.priority.engage) ||
-      ORDER[a.priority.level] - ORDER[b.priority.level] ||
-      Number(YOUR_TURN.includes(b.state)) - Number(YOUR_TURN.includes(a.state)),
+      ORDER[a.priority.level] - ORDER[b.priority.level],
   );
-  const yourTurn = sorted.filter((c) => YOUR_TURN.includes(c.state) && c.priority.engage && c.state !== "novo");
 
   const saveGroups = (groups: GroupId[]) => {
     const next = { ...prof, groups };
@@ -83,17 +84,6 @@ export function Pessoas() {
           <h2>Antes, sobre você</h2>
           <p>De que grupos você faz parte? Quem é do mesmo grupo ouve mais o que você diz.</p>
           <ChipGroup options={GROUPS} value={prof.groups} onChange={saveGroups} />
-        </section>
-      )}
-
-      {yourTurn.length > 0 && (
-        <section className="card accent">
-          <h2>Sua vez</h2>
-          <ul className="people">
-            {yourTurn.map((c) => (
-              <Row key={c.id} c={c} name={names[c.id]?.nickname} />
-            ))}
-          </ul>
         </section>
       )}
 

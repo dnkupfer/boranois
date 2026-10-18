@@ -151,3 +151,8 @@ ol.plain li, ul.plain li { margin-bottom: 10px; }
 
 .card.coach { border-color: var(--primary-soft); background: #fbfdfc; }
 .card.coach textarea { min-height: 64px; }
+
+/* Consent */
+.consent { position: sticky; top: 0; z-index: 10; background: var(--surface); border: 1px solid var(--border); border-radius: 0 0 14px 14px; padding: 14px 18px; margin: 0 0 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.08); }
+.consent p { margin: 0 0 8px; font-size: 0.95rem; }
+.consent .row { margin: 0; }

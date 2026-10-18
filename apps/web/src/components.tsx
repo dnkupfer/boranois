@@ -1,12 +1,18 @@
-import { useRef, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import type { Priority } from "@boranois/shared";
+import { getConsent, setConsent, track } from "./analytics";
 import { useSession } from "./session";
 
 export function Layout({ children, narrow = false }: { children: React.ReactNode; narrow?: boolean }) {
   const { token, member, signOut } = useSession();
+  const location = useLocation();
+  useEffect(() => {
+    track("page_view");
+  }, [location.pathname]);
   return (
     <div className={`page ${narrow ? "narrow" : ""}`}>
+      <ConsentBanner />
       <header className="topbar">
         <Link to="/" className="brand">Boranois</Link>
         <nav>
@@ -16,6 +22,29 @@ export function Layout({ children, narrow = false }: { children: React.ReactNode
         </nav>
       </header>
       <main>{children}</main>
+    </div>
+  );
+}
+
+/** Storage for the app itself needs no consent; measuring use does. Shown once. */
+function ConsentBanner() {
+  const [choice, setChoice] = useState(getConsent);
+  if (choice) return null;
+  const pick = (c: "all" | "necessary") => {
+    setConsent(c);
+    setChoice(c);
+  };
+  return (
+    <div className="consent" role="dialog" aria-label="Privacidade">
+      <p>
+        O app guarda no seu aparelho o que precisa para funcionar (sua sessão e as pessoas que você adiciona). Para melhorar o
+        app, gostaríamos também de medir o uso de forma anônima: nunca nomes, telefones ou mensagens.
+      </p>
+      <div className="row">
+        <button className="primary" onClick={() => pick("all")}>Aceitar</button>
+        <button className="secondary" onClick={() => pick("necessary")}>Só o necessário</button>
+        <Link to="/como-funciona" className="small">Saiba mais</Link>
+      </div>
     </div>
   );
 }

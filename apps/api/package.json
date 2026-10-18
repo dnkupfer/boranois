@@ -10,7 +10,8 @@
     "db:migrate": "tsx --env-file-if-exists=.env src/migrate.ts",
     "typecheck": "tsc -p .",
     "test": "tsx --test test/*.test.ts",
-    "analyse": "tsx --env-file-if-exists=.env src/analyse.ts"
+    "analyse": "tsx --env-file-if-exists=.env src/analyse.ts",
+    "analytics": "tsx --env-file-if-exists=.env src/report.ts"
   },
   "dependencies": {
     "@boranois/shared": "*",

@@ -1,5 +1,5 @@
 import pg from "pg";
-import type { ChipStats, Member, OutcomeId } from "@boranois/shared";
+import type { AnalyticsEvent, ChipStats, Member, OutcomeId } from "@boranois/shared";
 import { newId } from "../ids.js";
 import type { ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
 
@@ -165,6 +165,21 @@ export class PostgresStore implements Store {
        on conflict (question_id, text) do update set count = chip_proposals.count + 1, mapped = coalesce(excluded.mapped, chip_proposals.mapped)`,
       [questionId, text.toLowerCase(), mapped],
     );
+  }
+
+  async insertEvents(events: AnalyticsEvent[]) {
+    const values: unknown[] = [];
+    const rows = events.map((e, i) => {
+      values.push(newId(), e.aid, e.name, e.path, e.props, e.ts);
+      const b = i * 6;
+      return `($${b + 1}, $${b + 2}, $${b + 3}, $${b + 4}, $${b + 5}, $${b + 6})`;
+    });
+    await this.pool.query(`insert into events (id, aid, name, path, props, ts) values ${rows.join(", ")}`, values);
+  }
+
+  async listEvents(sinceDays: number) {
+    const { rows } = await this.pool.query(`select aid, name, path, props, ts from events where ts >= now() - ($1 || ' days')::interval order by ts`, [sinceDays]);
+    return rows.map((r) => ({ aid: r.aid, name: r.name, path: r.path, props: r.props, ts: r.ts.toISOString() }));
   }
 
   async chipStats(): Promise<ChipStats> {

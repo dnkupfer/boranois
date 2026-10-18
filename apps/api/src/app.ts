@@ -4,6 +4,7 @@ import {
   ChipUsageRequest,
   ClassifyRequest,
   CoachRequest,
+  EventsRequest,
   InterpretRequest,
   CreateContactRequest,
   InteractionRequest,
@@ -23,6 +24,7 @@ import {
   type Step,
   type VerifyResponse,
 } from "@boranois/shared";
+import { renderSummary, summarize } from "./analytics.js";
 import { toPublic, type Catalogue } from "./catalogue.js";
 import { afterOutcome, afterSent, buildGuide, match, nextStep, priority, renderTemplate } from "./engine.js";
 import { AiUnavailable, type Phraser } from "./gemini.js";
@@ -36,6 +38,8 @@ type Deps = {
   catalogue: Catalogue;
   phraser: Phraser;
   webOrigin: string;
+  /** Protects the analytics summary. */
+  adminToken?: string;
   /** Sends the magic link. When absent (local dev), the link is logged and returned to the client. */
   sendEmail?: (to: string, link: string) => Promise<void>;
   today?: () => string;
@@ -45,7 +49,7 @@ type AuthedRequest = Request & { member: Member };
 const localDate = () => new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" }); // YYYY-MM-DD
 const LOGIN_TTL_MS = 30 * 60 * 1000;
 
-export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, today = localDate }: Deps) {
+export function createApp({ store, catalogue, phraser, webOrigin, adminToken, sendEmail, today = localDate }: Deps) {
   const app = express();
   app.disable("x-powered-by");
   app.set("trust proxy", true);
@@ -102,6 +106,23 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
     }
     await store.countChipProposal(question.id, body.data.text, out.optionId ?? (out.blocked ? "blocked" : Object.keys(out.sets).length ? "sets" : "tags"));
     res.json(out);
+  });
+
+  // --- Analytics ----------------------------------------------------------
+  // Events arrive only after consent, carry a random device id, and never a name, phone, note or message.
+  api.post("/events", async (req, res) => {
+    const body = EventsRequest.safeParse(req.body);
+    if (!body.success) return res.status(400).json({ error: "invalid_request" });
+    await store.insertEvents(body.data.events.map((e) => ({ ...e, aid: body.data.aid })));
+    res.status(204).end();
+  });
+
+  api.get("/analytics/summary", async (req, res) => {
+    if (!adminToken || req.get("x-admin-token") !== adminToken) return res.status(401).json({ error: "unauthorized" });
+    const days = Math.min(365, Math.max(1, Number(req.query.days ?? 30)));
+    const summary = summarize(await store.listEvents(days), days);
+    if (req.query.format === "md") return res.type("text/markdown").send(renderSummary(summary));
+    res.json(summary);
   });
 
   // --- Sign-in by magic link ------------------------------------------------

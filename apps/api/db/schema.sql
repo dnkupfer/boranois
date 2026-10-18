@@ -68,3 +68,15 @@ create table if not exists chip_proposals (
   mapped       text,
   primary key (question_id, text)
 );
+
+-- Product analytics. aid is a random per-device id created only after consent; never a member id, name or text.
+create table if not exists events (
+  id     text primary key,
+  aid    text not null,
+  name   text not null,
+  path   text not null default '',
+  props  jsonb not null default '{}',
+  ts     timestamptz not null
+);
+create index if not exists events_ts_idx on events (ts);
+create index if not exists events_aid_idx on events (aid, ts);
