@@ -24,7 +24,7 @@ export function ComoFunciona() {
         </p>
       </section>
 
-      <section className="card">
+      <section className="card" id="metodo">
         <h2>O método</h2>
         <p>
           Ninguém muda de ideia derrotado num debate. As pessoas mudam quando se sentem seguras para duvidar, e isso
