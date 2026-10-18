@@ -4,6 +4,9 @@ import type { Priority } from "@boranois/shared";
 import { getConsent, setConsent, track } from "./analytics";
 import { useSession } from "./session";
 
+/** Feedback goes straight to the maintainer's WhatsApp, with a prefilled opener. */
+const FEEDBACK_WHATSAPP = `https://wa.me/447866750132?text=${encodeURIComponent("Oi! Sobre o Boranois: ")}`;
+
 export function Layout({ children }: { children: React.ReactNode; narrow?: boolean }) {
   const { token, member, emailAvailable, signOut } = useSession();
   const location = useLocation();
@@ -23,6 +26,10 @@ export function Layout({ children }: { children: React.ReactNode; narrow?: boole
       </header>
       <main>{children}</main>
       <footer className="footer">
+        <p className="feedback">
+          Achou um problema, tem uma ideia ou uma sugestão?{" "}
+          <a href={FEEDBACK_WHATSAPP} target="_blank" rel="noreferrer">Fale comigo no WhatsApp</a>.
+        </p>
         <Link to="/como-funciona">Como funciona</Link> · <Link to="/perfis">Perfis</Link> · <Link to="/termos">Termos de uso</Link> ·{" "}
         <Link to="/privacidade">Privacidade</Link>
       </footer>
