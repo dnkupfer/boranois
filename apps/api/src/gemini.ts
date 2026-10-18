@@ -41,7 +41,8 @@ export type PhraseInput = {
 };
 
 export interface Phraser {
-  available: boolean;
+  /** False when there's no key, or while the provider is refusing us (quota). */
+  readonly available: boolean;
   phrase(input: PhraseInput): Promise<string | null>;
   classify(text: string): Promise<ClassifyResponse>;
   /** Maps a typed answer onto the question tree. Output is validated against the tree before use. */
@@ -102,12 +103,58 @@ const strip = (schema: z.ZodType) => {
   return rest;
 };
 
+export class AiUnavailable extends Error {
+  constructor(public reason: "quota" | "error") {
+    super(`ai unavailable: ${reason}`);
+  }
+}
+
+const QUOTA_BACKOFF_MS = 60 * 60 * 1000;
+
 export class GeminiPhraser implements Phraser {
-  available = true;
   private ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   private model = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
+  /** After a 429 we stop calling for a while instead of burning the remaining quota on failures. */
+  private quotaUntil = 0;
+  /** Same step, same inputs → same message. Reloading a page must not cost a request. */
+  private cache = new Map<string, string>();
+
+  get available() {
+    return Date.now() >= this.quotaUntil;
+  }
+
+  /** Runs a call, turning provider errors into AiUnavailable and noting quota exhaustion. */
+  private async guarded<T>(fn: () => Promise<T>): Promise<T> {
+    if (!this.available) throw new AiUnavailable("quota");
+    try {
+      return await fn();
+    } catch (err) {
+      const msg = String((err as Error)?.message ?? err);
+      if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED")) {
+        this.quotaUntil = Date.now() + QUOTA_BACKOFF_MS;
+        console.warn(`Gemini quota exhausted; AI off for ${QUOTA_BACKOFF_MS / 60000} min. Enable billing on the key or wait for the daily reset.`);
+        throw new AiUnavailable("quota");
+      }
+      console.error("Gemini error:", msg.slice(0, 300));
+      throw new AiUnavailable("error");
+    }
+  }
 
   async phrase(input: PhraseInput): Promise<string | null> {
+    // Nothing to phrase "in their voice" without a voice sample or a note: the template is already the message.
+    if (!input.voiceSample && !input.note) return null;
+    const key = JSON.stringify([input.template, input.factText, input.voiceSample, input.note, input.nickname]);
+    const cached = this.cache.get(key);
+    if (cached) return cached;
+    const out = await this.guarded(() => this.phraseUncached(input));
+    if (out) {
+      if (this.cache.size > 500) this.cache.delete(this.cache.keys().next().value!);
+      this.cache.set(key, out);
+    }
+    return out;
+  }
+
+  private async phraseUncached(input: PhraseInput): Promise<string | null> {
     const prompt = [
       `Limite: ${input.maxChars} caracteres.`,
       `Destinatária: "${input.nickname}" (${labelOf(RELATIONS, input.relation).toLowerCase()} do remetente).`,
@@ -137,6 +184,10 @@ export class GeminiPhraser implements Phraser {
   }
 
   async interpret(question: Question, allQuestions: Question[], text: string): Promise<Interpretation> {
+    return this.guarded(() => this.interpretUncached(question, allQuestions, text));
+  }
+
+  private async interpretUncached(question: Question, allQuestions: Question[], text: string): Promise<Interpretation> {
     const vocab = (name: string, list: readonly { id: string; label: string }[]) => `${name}: ${list.map((x) => `${x.id} (${x.label})`).join(", ")}`;
     const prompt = [
       `Pergunta (${question.id}): ${question.text}`,
@@ -158,6 +209,10 @@ export class GeminiPhraser implements Phraser {
   }
 
   async classify(text: string): Promise<ClassifyResponse> {
+    return this.guarded(() => this.classifyUncached(text));
+  }
+
+  private async classifyUncached(text: string): Promise<ClassifyResponse> {
     const res = await this.ai.models.generateContent({
       model: this.model,
       contents: `Classifique a resposta abaixo, enviada por WhatsApp por alguém a quem um amigo falou sobre votar no 2º turno.

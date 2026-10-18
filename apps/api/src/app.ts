@@ -24,7 +24,7 @@ import {
 } from "@boranois/shared";
 import { toPublic, type Catalogue } from "./catalogue.js";
 import { afterOutcome, afterSent, buildGuide, match, nextStep, priority, renderTemplate } from "./engine.js";
-import type { Phraser } from "./gemini.js";
+import { AiUnavailable, type Phraser } from "./gemini.js";
 import { hashToken, newToken } from "./ids.js";
 import type { Store } from "./store/index.js";
 import type { ContactRecord } from "./store/types.js";
@@ -91,7 +91,13 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
     const question = catalogue.questions.questions.find((q) => q.id === body.data.questionId);
     if (!question) return res.status(404).json({ error: "unknown_question" });
     if (!phraser.available) return res.status(503).json({ error: "ai_unavailable" });
-    const out = await phraser.interpret(question, catalogue.questions.questions, body.data.text);
+    let out;
+    try {
+      out = await phraser.interpret(question, catalogue.questions.questions, body.data.text);
+    } catch (err) {
+      if (err instanceof AiUnavailable) return res.status(503).json({ error: err.reason === "quota" ? "ai_quota" : "ai_error" });
+      throw err;
+    }
     await store.countChipProposal(question.id, body.data.text, out.optionId ?? (out.blocked ? "blocked" : Object.keys(out.sets).length ? "sets" : "tags"));
     res.json(out);
   });
@@ -289,7 +295,12 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
     const body = ClassifyRequest.safeParse(req.body);
     if (!body.success) return res.status(400).json({ error: "invalid_request" });
     if (!phraser.available) return res.status(503).json({ error: "ai_unavailable" });
-    res.json(await phraser.classify(body.data.text));
+    try {
+      res.json(await phraser.classify(body.data.text));
+    } catch (err) {
+      if (err instanceof AiUnavailable) return res.status(503).json({ error: err.reason === "quota" ? "ai_quota" : "ai_error" });
+      throw err;
+    }
   });
 
   app.use("/api", api);

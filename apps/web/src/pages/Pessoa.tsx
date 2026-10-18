@@ -261,13 +261,17 @@ function OutcomeCard({ busy, aiAvailable, onOutcome }: { busy: boolean; aiAvaila
   const [saying, setSaying] = useState<SayingId[]>([]);
   const [pasted, setPasted] = useState("");
   const [classifying, setClassifying] = useState(false);
+  const [classifyError, setClassifyError] = useState<string | null>(null);
 
   const classify = async () => {
     setClassifying(true);
+    setClassifyError(null);
     try {
       const r = await api<ClassifyResponse>("/classify", { body: { text: pasted } });
       setPicked([r.outcome]);
       setSaying(r.saying ? [r.saying] : []);
+    } catch {
+      setClassifyError("Não consegui ler a resposta agora. Marque abaixo o que aconteceu.");
     } finally {
       setClassifying(false);
     }
@@ -284,6 +288,7 @@ function OutcomeCard({ busy, aiAvailable, onOutcome }: { busy: boolean; aiAvaila
           Cole a resposta dela, se quiser <span className="muted">(não fica guardado)</span>
           <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={2} />
           {pasted && <button type="button" className="secondary" disabled={classifying} onClick={classify}>{classifying ? "Lendo…" : "Entender a resposta"}</button>}
+          {classifyError && <p className="error small">{classifyError}</p>}
         </label>
       )}
       <ChipGroup options={OUTCOMES} value={picked} onChange={setPicked} max={1} />
