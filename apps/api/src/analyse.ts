@@ -40,7 +40,7 @@ for (const q of catalogue.questions.questions) {
 if (process.env.GEMINI_API_KEY && stats.proposals.length) {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const res = await ai.models.generateContent({
-    model: process.env.GEMINI_MODEL ?? "gemini-flash-latest",
+    model: process.env.GEMINI_MODEL ?? "gemini-flash-lite-latest",
     contents: `Abaixo, o fluxo de perguntas de um app (JSON) e as respostas que usuários digitaram quando nenhuma opção servia, com contagens. Proponha, em português, uma lista curta de mudanças concretas no fluxo: novas opções (com id, label e os chips que implicam), opções a renomear, perguntas a dividir ou a criar. Só proponha o que as contagens justificam. Formato: lista Markdown, uma mudança por item, com a justificativa em uma frase.
 
 FLUXO:

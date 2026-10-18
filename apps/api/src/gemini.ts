@@ -113,7 +113,7 @@ const QUOTA_BACKOFF_MS = 60 * 60 * 1000;
 
 export class GeminiPhraser implements Phraser {
   private ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-  private model = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
+  private model = process.env.GEMINI_MODEL ?? "gemini-flash-lite-latest";
   /** After a 429 we stop calling for a while instead of burning the remaining quota on failures. */
   private quotaUntil = 0;
   /** Same step, same inputs → same message. Reloading a page must not cost a request. */
