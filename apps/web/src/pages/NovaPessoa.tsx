@@ -7,6 +7,10 @@ import { privateContacts, profile } from "../local";
 import { useSession } from "../session";
 
 type Answer = { optionIds: string[]; custom: string[]; interpreted?: Interpretation | null };
+
+/** Questions that fill a field the engine can't do without (situation, relation, frequency). A typed answer there must also pick the closest option. */
+const requiresOption = (q: Question) => q.max === 1 && q.options.some((o) => o.sets?.situation || o.sets?.relation || o.sets?.frequency);
+const needsOption = (q: Question, a: Answer) => requiresOption(q) && a.custom.length > 0 && a.optionIds.length === 0;
 type Screen = "quem" | "pergunta" | "nota";
 /** One visited question plus the branches still waiting after it; kept as history so "Voltar" restores the queue. */
 type Visit = { id: string; queue: string[] };
@@ -130,7 +134,7 @@ export function NovaPessoa() {
       });
       return;
     }
-    if (q.max === 1) advance(q, withResult);
+    if (q.max === 1 && !requiresOption(q)) advance(q, withResult);
   };
 
   const back = () => {
@@ -185,8 +189,9 @@ export function NovaPessoa() {
       const real = asked.filter((qid) => !qid.startsWith("ai_"));
       api("/chips/usage", { body: { answers: real.map((qid) => ({ questionId: qid, optionIds: answer(qid).optionIds, custom: aiAvailable ? [] : answer(qid).custom })) } }).catch(() => {});
       navigate(`/pessoa/${contact.id}`, { replace: true });
-    } catch {
-      setError("Faltou alguma resposta. Volte e confira.");
+    } catch (err) {
+      console.error("could not save pessoa", err);
+      setError("Não deu certo agora. Tente de novo em instantes.");
       setBusy(false);
     }
   };
@@ -269,12 +274,13 @@ function QuestionCard({
         onCustomChange={q.allowCustom ? onCustom : undefined}
       />
       {thinking && <p className="muted small">Entendendo… (pode continuar)</p>}
+      {needsOption(q, answer) && <p className="small"><strong>Marque também a opção mais parecida.</strong> Sua resposta fica guardada do mesmo jeito.</p>}
       {blocked && <p className="error small">{blocked}</p>}
       {answer.interpreted?.rationale && !thinking && <p className="muted small">{answer.interpreted.rationale}</p>}
       <div className="row between">
         <button className="link" onClick={onBack}>← Voltar</button>
         {(!single || q.optional || answered) && (
-          <button className={answered ? "primary" : "secondary"} onClick={onContinue}>
+          <button className={answered ? "primary" : "secondary"} disabled={needsOption(q, answer)} onClick={onContinue}>
             {answered ? "Continuar" : q.optional ? "Pular" : "Continuar"}
           </button>
         )}
