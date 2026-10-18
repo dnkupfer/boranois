@@ -27,8 +27,8 @@ export function Layout({ children }: { children: React.ReactNode; narrow?: boole
       <main>{children}</main>
       <footer className="footer">
         <p className="feedback">
-          Achou um problema, tem uma ideia ou uma sugestão?{" "}
-          <a href={FEEDBACK_WHATSAPP} target="_blank" rel="noreferrer">Fale comigo no WhatsApp</a>.
+          Para comentários, sugestões, perguntas, ou caso tenha algum problema com esse serviço, por favor entre em contato com{" "}
+          <a href={FEEDBACK_WHATSAPP} target="_blank" rel="noreferrer">Daniel</a>.
         </p>
         <Link to="/como-funciona">Como funciona</Link> · <Link to="/perfis">Perfis</Link> · <Link to="/termos">Termos de uso</Link> ·{" "}
         <Link to="/privacidade">Privacidade</Link>
