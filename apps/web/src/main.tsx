@@ -7,6 +7,9 @@ import { Pessoas } from "./pages/Pessoas";
 import { NovaPessoa } from "./pages/NovaPessoa";
 import { Pessoa } from "./pages/Pessoa";
 import { ComoFunciona } from "./pages/ComoFunciona";
+import { Perfis } from "./pages/Perfis";
+import { Termos } from "./pages/Termos";
+import { Privacidade } from "./pages/Privacidade";
 import "./styles.css";
 
 /** Waits for the (anonymous or e-mail) session to exist. Nothing is gated behind an account. */
@@ -22,6 +25,9 @@ createRoot(document.getElementById("root")!).render(
         <Routes>
           <Route path="/entrar" element={<Entrar />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
+          <Route path="/perfis" element={<Perfis />} />
+          <Route path="/termos" element={<Termos />} />
+          <Route path="/privacidade" element={<Privacidade />} />
           <Route path="/" element={<RequireSession><Pessoas /></RequireSession>} />
           <Route path="/nova" element={<RequireSession><NovaPessoa /></RequireSession>} />
           <Route path="/pessoa/:id" element={<RequireSession><Pessoa /></RequireSession>} />

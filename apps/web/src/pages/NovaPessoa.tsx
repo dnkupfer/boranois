@@ -41,6 +41,7 @@ export function NovaPessoa() {
   const [thinkingFor, setThinkingFor] = useState<string | null>(null);
   const [blocked, setBlocked] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [quemHint, setQuemHint] = useState<string | null>(null);
 
   const doneRef = useRef(false);
   const lastQuestionRef = useRef<string>("");
@@ -175,8 +176,24 @@ export function NovaPessoa() {
       });
       return;
     }
-    if (q.max === 1 && !requiresOption(q)) advance(q, withResult);
   };
+
+  // Enter anywhere on a question screen = Continuar (when it would be enabled).
+  useEffect(() => {
+    if (screen !== "pergunta" || !current) return;
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.key !== "Enter" || (t && ["INPUT", "TEXTAREA"].includes(t.tagName))) return;
+      const a = answer(current.id);
+      const answered = a.optionIds.length + a.custom.length > 0;
+      if (needsOption(current, a) || (!answered && !current.optional)) return;
+      e.preventDefault();
+      advance(current, a);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, current, answers]);
 
   const back = () => {
     if (screen === "nota") return setScreen("pergunta");
@@ -261,7 +278,11 @@ export function NovaPessoa() {
           className="card"
           onSubmit={(e) => {
             e.preventDefault();
-            if (nickname.trim() && gender.length && flow) setScreen("pergunta");
+            if (!nickname.trim()) return setQuemHint("Falta o nome.");
+            if (!gender.length) return setQuemHint("Falta escolher: Ela, Ele ou Elu.");
+            if (!flow) return setQuemHint("As perguntas ainda estão carregando.");
+            setQuemHint(null);
+            setScreen("pergunta");
           }}
         >
           <h1>Quem é?</h1>
@@ -271,7 +292,7 @@ export function NovaPessoa() {
             <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="tia Lu, Zé do mercado…" autoFocus enterKeyHint="next" />
           </label>
           <p className="label">Falo de…</p>
-          <ChipGroup options={GENDERS} value={gender} onChange={setGender} max={1} />
+          <ChipGroup options={GENDERS} value={gender} onChange={(g) => { setGender(g); setQuemHint(null); }} max={1} />
           <label>
             WhatsApp (com DDD) <span className="muted">(opcional)</span>
             <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="11 99999-0000" enterKeyHint="go" />
@@ -282,8 +303,9 @@ export function NovaPessoa() {
               Não consegui carregar as perguntas. <button type="button" className="link" onClick={loadFlow}>Tentar de novo</button>
             </p>
           )}
+          {quemHint && <p className="error small">{quemHint}</p>}
           <div className="row end">
-            <button type="submit" className="primary" disabled={!nickname.trim() || !gender.length || !flow}>Continuar</button>
+            <button type="submit" className="primary">Continuar</button>
           </div>
         </form>
       )}
@@ -344,7 +366,7 @@ function QuestionCard({
       <ChipGroup
         options={q.options}
         value={answer.optionIds}
-        onChange={(ids) => onAnswer({ ...answer, optionIds: ids, interpreted: ids.length ? null : answer.interpreted }, single && ids.length > 0)}
+        onChange={(ids) => onAnswer({ ...answer, optionIds: ids, interpreted: ids.length ? null : answer.interpreted }, false)}
         max={q.max}
         custom={q.allowCustom ? answer.custom : undefined}
         onCustomChange={q.allowCustom ? onCustom : undefined}
@@ -355,11 +377,9 @@ function QuestionCard({
       {answer.interpreted?.rationale && !thinking && <p className="muted small">{answer.interpreted.rationale}</p>}
       <div className="row between">
         <button className="link" onClick={onBack}>← Voltar</button>
-        {(!single || q.optional || answered) && (
-          <button className={answered ? "primary" : "secondary"} disabled={needsOption(q, answer)} onClick={onContinue}>
-            {answered ? "Continuar" : q.optional ? "Pular" : "Continuar"}
-          </button>
-        )}
+        <button className={answered ? "primary" : "secondary"} disabled={needsOption(q, answer) || (!answered && !q.optional)} onClick={onContinue}>
+          {answered ? "Continuar" : q.optional ? "Pular" : "Continuar"}
+        </button>
       </div>
     </section>
   );

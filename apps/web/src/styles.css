@@ -27,8 +27,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); }
 
-.page { max-width: 760px; margin: 0 auto; padding: 0 16px 64px; }
-.page.narrow { max-width: 620px; }
+.page { max-width: 720px; margin: 0 auto; padding: 0 16px 64px; }
 .topbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 16px 0; }
 .topbar nav { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
 .topbar nav a { color: var(--muted); text-decoration: none; }
@@ -156,3 +155,12 @@ ol.plain li, ul.plain li { margin-bottom: 10px; }
 .consent { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 10; max-width: 728px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; box-shadow: 0 6px 24px rgba(0,0,0,0.12); }
 .consent p { margin: 0 0 8px; font-size: 0.95rem; }
 .consent .row { margin: 0; }
+
+.footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
+.footer a { color: var(--muted); }
+details.persona { margin: 10px 0; }
+details.persona summary { cursor: pointer; font-weight: 700; padding: 10px 0; }
+details.persona summary span { font-weight: 400; color: var(--muted); }
+details.persona .body { padding: 0 0 12px 0; }
+details.persona h3 { font-size: 1rem; margin: 12px 0 4px; }
+.legal h2 { margin-top: 24px; }
