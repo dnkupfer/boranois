@@ -4,14 +4,14 @@ import type { Priority } from "@boranois/shared";
 import { getConsent, setConsent, track } from "./analytics";
 import { useSession } from "./session";
 
-export function Layout({ children, narrow = false }: { children: React.ReactNode; narrow?: boolean }) {
+export function Layout({ children }: { children: React.ReactNode; narrow?: boolean }) {
   const { token, member, emailAvailable, signOut } = useSession();
   const location = useLocation();
   useEffect(() => {
     track("page_view");
   }, [location.pathname]);
   return (
-    <div className={`page ${narrow ? "narrow" : ""}`}>
+    <div className="page">
       <ConsentBanner />
       <header className="topbar">
         <Link to="/" className="brand">Boranois</Link>
@@ -22,6 +22,10 @@ export function Layout({ children, narrow = false }: { children: React.ReactNode
         </nav>
       </header>
       <main>{children}</main>
+      <footer className="footer">
+        <Link to="/como-funciona">Como funciona</Link> · <Link to="/perfis">Perfis</Link> · <Link to="/termos">Termos de uso</Link> ·{" "}
+        <Link to="/privacidade">Privacidade</Link>
+      </footer>
     </div>
   );
 }
@@ -43,7 +47,7 @@ function ConsentBanner() {
       <div className="row">
         <button className="primary" onClick={() => pick("all")}>Aceitar</button>
         <button className="secondary" onClick={() => pick("necessary")}>Só o necessário</button>
-        <Link to="/como-funciona" className="small">Saiba mais</Link>
+        <Link to="/privacidade" className="small">Saiba mais</Link>
       </div>
     </div>
   );

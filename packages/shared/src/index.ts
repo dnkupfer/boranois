@@ -20,6 +20,7 @@ export const RELATIONS = [
   { id: "amigo", label: "Amigo(a)" },
   { id: "vizinho", label: "Vizinho(a)" },
   { id: "colega", label: "Colega" },
+  { id: "conhecido", label: "Conhecido(a)" },
 ] as const;
 
 // Social groups / information environments. Also used for the member's own groups.

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Layout } from "../components";
 
 export function ComoFunciona() {
@@ -66,7 +67,7 @@ export function ComoFunciona() {
           <li>Pressionar. Nem você, nem o app.</li>
         </ul>
         <p className="muted small">
-          Os perfis são públicos: <a href="/api/catalogue" target="_blank" rel="noreferrer">veja o catálogo completo</a>.
+          Os perfis são públicos: <Link to="/perfis">veja todos</Link>.
         </p>
         <h2>Privacidade e medição</h2>
         <p className="small">
