@@ -66,7 +66,7 @@ const SetsOutput = z.object({
   worries: z.array(WorryId).default([]),
   groups: z.array(GroupId).default([]),
   influencers: z.array(InfluencerId).default([]),
-  trustLoss: TrustLossId.nullable().default(null),
+  trustLoss: z.array(TrustLossId).default([]),
   situation: SituationId.nullable().default(null),
   relation: RelationId.nullable().default(null),
   frequency: FrequencyId.nullable().default(null),

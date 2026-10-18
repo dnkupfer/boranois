@@ -113,7 +113,7 @@ const ChipSetsSchema = z.object({
   worries: z.array(WorryId).optional(),
   groups: z.array(GroupId).optional(),
   influencers: z.array(InfluencerId).optional(),
-  trustLoss: TrustLossId.optional(),
+  trustLoss: z.array(TrustLossId).optional(),
   situation: SituationId.optional(),
   relation: RelationId.optional(),
   frequency: FrequencyId.optional(),
@@ -136,7 +136,7 @@ function expandQuestion(q: z.infer<typeof QuestionSchema>): Question {
   const list = TAXONOMIES[q.options];
   const key = TAXONOMY_SETS[q.options];
   if (!list) throw new Error(`question ${q.id}: unknown taxonomy ${q.options}`);
-  const single = key === "situation" || key === "relation" || key === "frequency" || key === "trustLoss";
+  const single = key === "situation" || key === "relation" || key === "frequency";
   return { ...q, options: list.map((o) => ({ id: o.id, label: o.label, sets: { [key]: single ? o.id : [o.id] } as Question["options"][number]["sets"] })) };
 }
 

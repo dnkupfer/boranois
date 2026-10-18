@@ -1,5 +1,5 @@
 {
-  "comment": "One question at a time. `max: 1` means single choice; no `max` means pick as many as you like. `next` is either a question id or a map option id -> question id (\"*\" is the default). `sets` maps an option onto the chips the engine understands; options without `sets` become tags. `options` is a taxonomy name (SITUATIONS, RELATIONS, GROUPS, SAYINGS, WORRIES, INFLUENCERS, TRUST_LOSS, FREQUENCIES) or an inline list. Every question allows a typed answer (\"+ outra\"); the API interprets it with the model and maps it onto these options and chips, or inserts one follow-up question for that person.",
+  "comment": "One question at a time. With several answers on a branching question, every matching branch is visited in the order of the `next` map (list the most actionable first); questions already asked are skipped. `max: 1` means single choice; no `max` means pick as many as you like. `next` is either a question id or a map option id -> question id (\"*\" is the default). `sets` maps an option onto the chips the engine understands; options without `sets` become tags. `options` is a taxonomy name (SITUATIONS, RELATIONS, GROUPS, SAYINGS, WORRIES, INFLUENCERS, TRUST_LOSS, FREQUENCIES) or an inline list. Every question allows a typed answer (\"+ outra\"); the API interprets it with the model and maps it onto these options and chips, or inserts one follow-up question for that person.",
   "start": "relacao",
   "questions": [
     {
@@ -44,7 +44,6 @@
     {
       "id": "nao_votou_porque",
       "text": "Por que ela não foi?",
-      "max": 1,
       "allowCustom": true,
       "options": [
         {
@@ -142,7 +141,6 @@
     {
       "id": "nulo_porque",
       "text": "Por que ela anulou?",
-      "max": 1,
       "allowCustom": true,
       "options": [
         {
@@ -199,7 +197,6 @@
     {
       "id": "mudando_porque",
       "text": "O que ela diz sobre isso?",
-      "max": 1,
       "allowCustom": true,
       "options": [
         {

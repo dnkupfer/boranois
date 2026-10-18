@@ -101,7 +101,9 @@
       ],
       "frequency": "semanal",
       "sharedGroup": false,
-      "trustLoss": "inss"
+      "trustLoss": [
+        "inss"
+      ]
     },
     "expect": {
       "persona": "anulou_de_raiva",
@@ -269,7 +271,9 @@
         "nikolas",
         "brasil_paralelo"
       ],
-      "trustLoss": "mensalao"
+      "trustLoss": [
+        "mensalao"
+      ]
     },
     "expect": {
       "persona": "tem_certeza",

@@ -151,7 +151,7 @@ export const Chips = z.object({
   worries: z.array(WorryId).default([]),
   sayings: z.array(SayingId).default([]),
   influencers: z.array(InfluencerId).default([]),
-  trustLoss: TrustLossId.optional(),
+  trustLoss: z.array(TrustLossId).default([]),
   frequency: FrequencyId,
   /** Answers that don't map to a taxonomy (e.g. "trabalhou no domingo"). Categorical only. */
   tags: z.array(z.string().max(40)).max(30).default([]),
@@ -283,7 +283,7 @@ export type CatalogueResponse = { version: string; personas: PublicPersona[] };
 
 // --- The question flow (one question at a time, branching) ---
 
-export type ChipSets = { sayings?: SayingId[]; worries?: WorryId[]; groups?: GroupId[]; influencers?: InfluencerId[]; trustLoss?: TrustLossId; situation?: SituationId; relation?: RelationId; frequency?: FrequencyId };
+export type ChipSets = { sayings?: SayingId[]; worries?: WorryId[]; groups?: GroupId[]; influencers?: InfluencerId[]; trustLoss?: TrustLossId[]; situation?: SituationId; relation?: RelationId; frequency?: FrequencyId };
 export type QuestionOption = { id: string; label: string; sets?: ChipSets };
 export type Question = {
   id: string;
@@ -294,9 +294,27 @@ export type Question = {
   max?: number;
   optional: boolean;
   allowCustom: boolean;
-  /** Next question id, or per-option map ("*" default). null ends the flow. */
+  /**
+   * Next question id, or a per-option map ("*" = when nothing matched). null ends the flow.
+   * With several answers, every matching branch is visited, in the map's order (see nextTargets).
+   */
   next: string | Record<string, string> | null;
 };
+
+/**
+ * Where to go after a question, given the selected option ids. Deterministic and shared by the
+ * web app and the tests. A forced id (from an interpreted answer) wins; a string next is itself;
+ * a map yields one target per matching key in the map's order, or "*" when none matched.
+ */
+export function nextTargets(q: Question, selected: string[], forced?: string | null): string[] {
+  if (forced) return [forced];
+  if (q.next === null) return [];
+  if (typeof q.next === "string") return [q.next];
+  const out: string[] = [];
+  for (const [key, target] of Object.entries(q.next)) if (key !== "*" && selected.includes(key) && !out.includes(target)) out.push(target);
+  if (!out.length && q.next["*"]) out.push(q.next["*"]);
+  return out;
+}
 export type QuestionsResponse = { start: string; questions: Question[] };
 /** What the model made of a typed answer. Everything here is validated against the tree and the vocabularies. */
 export type Interpretation = {

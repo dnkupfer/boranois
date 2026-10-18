@@ -46,9 +46,9 @@ export function match(cat: Catalogue, chips: Chips): Match {
         const v = p.signals.influencers[i];
         if (v) (score += v), because.push(`segue ${labelOf(INFLUENCERS, i)}`);
       }
-      if (chips.trustLoss) {
-        const v = p.signals.trust_loss[chips.trustLoss];
-        if (v) (score += v), because.push(`parou de acreditar: ${labelOf(TRUST_LOSS, chips.trustLoss).toLowerCase()}`);
+      for (const t of chips.trustLoss) {
+        const v = p.signals.trust_loss[t];
+        if (v) (score += v), because.push(`parou de acreditar: ${labelOf(TRUST_LOSS, t).toLowerCase()}`);
       }
       return { p, score, because };
     })
