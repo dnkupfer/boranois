@@ -36,6 +36,13 @@ Edit the JSON in `content/`, run `npm test -w @boranois/api`, restart the API. T
 
 ## Deploy
 
-- **Web:** `npm run build`, then `firebase deploy --only hosting` (`.firebaserc` needs the project id). `/api/**` is rewritten to the Cloud Run service `boranois-api` in `southamerica-east1`.
-- **API:** build the root `Dockerfile` (it bundles `content/`) and deploy to Cloud Run as `boranois-api`. Secrets: `DATABASE_URL` (Neon pooled string), `GEMINI_API_KEY`. Set `WEB_ORIGIN` to the site URL.
-- **Email:** pass a `sendEmail` function to `createApp` (e.g. Resend) before going live; without it magic links are only logged.
+One-time setup:
+
+1. A GCP project with billing, Firebase added to it (`firebase projects:addfirebase <id>`), and the APIs: `gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com`.
+2. A Neon project (region `aws-sa-east-1`) and `npm run db:migrate -w @boranois/api` with its **pooled** connection string in `DATABASE_URL`.
+3. Secrets in Secret Manager: `DATABASE_URL`, `GEMINI_API_KEY`, `ADMIN_TOKEN` (`printf '%s' "$VALUE" | gcloud secrets create NAME --data-file=-`), and the Cloud Run service account granted `roles/secretmanager.secretAccessor`.
+4. `.firebaserc` pointing at the project.
+
+Then: `PROJECT=<id> ./scripts/deploy.sh` (or `api` / `web`). The API goes to Cloud Run `boranois-api` in `southamerica-east1`, built from the root `Dockerfile` (which bundles `content/`); the web app to Firebase Hosting, whose `/api/**` rewrite points at that service. Magic links point at `WEB_ORIGIN` (defaults to `https://<project>.web.app`); without an email provider they are only logged, so sign-in by e-mail isn't usable in production until `sendEmail` is wired in `apps/api/src/index.ts`.
+
+Analytics: `GET /api/analytics/summary?days=7&format=md` with header `x-admin-token`, or `npm run analytics -w @boranois/api` against the same `DATABASE_URL`.
