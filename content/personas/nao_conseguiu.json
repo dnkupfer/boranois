@@ -1,46 +1,142 @@
 {
   "id": "nao_conseguiu",
   "name": "Quem não conseguiu ir",
-  "situations": ["nao_votou"],
+  "situations": [
+    "nao_votou"
+  ],
   "default_for": [],
   "summary": "Queria votar e não deu: trabalho, distância, criança, título. Precisa de logística, não de argumento.",
   "profile": {
     "trust_story": "Não é sobre confiança: acha importante votar. Faltou porque trabalhou no domingo, estava viajando, a seção é longe, o título tinha problema ou não tinha com quem deixar as crianças. Agora acha que está “em dívida” (multa) e talvez nem possa votar.",
-    "feelings": ["culpa leve", "correria", "medo de burocracia"],
+    "feelings": [
+      "culpa leve",
+      "correria",
+      "medo de burocracia"
+    ],
     "identity": "“Dou conta de tudo, só não dá tempo.”",
-    "media_diet": ["WhatsApp do trabalho e da família", "manchete no celular"],
-    "shuts_down": ["sermão", "“faltou por preguiça”"],
-    "opens_up": ["ajuda concreta, resolvida na hora"],
-    "would_believe": ["quem resolve o problema com ela, na conversa"],
+    "media_diet": [
+      "WhatsApp do trabalho e da família",
+      "manchete no celular"
+    ],
+    "shuts_down": [
+      "sermão",
+      "“faltou por preguiça”"
+    ],
+    "opens_up": [
+      "ajuda concreta, resolvida na hora"
+    ],
+    "would_believe": [
+      "quem resolve o problema com ela, na conversa"
+    ],
     "turning_point": "Ver o obstáculo sumir: local confirmado, horário combinado, carona ou alguém com as crianças."
   },
   "signals": {
-    "sayings": { "nao_consegui": 6 },
+    "sayings": {
+      "nao_consegui": 6
+    },
     "worries": {},
     "influencers": {},
-    "trust_loss": { "ainda": 1 }
+    "trust_loss": {
+      "ainda": 1
+    }
   },
   "engage": true,
   "priority_base": "alta",
+  "wait_hours": 12,
   "tactics": [
-    { "title": "Resolva na conversa, não “depois”", "detail": "Peça o CPF por áudio e consulte a seção dela no e-Título enquanto conversam. Mande o endereço. “Depois” vira nunca." },
-    { "title": "Compromisso com hora", "detail": "“Domingo 8h30 eu passo aí.” Lembrete no sábado à noite e outro às 8h. Hora marcada com pessoa é o que mais garante presença." },
-    { "title": "Trabalha no domingo? Antes do turno", "detail": "Votação das 8h às 17h. Proponha ir às 8h antes do trabalho, ou na pausa. Vinte minutos." },
-    { "title": "Problema são as crianças?", "detail": "Ofereça ficar com elas por meia hora, ou ir todo mundo junto. Criança pode entrar na seção." },
-    { "title": "Tire o medo da multa em uma frase", "detail": "A falta do 1º turno se justifica até dezembro, pelo app, e não impede o voto no 2º." },
-    { "title": "Documento", "detail": "Lembre: RG, CNH ou e-Título com foto servem. O título de papel não precisa." }
+    {
+      "title": "Resolva na conversa, não “depois”",
+      "detail": "Peça o CPF por áudio e consulte a seção dela no e-Título enquanto conversam. Mande o endereço. “Depois” vira nunca."
+    },
+    {
+      "title": "Compromisso com hora",
+      "detail": "“Domingo 8h30 eu passo aí.” Lembrete no sábado à noite e outro às 8h. Hora marcada com pessoa é o que mais garante presença."
+    },
+    {
+      "title": "Trabalha no domingo? Antes do turno",
+      "detail": "Votação das 8h às 17h. Proponha ir às 8h antes do trabalho, ou na pausa. Vinte minutos."
+    },
+    {
+      "title": "Problema são as crianças?",
+      "detail": "Ofereça ficar com elas por meia hora, ou ir todo mundo junto. Criança pode entrar na seção."
+    },
+    {
+      "title": "Tire o medo da multa em uma frase",
+      "detail": "A falta do 1º turno se justifica até dezembro, pelo app, e não impede o voto no 2º."
+    },
+    {
+      "title": "Documento",
+      "detail": "Lembre: RG, CNH ou e-Título com foto servem. O título de papel não precisa."
+    }
   ],
   "avoid": [
-    { "what": "Perguntar “por que você não foi?” em tom de cobrança", "why": "Ela já se sente culpada. Pergunte “o que atrapalhou?”." },
-    { "what": "Mandar argumento político", "why": "Ela já decidiu votar. Argumento só gasta a conversa." }
+    {
+      "what": "Perguntar “por que você não foi?” em tom de cobrança",
+      "why": "Ela já se sente culpada. Pergunte “o que atrapalhou?”."
+    },
+    {
+      "what": "Mandar argumento político",
+      "why": "Ela já decidiu votar. Argumento só gasta a conversa."
+    }
   ],
   "steps": [
-    { "id": "abrir", "action": "abrir_conversa", "when": ["novo"], "title": "Pergunte o que atrapalhou", "why": "Cada obstáculo tem uma solução diferente. Descubra qual foi.", "template": "{nome}, no dia 4 você não conseguiu ir votar, né? Foi correria, trabalho, distância? Pergunto porque no dia 25 talvez eu consiga te ajudar." },
-    { "id": "pode_votar", "action": "enviar_fato", "when": ["conversando"], "title": "Tire o medo da multa e da proibição", "why": "O maior bloqueio de quem faltou é achar que não pode mais votar.", "facts": ["pode_votar_2turno", "justificar_1turno"], "template": "Primeira coisa: {fato} Então dia 25 você vota normal." },
-    { "id": "onde", "action": "enviar_fato", "when": ["conversando"], "title": "Resolva o onde e o como", "why": "Lugar, horário e documento. Com isso na mão, ela vai.", "facts": ["onde_votar", "documentos", "horario_votacao"], "template": "{fato} Quer que eu veja a sua seção agora? Me manda o CPF por áudio que eu olho." },
-    { "id": "ajuda", "action": "oferecer_ajuda", "when": ["conversando"], "title": "Combine o dia", "why": "Combinar horário e carona é o que mais garante que a pessoa chega.", "template": "Domingo, que horas fica bom pra você? Eu passo aí e a gente vai junto." }
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Pergunte o que atrapalhou",
+      "why": "Cada obstáculo tem uma solução diferente. Descubra qual foi.",
+      "template": "{nome}, no dia 4 você não conseguiu ir votar, né? Foi correria, trabalho, distância? Pergunto porque no dia 25 talvez eu consiga te ajudar."
+    },
+    {
+      "id": "pode_votar",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Tire o medo da multa e da proibição",
+      "why": "O maior bloqueio de quem faltou é achar que não pode mais votar.",
+      "facts": [
+        "pode_votar_2turno",
+        "justificar_1turno"
+      ],
+      "template": "Primeira coisa: {fato} Então dia 25 você vota normal."
+    },
+    {
+      "id": "onde",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Resolva o onde e o como",
+      "why": "Lugar, horário e documento. Com isso na mão, ela vai.",
+      "facts": [
+        "onde_votar",
+        "documentos",
+        "horario_votacao"
+      ],
+      "template": "{fato} Quer que eu veja a sua seção agora? Me manda o CPF por áudio que eu olho."
+    },
+    {
+      "id": "ajuda",
+      "action": "oferecer_ajuda",
+      "when": [
+        "conversando"
+      ],
+      "title": "Combine o dia",
+      "why": "Combinar horário e carona é o que mais garante que a pessoa chega.",
+      "template": "Domingo, que horas fica bom pra você? Eu passo aí e a gente vai junto."
+    }
   ],
   "objections": {
-    "nao_consegui": { "title": "Ela acha que de novo não vai dar", "template": "Então vamos combinar agora: me diz o horário que você consegue, que eu me organizo pra te buscar. É meia hora, no máximo.", "facts": ["horario_votacao"] }
+    "nao_consegui": {
+      "title": "Ela acha que de novo não vai dar",
+      "template": "Então vamos combinar agora: me diz o horário que você consegue, que eu me organizo pra te buscar. É meia hora, no máximo.",
+      "facts": [
+        "horario_votacao"
+      ]
+    }
   }
 }

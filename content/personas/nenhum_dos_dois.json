@@ -60,6 +60,7 @@
   },
   "engage": true,
   "priority_base": "alta",
+  "wait_hours": 48,
   "tactics": [
     {
       "title": "Comece concordando com uma crítica específica dela",

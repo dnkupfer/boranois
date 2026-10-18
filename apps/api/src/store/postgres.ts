@@ -19,6 +19,7 @@ const toContact = (r: any): ContactRecord => ({
   state: r.state,
   stepsDone: r.steps_done,
   lastSaying: r.last_saying,
+  lastSentAt: r.last_sent_at ? r.last_sent_at.toISOString() : null,
   catalogueVersion: r.catalogue_version,
   createdAt: r.created_at.toISOString(),
   updatedAt: r.updated_at.toISOString(),
@@ -63,9 +64,9 @@ export class PostgresStore implements Store {
 
   async createContact(c: NewContact) {
     const { rows } = await this.pool.query(
-      `insert into contacts (id, member_id, chips, persona_id, match, priority, state, steps_done, last_saying, catalogue_version)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *`,
-      [newId(), c.memberId, c.chips, c.match.personaId, c.match, c.priority, c.state, JSON.stringify(c.stepsDone), c.lastSaying, c.catalogueVersion],
+      `insert into contacts (id, member_id, chips, persona_id, match, priority, state, steps_done, last_saying, last_sent_at, catalogue_version)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *`,
+      [newId(), c.memberId, c.chips, c.match.personaId, c.match, c.priority, c.state, JSON.stringify(c.stepsDone), c.lastSaying, c.lastSentAt, c.catalogueVersion],
     );
     return toContact(rows[0]);
   }
@@ -89,6 +90,7 @@ export class PostgresStore implements Store {
          match = coalesce($5, match),
          persona_id = coalesce($6, persona_id),
          last_saying = case when $7::boolean then $8 else last_saying end,
+         last_sent_at = coalesce($9, last_sent_at),
          updated_at = now()
        where id = $1 returning *`,
       [
@@ -100,6 +102,7 @@ export class PostgresStore implements Store {
         patch.match?.personaId ?? null,
         patch.lastSaying !== undefined,
         patch.lastSaying ?? null,
+        patch.lastSentAt ?? null,
       ],
     );
     return toContact(rows[0]);

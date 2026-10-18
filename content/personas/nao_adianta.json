@@ -1,50 +1,181 @@
 {
   "id": "nao_adianta",
   "name": "Quem acha que não adianta",
-  "situations": ["nao_votou", "branco_nulo"],
-  "default_for": ["nao_votou"],
+  "situations": [
+    "nao_votou",
+    "branco_nulo"
+  ],
+  "default_for": [
+    "nao_votou"
+  ],
   "summary": "Já acreditou, viu subir e descer, e desligou. Não odeia ninguém; cansou.",
   "profile": {
     "trust_story": "Votou no Lula em 2002 ou 2006 e viu a vida melhorar. Depois veio a crise de 2015, a Lava Jato, e a conclusão de que tudo sobe e desce sem ela ter voz. Em 2025, o escândalo dos descontos do INSS confirmou: “roubam até aposentado”. Não virou de lado; desligou.",
-    "feelings": ["cansaço", "descrença", "um pouco de vergonha por já ter acreditado"],
+    "feelings": [
+      "cansaço",
+      "descrença",
+      "um pouco de vergonha por já ter acreditado"
+    ],
     "identity": "“Sou realista. Não caio mais em conversa.”",
-    "media_diet": ["grupo da família", "Choquei", "TV aberta no jantar", "não segue político"],
-    "shuts_down": ["discurso cívico (“é seu dever”)", "vídeo de político", "“o Lula fez isso e aquilo”"],
-    "opens_up": ["alguém próximo dizer “eu também cansei” e perguntar o que ela acha, sem agenda"],
-    "would_believe": ["parente ou amiga que também já se decepcionou", "um número simples, dito de cabeça", "não “a campanha”"],
+    "media_diet": [
+      "grupo da família",
+      "Choquei",
+      "TV aberta no jantar",
+      "não segue político"
+    ],
+    "shuts_down": [
+      "discurso cívico (“é seu dever”)",
+      "vídeo de político",
+      "“o Lula fez isso e aquilo”"
+    ],
+    "opens_up": [
+      "alguém próximo dizer “eu também cansei” e perguntar o que ela acha, sem agenda"
+    ],
+    "would_believe": [
+      "parente ou amiga que também já se decepcionou",
+      "um número simples, dito de cabeça",
+      "não “a campanha”"
+    ],
     "turning_point": "Perceber que dessa vez a decisão dela pesa de verdade (empate, 33 milhões em casa) e que votar não é acreditar em político: é não deixar os outros decidirem por ela."
   },
   "signals": {
-    "sayings": { "nao_adianta": 5, "todos_iguais": 4, "ja_decidido": 2 },
-    "worries": { "corrupcao": 1 },
-    "influencers": { "nenhum": 1, "choquei": 1 },
-    "trust_loss": { "lava_jato": 1, "inss": 2, "ainda": 1 }
+    "sayings": {
+      "nao_adianta": 5,
+      "todos_iguais": 4,
+      "ja_decidido": 2
+    },
+    "worries": {
+      "corrupcao": 1
+    },
+    "influencers": {
+      "nenhum": 1,
+      "choquei": 1
+    },
+    "trust_loss": {
+      "lava_jato": 1,
+      "inss": 2,
+      "ainda": 1
+    }
   },
   "engage": true,
   "priority_base": "alta",
+  "wait_hours": 24,
   "tactics": [
-    { "title": "Primeira mensagem em áudio", "detail": "Desânimo responde a voz, não a argumento. Trinta segundos, tom de quem pergunta mesmo." },
-    { "title": "Use o “eu também”", "detail": "“Eu também já pensei em não ir.” Ela só baixa a guarda se você não estiver “do outro lado”." },
-    { "title": "Um número só, de cabeça", "detail": "“Dois pontos de diferença e 33 milhões em casa.” Sem gráfico, sem link. Link é campanha; número de cabeça é conversa." },
-    { "title": "Troque “votar” por “não deixar decidirem por você”", "detail": "Para ela, votar é acreditar em político. Não deixar decidirem é se defender. A segunda ela aceita." },
-    { "title": "Combine o horário no dia em que ela amolecer", "detail": "“Domingo, 9h, eu passo aí.” Compromisso com você, não com a urna. Quem combina com pessoa, vai." },
-    { "title": "Fim de tarde ou depois do jantar", "detail": "De manhã, no meio da correria, ela lê e esquece." },
-    { "title": "Sem resposta em 24h? Não cobre", "detail": "Mande um áudio de outra coisa (receita, foto do neto) e volte ao assunto dois dias depois." }
+    {
+      "title": "Primeira mensagem em áudio",
+      "detail": "Desânimo responde a voz, não a argumento. Trinta segundos, tom de quem pergunta mesmo."
+    },
+    {
+      "title": "Use o “eu também”",
+      "detail": "“Eu também já pensei em não ir.” Ela só baixa a guarda se você não estiver “do outro lado”."
+    },
+    {
+      "title": "Um número só, de cabeça",
+      "detail": "“Dois pontos de diferença e 33 milhões em casa.” Sem gráfico, sem link. Link é campanha; número de cabeça é conversa."
+    },
+    {
+      "title": "Troque “votar” por “não deixar decidirem por você”",
+      "detail": "Para ela, votar é acreditar em político. Não deixar decidirem é se defender. A segunda ela aceita."
+    },
+    {
+      "title": "Combine o horário no dia em que ela amolecer",
+      "detail": "“Domingo, 9h, eu passo aí.” Compromisso com você, não com a urna. Quem combina com pessoa, vai."
+    },
+    {
+      "title": "Fim de tarde ou depois do jantar",
+      "detail": "De manhã, no meio da correria, ela lê e esquece."
+    },
+    {
+      "title": "Sem resposta em 24h? Não cobre",
+      "detail": "Mande um áudio de outra coisa (receita, foto do neto) e volte ao assunto dois dias depois."
+    }
   ],
   "avoid": [
-    { "what": "Mandar vídeo de político ou propaganda", "why": "É exatamente o que ela parou de ouvir. Confirma que você virou “campanha”." },
-    { "what": "Falar em dever cívico ou “seu voto é sua voz”", "why": "Para ela nenhuma voz foi ouvida. Soa a sermão." },
-    { "what": "Discutir quando ela diz “são todos iguais”", "why": "Concorde com o cansaço e mude a pergunta: “o que pesa pra você hoje?”" }
+    {
+      "what": "Mandar vídeo de político ou propaganda",
+      "why": "É exatamente o que ela parou de ouvir. Confirma que você virou “campanha”."
+    },
+    {
+      "what": "Falar em dever cívico ou “seu voto é sua voz”",
+      "why": "Para ela nenhuma voz foi ouvida. Soa a sermão."
+    },
+    {
+      "what": "Discutir quando ela diz “são todos iguais”",
+      "why": "Concorde com o cansaço e mude a pergunta: “o que pesa pra você hoje?”"
+    }
   ],
   "steps": [
-    { "id": "abrir", "action": "abrir_conversa", "when": ["novo"], "title": "Comece perguntando, não explicando", "why": "Ela precisa sentir que você quer ouvir, não convencer.", "template": "{nome}, você não foi votar no dia 4, né? Foi por causa de alguma coisa ou só desanimou mesmo? Pergunto porque eu também já pensei nisso." },
-    { "id": "voto_pesa", "action": "enviar_fato", "when": ["conversando"], "title": "Mostre que dessa vez o voto dela pesa", "why": "O argumento dela é que não faz diferença. Os números dizem o contrário, e vindo de você ela ouve.", "facts": ["quaest_ausentes", "abstencao_33mi", "empate_tecnico"], "template": "Olha só o que eu vi: {fato} Dessa vez não é força de expressão, é matemática." },
-    { "id": "pode_votar", "action": "enviar_fato", "when": ["conversando"], "title": "Tire a dúvida prática", "why": "Muita gente que faltou no 1º turno acha que não pode votar no 2º. Pode.", "facts": ["pode_votar_2turno", "justificar_1turno"], "template": "Ah, e caso você esteja achando que perdeu a chance: {fato}" },
-    { "id": "ajuda", "action": "oferecer_ajuda", "when": ["conversando"], "title": "Ofereça ajuda concreta", "why": "Combinar com alguém é o que mais faz uma pessoa desanimada ir até a urna.", "facts": ["onde_votar"], "template": "Quer que eu veja onde é a sua seção? Posso te dar carona no domingo, a gente vai junto." }
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Comece perguntando, não explicando",
+      "why": "Ela precisa sentir que você quer ouvir, não convencer.",
+      "template": "{nome}, você não foi votar no dia 4, né? Foi por causa de alguma coisa ou só desanimou mesmo? Pergunto porque eu também já pensei nisso."
+    },
+    {
+      "id": "voto_pesa",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Mostre que dessa vez o voto dela pesa",
+      "why": "O argumento dela é que não faz diferença. Os números dizem o contrário, e vindo de você ela ouve.",
+      "facts": [
+        "quaest_ausentes",
+        "abstencao_33mi",
+        "empate_tecnico"
+      ],
+      "template": "Olha só o que eu vi: {fato} Dessa vez não é força de expressão, é matemática."
+    },
+    {
+      "id": "pode_votar",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Tire a dúvida prática",
+      "why": "Muita gente que faltou no 1º turno acha que não pode votar no 2º. Pode.",
+      "facts": [
+        "pode_votar_2turno",
+        "justificar_1turno"
+      ],
+      "template": "Ah, e caso você esteja achando que perdeu a chance: {fato}"
+    },
+    {
+      "id": "ajuda",
+      "action": "oferecer_ajuda",
+      "when": [
+        "conversando"
+      ],
+      "title": "Ofereça ajuda concreta",
+      "why": "Combinar com alguém é o que mais faz uma pessoa desanimada ir até a urna.",
+      "facts": [
+        "onde_votar"
+      ],
+      "template": "Quer que eu veja onde é a sua seção? Posso te dar carona no domingo, a gente vai junto."
+    }
   ],
   "objections": {
-    "nao_adianta": { "title": "Ela repetiu que não adianta", "template": "Eu entendo, de verdade. Mas 33 milhões de pessoas ficaram em casa no 1º turno, e a diferença entre os dois é de 2 pontos. Dessa vez quem fica em casa decide. Não é pouco.", "facts": ["abstencao_33mi", "empate_tecnico"] },
-    "todos_iguais": { "title": "“São todos iguais”", "template": "Pode até ser que nenhum seja o que a gente queria. Mas para a sua vida de hoje, no bolso e nos direitos, um dos dois faz diferença. O que mais pesa pra você hoje?", "facts": [] },
-    "nenhum_dos_dois": { "title": "“Não gosto de nenhum dos dois”", "template": "Justo. Eu também não voto por amor. Voto pensando no que muda na minha vida nos próximos 4 anos. Qual é a coisa que mais te preocupa hoje?", "facts": [] }
+    "nao_adianta": {
+      "title": "Ela repetiu que não adianta",
+      "template": "Eu entendo, de verdade. Mas 33 milhões de pessoas ficaram em casa no 1º turno, e a diferença entre os dois é de 2 pontos. Dessa vez quem fica em casa decide. Não é pouco.",
+      "facts": [
+        "abstencao_33mi",
+        "empate_tecnico"
+      ]
+    },
+    "todos_iguais": {
+      "title": "“São todos iguais”",
+      "template": "Pode até ser que nenhum seja o que a gente queria. Mas para a sua vida de hoje, no bolso e nos direitos, um dos dois faz diferença. O que mais pesa pra você hoje?",
+      "facts": []
+    },
+    "nenhum_dos_dois": {
+      "title": "“Não gosto de nenhum dos dois”",
+      "template": "Justo. Eu também não voto por amor. Voto pensando no que muda na minha vida nos próximos 4 anos. Qual é a coisa que mais te preocupa hoje?",
+      "facts": []
+    }
   }
 }

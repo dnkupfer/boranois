@@ -1,49 +1,164 @@
 {
   "id": "anulou_de_raiva",
   "name": "Quem anulou de raiva",
-  "situations": ["branco_nulo"],
+  "situations": [
+    "branco_nulo"
+  ],
   "default_for": [],
   "summary": "Foi votar e anulou de propósito. A raiva é específica e o nulo é dignidade, não apatia.",
   "profile": {
     "trust_story": "Votou no PT por anos. A Lava Jato fez ela se sentir enganada; o escândalo dos descontos do INSS, em 2025, foi a gota: “roubam até aposentado”. Não foi para a direita; foi embora. O nulo é o jeito de dizer “não me usem”.",
-    "feelings": ["traída", "ridicularizada", "desafiadora"],
+    "feelings": [
+      "traída",
+      "ridicularizada",
+      "desafiadora"
+    ],
     "identity": "“Não sou otária. Não caio duas vezes.”",
-    "media_diet": ["grupo da família", "Choquei", "um pouco de Felipe Neto", "bloqueou perfis de políticos"],
-    "shuts_down": ["qualquer defesa do PT", "“nulo é voto no Flávio”", "tom de pena"],
-    "opens_up": ["alguém dizer que a raiva é justa e perguntar o que teria que mudar"],
-    "would_believe": ["uma amiga que também se queimou", "nunca uma voz de partido"],
+    "media_diet": [
+      "grupo da família",
+      "Choquei",
+      "um pouco de Felipe Neto",
+      "bloqueou perfis de políticos"
+    ],
+    "shuts_down": [
+      "qualquer defesa do PT",
+      "“nulo é voto no Flávio”",
+      "tom de pena"
+    ],
+    "opens_up": [
+      "alguém dizer que a raiva é justa e perguntar o que teria que mudar"
+    ],
+    "would_believe": [
+      "uma amiga que também se queimou",
+      "nunca uma voz de partido"
+    ],
     "turning_point": "Reenquadrar o voto como defesa própria, não perdão: “não é voltar pra eles, é não deixar o outro decidir por você”."
   },
   "signals": {
-    "sayings": { "raiva": 6, "todos_iguais": 2 },
-    "worries": { "corrupcao": 1 },
-    "influencers": { "choquei": 1, "felipe_neto": 1 },
-    "trust_loss": { "lava_jato": 2, "inss": 3 }
+    "sayings": {
+      "raiva": 6,
+      "todos_iguais": 2
+    },
+    "worries": {
+      "corrupcao": 1
+    },
+    "influencers": {
+      "choquei": 1,
+      "felipe_neto": 1
+    },
+    "trust_loss": {
+      "lava_jato": 2,
+      "inss": 3
+    }
   },
   "engage": true,
   "priority_base": "media",
+  "wait_hours": 48,
   "tactics": [
-    { "title": "Use a palavra “otário” antes dela", "detail": "“Eu também me senti otário com aquilo do INSS.” Dito por você, desarma; dito por ela contra você, fecha." },
-    { "title": "Pergunte do que é a raiva, e repita com as palavras dela", "detail": "“Então foi o INSS que te quebrou.” Ser ouvida é metade do caminho. Não responda à raiva no mesmo dia." },
-    { "title": "Mostre que o nulo some, sem a frase proibida", "detail": "Nunca “nulo é voto no Flávio”. Diga: “no 2º turno o nulo não é contado em lugar nenhum. A sua raiva não fica registrada; ela some.”" },
-    { "title": "Reenquadre: defesa, não perdão", "detail": "“Não é perdoar ninguém. É não deixar o outro escolher o seu salário por você.”" },
-    { "title": "Áudio, não texto", "detail": "Raiva amolece com voz. Texto vira discussão e ela responde discutindo." },
-    { "title": "Uma mensagem, dois dias de silêncio", "detail": "Se ela voltar, foi ela que voltou. Se você cobrar, você virou campanha." },
-    { "title": "Se ela mandar vídeo do Nikolas ou do Marçal, não rebata", "detail": "Pergunte “o que mais te pegou nesse?”. Rebater prova que você está do outro lado; perguntar mantém você do lado dela." }
+    {
+      "title": "Use a palavra “otário” antes dela",
+      "detail": "“Eu também me senti otário com aquilo do INSS.” Dito por você, desarma; dito por ela contra você, fecha."
+    },
+    {
+      "title": "Pergunte do que é a raiva, e repita com as palavras dela",
+      "detail": "“Então foi o INSS que te quebrou.” Ser ouvida é metade do caminho. Não responda à raiva no mesmo dia."
+    },
+    {
+      "title": "Mostre que o nulo some, sem a frase proibida",
+      "detail": "Nunca “nulo é voto no Flávio”. Diga: “no 2º turno o nulo não é contado em lugar nenhum. A sua raiva não fica registrada; ela some.”"
+    },
+    {
+      "title": "Reenquadre: defesa, não perdão",
+      "detail": "“Não é perdoar ninguém. É não deixar o outro escolher o seu salário por você.”"
+    },
+    {
+      "title": "Áudio, não texto",
+      "detail": "Raiva amolece com voz. Texto vira discussão e ela responde discutindo."
+    },
+    {
+      "title": "Uma mensagem, dois dias de silêncio",
+      "detail": "Se ela voltar, foi ela que voltou. Se você cobrar, você virou campanha."
+    },
+    {
+      "title": "Se ela mandar vídeo do Nikolas ou do Marçal, não rebata",
+      "detail": "Pergunte “o que mais te pegou nesse?”. Rebater prova que você está do outro lado; perguntar mantém você do lado dela."
+    }
   ],
   "avoid": [
-    { "what": "Defender o PT ou o governo", "why": "Confirma que você é “deles”, e ela te coloca do outro lado da mesa." },
-    { "what": "Dizer que anular é irresponsável", "why": "É chamar ela de otária de novo. Ela fecha e não volta." },
-    { "what": "Mandar pesquisa atrás de pesquisa", "why": "Uma basta. Mais que isso é pressão, e pressão confirma a raiva." }
+    {
+      "what": "Defender o PT ou o governo",
+      "why": "Confirma que você é “deles”, e ela te coloca do outro lado da mesa."
+    },
+    {
+      "what": "Dizer que anular é irresponsável",
+      "why": "É chamar ela de otária de novo. Ela fecha e não volta."
+    },
+    {
+      "what": "Mandar pesquisa atrás de pesquisa",
+      "why": "Uma basta. Mais que isso é pressão, e pressão confirma a raiva."
+    }
   ],
   "steps": [
-    { "id": "abrir", "action": "abrir_conversa", "when": ["novo"], "title": "Pergunte do que é a raiva", "why": "Raiva específica tem resposta específica. Raiva genérica, não.", "template": "{nome}, você anulou no 1º turno, né? Posso perguntar do que foi a raiva? Não é pra discutir. Eu também me senti otário com muita coisa, e queria entender a sua." },
-    { "id": "nulo_some", "action": "enviar_fato", "when": ["conversando"], "title": "Mostre para onde vai o nulo no 2º turno", "why": "Ela acredita que o nulo registra o protesto. No 2º turno ele some do cálculo.", "facts": ["branco_nao_conta"], "template": "Uma coisa que eu descobri e acho que você ia querer saber: {fato} O protesto não fica registrado em lugar nenhum." },
-    { "id": "quem_decide", "action": "enviar_fato", "when": ["conversando"], "title": "Mostre que o grupo dela é quem decide", "why": "Transforma a raiva em poder: quem anulou é o maior bloco da eleição.", "facts": ["quaest_ausentes", "empate_tecnico"], "template": "E olha o tamanho disso: {fato} Quem anulou como você é o maior grupo dessa eleição." },
-    { "id": "ajuda", "action": "oferecer_ajuda", "when": ["conversando"], "title": "Respeite a decisão final", "why": "Ela decide. Pressão confirma a raiva.", "template": "Decisão é sua, e eu respeito de qualquer jeito. Só queria que você decidisse sabendo disso. Não é perdoar ninguém, é não deixar o outro escolher por você. Se quiser, domingo a gente vai junto." }
+    {
+      "id": "abrir",
+      "action": "abrir_conversa",
+      "when": [
+        "novo"
+      ],
+      "title": "Pergunte do que é a raiva",
+      "why": "Raiva específica tem resposta específica. Raiva genérica, não.",
+      "template": "{nome}, você anulou no 1º turno, né? Posso perguntar do que foi a raiva? Não é pra discutir. Eu também me senti otário com muita coisa, e queria entender a sua."
+    },
+    {
+      "id": "nulo_some",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Mostre para onde vai o nulo no 2º turno",
+      "why": "Ela acredita que o nulo registra o protesto. No 2º turno ele some do cálculo.",
+      "facts": [
+        "branco_nao_conta"
+      ],
+      "template": "Uma coisa que eu descobri e acho que você ia querer saber: {fato} O protesto não fica registrado em lugar nenhum."
+    },
+    {
+      "id": "quem_decide",
+      "action": "enviar_fato",
+      "when": [
+        "conversando"
+      ],
+      "title": "Mostre que o grupo dela é quem decide",
+      "why": "Transforma a raiva em poder: quem anulou é o maior bloco da eleição.",
+      "facts": [
+        "quaest_ausentes",
+        "empate_tecnico"
+      ],
+      "template": "E olha o tamanho disso: {fato} Quem anulou como você é o maior grupo dessa eleição."
+    },
+    {
+      "id": "ajuda",
+      "action": "oferecer_ajuda",
+      "when": [
+        "conversando"
+      ],
+      "title": "Respeite a decisão final",
+      "why": "Ela decide. Pressão confirma a raiva.",
+      "template": "Decisão é sua, e eu respeito de qualquer jeito. Só queria que você decidisse sabendo disso. Não é perdoar ninguém, é não deixar o outro escolher por você. Se quiser, domingo a gente vai junto."
+    }
   ],
   "objections": {
-    "raiva": { "title": "Ela manteve o protesto", "template": "Entendo. Só pensa numa coisa: o protesto que faz barulho é o voto que decide, não o que some. Mas é com você.", "facts": ["branco_nao_conta"] },
-    "todos_iguais": { "title": "“São todos iguais”", "template": "Na raiva, parecem. No que vão fazer com o seu salário e os seus direitos, não são. Posso te mandar uma coisa curta?", "facts": [] }
+    "raiva": {
+      "title": "Ela manteve o protesto",
+      "template": "Entendo. Só pensa numa coisa: o protesto que faz barulho é o voto que decide, não o que some. Mas é com você.",
+      "facts": [
+        "branco_nao_conta"
+      ]
+    },
+    "todos_iguais": {
+      "title": "“São todos iguais”",
+      "template": "Na raiva, parecem. No que vão fazer com o seu salário e os seus direitos, não são. Posso te mandar uma coisa curta?",
+      "facts": []
+    }
   }
 }

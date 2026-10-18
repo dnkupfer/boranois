@@ -2,7 +2,7 @@ import type { ChipStats, Contact, Member, OutcomeId, SayingId } from "@boranois/
 
 export type ContactRecord = Contact & { memberId: string; lastSaying: SayingId | null };
 export type NewContact = Omit<ContactRecord, "id" | "createdAt" | "updatedAt">;
-export type ContactPatch = Partial<Pick<ContactRecord, "state" | "stepsDone" | "priority" | "match" | "lastSaying">>;
+export type ContactPatch = Partial<Pick<ContactRecord, "state" | "stepsDone" | "priority" | "match" | "lastSaying" | "lastSentAt">>;
 
 export type NewInteraction = {
   contactId: string;

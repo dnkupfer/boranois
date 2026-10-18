@@ -33,6 +33,7 @@ create table if not exists contacts (
   state              text not null,
   steps_done         jsonb not null default '[]',
   last_saying        text,
+  last_sent_at       timestamptz,
   catalogue_version  text not null,
   created_at         timestamptz not null default now(),
   updated_at         timestamptz not null default now()

@@ -19,6 +19,14 @@ const STATE_LABEL: Record<ContactState, string> = {
   pausado: "em pausa",
 };
 const YOUR_TURN: ContactState[] = ["conversando", "objecao", "novo"];
+
+export function ago(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const h = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 3600000));
+  if (h < 1) return "agora há pouco";
+  if (h < 48) return `há ${h} h`;
+  return `há ${Math.round(h / 24)} dias`;
+}
 const DONE: ContactState[] = ["votou", "perdido"];
 
 export function Pessoas() {
@@ -98,7 +106,7 @@ function Row({ c, name }: { c: Contact; name?: string }) {
       <Link to={`/pessoa/${c.id}`}>
         <div>
           <strong>{name || "Pessoa"}</strong>
-          <div className="muted small">{STATE_LABEL[c.state]}</div>
+          <div className="muted small">{STATE_LABEL[c.state]}{c.state === "aguardando" && ago(c.lastSentAt) ? ` · ${ago(c.lastSentAt)}` : ""}</div>
         </div>
         <PriorityBadge level={c.priority.level} engage={c.priority.engage} />
       </Link>

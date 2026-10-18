@@ -4,6 +4,7 @@ import { OUTCOMES, SAYINGS, type ClassifyResponse, type Contact, type Guide, typ
 import { api } from "../api";
 import { ChipGroup, CopyButton, Layout, PriorityBadge } from "../components";
 import { privateContacts, profile, whatsappLink } from "../local";
+import { ago } from "./Pessoas";
 import { useSession } from "../session";
 
 type Phase = "step" | "outcome";
@@ -68,6 +69,13 @@ export function Pessoa() {
     }
   };
 
+  /** A nudge was sent: the clock restarts, the state stays "aguardando". */
+  const nudged = async () => {
+    if (!step) return;
+    await api<Contact>(`/contacts/${id}/sent`, { body: { stepId: step.id, action: step.action } });
+    await loadNext();
+  };
+
   const switchPersona = async (personaId: string) => {
     await api<Contact>(`/contacts/${id}/persona`, { method: "PUT", body: { personaId } });
     await loadNext();
@@ -120,7 +128,9 @@ export function Pessoa() {
         )}
       </section>
 
-      {phase === "step" ? (
+      {phase === "step" && contact.state === "aguardando" && step.action === "lembrar" ? (
+        <WaitCard step={step} contact={contact} message={message} setMessage={setMessage} phone={priv.phone} busy={busy} onReplied={() => setPhase("outcome")} onNudged={nudged} />
+      ) : phase === "step" ? (
         <StepCard step={step} message={message} setMessage={setMessage} phone={priv.phone} busy={busy} onSent={() => sent(false)} onSkip={() => sent(true)} />
       ) : (
         <OutcomeCard busy={busy} aiAvailable={aiAvailable} onOutcome={outcome} />
@@ -194,6 +204,53 @@ function StepCard({
       )}
       {!sending && step.action !== "parar" && step.action !== "pausar" && (
         <div className="row"><button className="primary" disabled={busy} onClick={onSent}>Entendi</button></div>
+      )}
+    </section>
+  );
+}
+
+/** Waiting for her reply. A suggestion with the clock shown; the person decides. */
+function WaitCard({
+  step, contact, message, setMessage, phone, busy, onReplied, onNudged,
+}: { step: Step; contact: Contact; message: string; setMessage: (m: string) => void; phone: string; busy: boolean; onReplied: () => void; onNudged: () => void }) {
+  const [nudging, setNudging] = useState(false);
+  const sentAt = contact.lastSentAt ? new Date(contact.lastSentAt) : null;
+  const waitH = step.waitHours ?? 24;
+  const until = sentAt ? new Date(sentAt.getTime() + waitH * 3600000) : null;
+  const fmt = (d: Date) => d.toLocaleString("pt-BR", { weekday: "short", hour: "2-digit", minute: "2-digit" });
+  const overdue = until ? Date.now() > until.getTime() : false;
+  return (
+    <section className="card step-card">
+      <p className="eyebrow">Agora</p>
+      <h2>{step.title}</h2>
+      {sentAt ? (
+        <p>
+          Você mandou <strong>{fmt(sentAt)}</strong> <span className="muted">({ago(contact.lastSentAt)})</span>.
+          {until && (overdue ? <> Já passou o tempo sugerido ({waitH} h): se quiser, um lembrete leve.</> : <> Sugestão: espere até <strong>{fmt(until)}</strong> ({waitH} h).</>)}
+        </p>
+      ) : (
+        <p className="muted">{step.why}</p>
+      )}
+      <div className="row">
+        <button className="primary" disabled={busy} onClick={onReplied}>Ela respondeu</button>
+        {!nudging && <button className="secondary" disabled={busy} onClick={() => setNudging(true)}>Mandar um lembrete</button>}
+      </div>
+      {nudging && (
+        <>
+          <label>
+            Lembrete <span className="muted">(mude do seu jeito)</span>
+            <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} />
+          </label>
+          <div className="row">
+            {phone ? (
+              <a className="button whatsapp" href={whatsappLink(phone, message)} target="_blank" rel="noreferrer">Enviar no WhatsApp</a>
+            ) : (
+              <CopyButton text={message} label="Copiar mensagem" className="whatsapp" />
+            )}
+            <button className="primary" disabled={busy} onClick={onNudged}>Já mandei</button>
+            <button className="link" onClick={() => setNudging(false)}>Cancelar</button>
+          </div>
+        </>
       )}
     </section>
   );

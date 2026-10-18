@@ -59,6 +59,7 @@
   },
   "engage": true,
   "priority_base": "media",
+  "wait_hours": 36,
   "tactics": [
     {
       "title": "Pergunte que mudança ela quer, concretamente",

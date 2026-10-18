@@ -68,6 +68,8 @@ export const PersonaSchema = z.object({
   }),
   engage: z.boolean(),
   priority_base: z.enum(PRIORITIES),
+  /** Suggested hours to wait for a reply before nudging. */
+  wait_hours: z.number().int().min(1).max(168).default(24),
   /** Specific and actionable: timing, channel, wording, what to do with her reply. */
   tactics: z.array(z.object({ title: z.string().min(1), detail: z.string().min(1) })).min(1),
   avoid: z.array(z.object({ what: z.string().min(1), why: z.string().min(1) })),

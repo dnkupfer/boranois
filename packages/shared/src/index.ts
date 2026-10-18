@@ -228,6 +228,8 @@ export type Contact = {
   priority: PriorityResult;
   state: ContactState;
   stepsDone: string[];
+  /** When the member last pressed "já mandei". Drives the waiting suggestion; never a lock. */
+  lastSentAt: string | null;
   catalogueVersion: string;
   createdAt: string;
   updatedAt: string;
@@ -249,6 +251,8 @@ export type Step = {
   /** True when the message was phrased by AI; false when it's the raw template. */
   phrased: boolean;
   donts: string[];
+  /** For the waiting step: how long the persona suggests waiting before a nudge. A suggestion, not a lock. */
+  waitHours?: number;
 };
 
 /** How to think about this pessoa, from her persona. Shown next to the step. */

@@ -157,6 +157,7 @@ export type PlannedStep = {
   content: ContentDef | null;
   /** True when the step comes from the persona (vs. defaults/objections/followups). */
   fromPersona: boolean;
+  waitHours?: number;
 };
 
 export type PlanInput = {
@@ -227,7 +228,10 @@ export function nextStep(cat: Catalogue, input: PlanInput): PlannedStep {
   }
 
   const d = cat.defaults.steps.find((s) => s.when.includes(state));
-  if (d) return materialise(cat, d, chips, false) ?? plain(d, false);
+  if (d) {
+    const planned = materialise(cat, d, chips, false) ?? plain(d, false);
+    return state === "aguardando" ? { ...planned, waitHours: persona.wait_hours } : planned;
+  }
 
   return {
     id: "generico",

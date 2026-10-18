@@ -59,6 +59,7 @@
   },
   "engage": true,
   "priority_base": "media",
+  "wait_hours": 48,
   "tactics": [
     {
       "title": "Pergunte o que aconteceu, e ouça",

@@ -159,6 +159,7 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
       state: "novo",
       stepsDone: [],
       lastSaying: null,
+      lastSentAt: null,
       catalogueVersion: catalogue.version,
     });
     res.json(toContact(contact));
@@ -234,6 +235,7 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
         : null,
       phrased,
       donts: persona.avoid.map((a) => a.what),
+      waitHours: planned.waitHours,
     };
     res.json({ contact: toContact(contact), step, guide: buildGuide(persona) } satisfies NextStepResponse);
   });
@@ -247,10 +249,12 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
     if (!stepId || !action.success) return res.status(400).json({ error: "invalid_request" });
     const skipped = req.body?.skipped === true;
     const stepsDone = contact.stepsDone.includes(stepId) ? contact.stepsDone : [...contact.stepsDone, stepId];
+    const sends = !skipped && action.data !== "parar" && action.data !== "pausar";
     const updated = await store.updateContact(contact.id, {
       stepsDone,
       state: skipped ? contact.state : afterSent(contact.state, action.data),
       lastSaying: skipped ? contact.lastSaying : null,
+      ...(sends ? { lastSentAt: new Date().toISOString() } : {}),
     });
     res.json(toContact(updated));
   });

@@ -63,6 +63,7 @@
   },
   "engage": true,
   "priority_base": "media",
+  "wait_hours": 24,
   "tactics": [
     {
       "title": "Uma conta, uma comparação",

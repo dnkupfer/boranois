@@ -66,6 +66,7 @@
   },
   "engage": true,
   "priority_base": "media",
+  "wait_hours": 48,
   "tactics": [
     {
       "title": "Fale de valores, não de candidato",
