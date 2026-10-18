@@ -8,8 +8,10 @@ import { useSession } from "../session";
 
 type Answer = { optionIds: string[]; custom: string[]; interpreted?: Interpretation | null };
 
-/** Questions that fill a field the engine can't do without (situation, relation, frequency). A typed answer there must also pick the closest option. */
-const requiresOption = (q: Question) => q.max === 1 && q.options.some((o) => o.sets?.situation || o.sets?.relation || o.sets?.frequency);
+/** The one question the engine can't start without: a typed answer there must also pick the nearest option. */
+const requiresOption = (q: Question) => q.options.some((o) => o.sets?.situation);
+/** Single-value fields the engine needs; a typed answer keeps its text and the engine gets the nearest or a neutral value. */
+const NEUTRAL = { relation: "amigo", frequency: "semanal" } as const;
 const needsOption = (q: Question, a: Answer) => requiresOption(q) && a.custom.length > 0 && a.optionIds.length === 0;
 type Screen = "quem" | "pergunta" | "nota";
 /** One visited question plus the branches still waiting after it; kept as history so "Voltar" restores the queue. */
@@ -151,6 +153,7 @@ export function NovaPessoa() {
       const merged = { sayings: [] as string[], worries: [] as string[], groups: [] as string[], influencers: [] as string[], trustLoss: [] as string[], tags: [] as string[] };
       let situation: ChipSets["situation"], relation: ChipSets["relation"], frequency: ChipSets["frequency"];
       const customAll: string[] = [];
+      const customField: { relation?: string; frequency?: string; situation?: string } = {};
       const applySets = (sets: ChipSets | undefined) => {
         if (!sets) return;
         situation = sets.situation ?? situation;
@@ -175,12 +178,20 @@ export function NovaPessoa() {
           applySets(a.interpreted.sets);
           merged.tags.push(...a.interpreted.tags);
         }
+        // A typed answer on a single-value question: keep the text; the engine gets the nearest known value or a neutral one.
+        if (a.custom.length && q.max === 1) {
+          const field = q.options[0]?.sets?.relation ? "relation" : q.options[0]?.sets?.frequency ? "frequency" : q.options[0]?.sets?.situation ? "situation" : null;
+          if (field) customField[field] = a.custom[0];
+          if (field === "relation" && !relation) relation = NEUTRAL.relation;
+          if (field === "frequency" && !frequency) frequency = NEUTRAL.frequency;
+        }
       }
       const mine = profile.get().groups;
       const chips = Chips.parse({
         situation, relation, frequency,
         sayings: merged.sayings, worries: merged.worries, groups: merged.groups, influencers: merged.influencers, trustLoss: merged.trustLoss,
         tags: merged.tags.slice(0, 30),
+        custom: customField,
         sharedGroup: merged.groups.some((g) => mine.includes(g as never)),
       });
       const contact = await api<Contact>("/contacts", { body: { chips } });
@@ -274,7 +285,7 @@ function QuestionCard({
         onCustomChange={q.allowCustom ? onCustom : undefined}
       />
       {thinking && <p className="muted small">Entendendo… (pode continuar)</p>}
-      {needsOption(q, answer) && <p className="small"><strong>Marque também a opção mais parecida.</strong> Sua resposta fica guardada do mesmo jeito.</p>}
+      {needsOption(q, answer) && <p className="small"><strong>Para eu saber por onde começar, marque também a mais próxima.</strong> Sua resposta fica guardada do mesmo jeito.</p>}
       {blocked && <p className="error small">{blocked}</p>}
       {answer.interpreted?.rationale && !thinking && <p className="muted small">{answer.interpreted.rationale}</p>}
       <div className="row between">

@@ -155,6 +155,11 @@ export const Chips = z.object({
   frequency: FrequencyId,
   /** Answers that don't map to a taxonomy (e.g. "trabalhou no domingo"). Categorical only. */
   tags: z.array(z.string().max(40)).max(30).default([]),
+  /**
+   * Typed answers to the single-value questions, kept verbatim. `relation`/`frequency` above then hold the
+   * nearest known value (from the model) or a neutral one, so the engine can run without flattening the answer.
+   */
+  custom: z.object({ relation: z.string().max(60).optional(), frequency: z.string().max(60).optional(), situation: z.string().max(60).optional() }).default({}),
   /** Member and pessoa belong to at least one group in common (computed on the member's device). */
   sharedGroup: z.boolean().default(false),
 });
