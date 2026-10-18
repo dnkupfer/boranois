@@ -153,6 +153,6 @@ ol.plain li, ul.plain li { margin-bottom: 10px; }
 .card.coach textarea { min-height: 64px; }
 
 /* Consent */
-.consent { position: sticky; top: 0; z-index: 10; background: var(--surface); border: 1px solid var(--border); border-radius: 0 0 14px 14px; padding: 14px 18px; margin: 0 0 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.08); }
+.consent { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 10; max-width: 728px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; box-shadow: 0 6px 24px rgba(0,0,0,0.12); }
 .consent p { margin: 0 0 8px; font-size: 0.95rem; }
 .consent .row { margin: 0; }
