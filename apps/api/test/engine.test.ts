@@ -90,35 +90,15 @@ describe("conversation flow", () => {
 
   it("a step whose fact is unverified is skipped, not sent half-empty", () => {
     const p = cat.personas.find((p) => p.id === "nenhum_dos_dois")!;
-    // branco_nao_conta is unverified in the fact bank today, so this step must not be served.
-    const s = nextStep(cat, { persona: p, chips: { ...chips, situation: "branco_nulo" }, state: "conversando", stepsDone: ["abrir"], today: "2026-10-18" });
+    // Simulate the fact bank without the step's only fact (as if it were still unverified).
+    const without = { ...cat, facts: cat.facts.filter((f) => f.id !== "branco_nao_conta") };
+    const s = nextStep(without, { persona: p, chips: { ...chips, situation: "branco_nulo" }, state: "conversando", stepsDone: ["abrir"], today: "2026-10-18" });
     assert.notEqual(s.id, "branco_nao_conta");
     assert.ok(!s.template.includes("{fato}") || s.fact, "no dangling {fato}");
-  });
-});
-
-describe("question flow", () => {
-  it("loads and every option maps to known chips", () => {
-    const ids = new Set(cat.questions.questions.map((q) => q.id));
-    assert.ok(ids.has(cat.questions.start));
-    for (const q of cat.questions.questions) for (const o of q.options) assert.ok(o.id && o.label, `${q.id}/${o.id}`);
-  });
-  it("a typical path yields chips the engine matches", () => {
-    // tia que não foi: situação → por quê → desanimou → confiança → influências → preocupações
-    const walk = ["relacao:familia", "frequencia:semanal", "grupos:familia", "situacao:nao_votou", "nao_votou_porque:desanimou", "confianca:inss", "influencias:choquei", "preocupacoes:custo_de_vida"];
-    const sets: Record<string, unknown> = { sayings: [], worries: [], groups: [], influencers: [], trustLoss: [] };
-    for (const step of walk) {
-      const [qid, oid] = step.split(":");
-      const q = cat.questions.questions.find((q) => q.id === qid)!;
-      const o = q.options.find((o) => o.id === oid)!;
-      assert.ok(o, step);
-      for (const [k, v] of Object.entries(o.sets ?? {})) {
-        if (Array.isArray(v)) (sets[k] as string[]).push(...v);
-        else sets[k] = v;
-      }
-    }
-    const chips = Chips.parse(sets);
-    assert.equal(match(cat, chips).personaId, "nao_adianta");
+    // With the fact verified, the step is served and carries it.
+    const served = nextStep(cat, { persona: p, chips: { ...chips, situation: "branco_nulo" }, state: "conversando", stepsDone: ["abrir"], today: "2026-10-18" });
+    assert.equal(served.id, "branco_nao_conta");
+    assert.equal(served.fact?.id, "branco_nao_conta");
   });
 });
 

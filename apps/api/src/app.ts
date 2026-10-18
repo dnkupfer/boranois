@@ -29,6 +29,7 @@ import { toPublic, type Catalogue } from "./catalogue.js";
 import { afterOutcome, afterSent, buildGuide, match, nextStep, priority, renderTemplate } from "./engine.js";
 import { AiUnavailable, type Phraser } from "./gemini.js";
 import { inflect, inflectDeep } from "./gender.js";
+import { limits } from "./limits.js";
 import { hashToken, newToken } from "./ids.js";
 import type { Store } from "./store/index.js";
 import type { ContactRecord } from "./store/types.js";
@@ -64,11 +65,29 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, se
     next();
   };
   const personaOf = (c: ContactRecord) => catalogue.personas.find((p) => p.id === c.match.personaId)!;
+  const ip = (req: Request) => req.ip ?? "?";
+  const aiOn = () => phraser.available && !limits.aiDaily.exhausted;
+
+  /** Cost guard for the model endpoints: per session, per IP, and a daily ceiling. */
+  const aiGuard = (req: Request, res: Response, next: NextFunction) => {
+    if (!phraser.available) return res.status(503).json({ error: "ai_unavailable" });
+    if (limits.aiDaily.exhausted) return res.status(503).json({ error: "ai_cap" });
+    const session = (req.get("authorization") ?? "").slice(-24) || ip(req);
+    if (!limits.aiPerSessionHourly.allow(session) || !limits.aiPerIpHourly.allow(ip(req))) return res.status(429).json({ error: "ai_limit" });
+    limits.aiDaily.take();
+    next();
+  };
+  /** Cheap guard on every write, so one client can't fill the database. */
+  const writeGuard = (req: Request, res: Response, next: NextFunction) => {
+    if (req.method !== "GET" && !limits.writesPerIp.allow(ip(req))) return res.status(429).json({ error: "too_many_requests" });
+    next();
+  };
+  app.use("/api", writeGuard);
   const toContact = ({ memberId: _m, lastSaying: _l, ...c }: ContactRecord): Contact => c;
 
   const api = express.Router();
 
-  api.get("/health", (_req, res) => res.json({ ok: true, ai: phraser.available, catalogue: catalogue.version }));
+  api.get("/health", (_req, res) => res.json({ ok: true, ai: aiOn(), email: !!sendEmail, catalogue: catalogue.version, aiRemainingToday: limits.aiDaily.remaining }));
 
   // Published on purpose: anyone can read how people are grouped and what we never do.
   api.get("/catalogue", (_req, res) => {
@@ -91,12 +110,11 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, se
   api.get("/chips/stats", auth, async (_req, res) => res.json(await store.chipStats()));
 
   /** A typed answer: the model maps it onto the tree; the result is validated and counted anonymously. */
-  api.post("/chips/interpret", auth, async (req, res) => {
+  api.post("/chips/interpret", auth, aiGuard, async (req, res) => {
     const body = InterpretRequest.safeParse(req.body);
     if (!body.success) return res.status(400).json({ error: "invalid_request" });
     const question = catalogue.questions.questions.find((q) => q.id === body.data.questionId);
     if (!question) return res.status(404).json({ error: "unknown_question" });
-    if (!phraser.available) return res.status(503).json({ error: "ai_unavailable" });
     let out;
     try {
       out = await phraser.interpret(question, catalogue.questions.questions, body.data.text);
@@ -246,7 +264,9 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, se
 
     let message: string | null = template || null;
     let phrased = false;
-    if (template && planned.action !== "parar" && planned.action !== "pausar") {
+    // Phrasing is optional polish: it only runs when a note/voice sample exists, and only within the daily cap.
+    const canPhrase = template && planned.action !== "parar" && planned.action !== "pausar" && (body.data.note || body.data.voiceSample) && aiOn();
+    if (canPhrase && limits.aiDaily.take()) {
       const out = await phraser
         .phrase({
           template,
@@ -326,10 +346,9 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, se
   });
 
   /** A turn with the coach. Nothing from the conversation is stored. */
-  api.post("/contacts/:id/coach", auth, async (req, res) => {
+  api.post("/contacts/:id/coach", auth, aiGuard, async (req, res) => {
     const body = CoachRequest.safeParse(req.body);
     if (!body.success) return res.status(400).json({ error: "invalid_request" });
-    if (!phraser.available) return res.status(503).json({ error: "ai_unavailable" });
     const contact = await store.getContact((req as AuthedRequest).member.id, String(req.params.id));
     if (!contact) return res.status(404).json({ error: "not_found" });
     const persona = personaOf(contact);
@@ -360,10 +379,9 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, se
   });
 
   /** Turns a pasted reply into chips. The text is not stored. */
-  api.post("/classify", auth, async (req, res) => {
+  api.post("/classify", auth, aiGuard, async (req, res) => {
     const body = ClassifyRequest.safeParse(req.body);
     if (!body.success) return res.status(400).json({ error: "invalid_request" });
-    if (!phraser.available) return res.status(503).json({ error: "ai_unavailable" });
     try {
       res.json(await phraser.classify(body.data.text));
     } catch (err) {

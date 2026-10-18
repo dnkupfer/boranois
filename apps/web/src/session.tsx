@@ -6,6 +6,7 @@ type Session = {
   token: string | null;
   member: Member | null;
   aiAvailable: boolean;
+  emailAvailable: boolean;
   signIn: (token: string, member: Member) => void;
   signOut: () => void;
   setMember: (m: Member) => void;
@@ -17,6 +18,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [token, setTokenState] = useState(getToken);
   const [member, setMember] = useState<Member | null>(null);
   const [aiAvailable, setAiAvailable] = useState(false);
+  const [emailAvailable, setEmailAvailable] = useState(false);
 
   const signOut = useCallback(() => {
     setToken(null);
@@ -44,7 +46,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, [token, signOut]);
 
   useEffect(() => {
-    api<{ ai: boolean }>("/health").then((h) => setAiAvailable(h.ai)).catch(() => {});
+    api<{ ai: boolean; email: boolean }>("/health")
+      .then((h) => {
+        setAiAvailable(h.ai);
+        setEmailAvailable(h.email);
+      })
+      .catch(() => {});
   }, []);
 
   const signIn = (t: string, m: Member) => {
@@ -53,7 +60,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setMember(m);
   };
 
-  return <SessionContext.Provider value={{ token, member, aiAvailable, signIn, signOut, setMember }}>{children}</SessionContext.Provider>;
+  return <SessionContext.Provider value={{ token, member, aiAvailable, emailAvailable, signIn, signOut, setMember }}>{children}</SessionContext.Provider>;
 }
 
 export const useSession = () => useContext(SessionContext);

@@ -5,7 +5,7 @@ import { getConsent, setConsent, track } from "./analytics";
 import { useSession } from "./session";
 
 export function Layout({ children, narrow = false }: { children: React.ReactNode; narrow?: boolean }) {
-  const { token, member, signOut } = useSession();
+  const { token, member, emailAvailable, signOut } = useSession();
   const location = useLocation();
   useEffect(() => {
     track("page_view");
@@ -18,7 +18,7 @@ export function Layout({ children, narrow = false }: { children: React.ReactNode
         <nav>
           {token && <NavLink to="/">Pessoas</NavLink>}
           <NavLink to="/como-funciona">Como funciona</NavLink>
-          {member?.email ? <button className="link" onClick={signOut}>Sair</button> : <NavLink to="/entrar">Entrar com e-mail</NavLink>}
+          {member?.email ? <button className="link" onClick={signOut}>Sair</button> : emailAvailable ? <NavLink to="/entrar">Entrar com e-mail</NavLink> : null}
         </nav>
       </header>
       <main>{children}</main>
