@@ -1,9 +1,10 @@
 -- Idempotent schema; run with `npm run db:migrate -w @boranois/api`.
 -- Nothing here identifies the pessoas: their names, phones and notes stay on the member's device.
 
+-- email is null for an anonymous session; the tool works without an account.
 create table if not exists members (
   id          text primary key,
-  email       text not null unique,
+  email       text unique,
   name        text,
   created_at  timestamptz not null default now()
 );

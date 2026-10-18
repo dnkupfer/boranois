@@ -170,7 +170,8 @@ export const Chips = z.object({
 export type Chips = z.infer<typeof Chips>;
 
 export const MagicLinkRequest = z.object({ email: z.string().trim().toLowerCase().email().max(120) });
-export const VerifyRequest = z.object({ t: z.string().min(10).max(200) });
+/** `anonToken`: the anonymous session to attach this e-mail to, so the person keeps their pessoas. */
+export const VerifyRequest = z.object({ t: z.string().min(10).max(200), anonToken: z.string().max(200).optional() });
 export const UpdateMeRequest = z.object({ name: z.string().trim().min(1).max(60) });
 
 /** Create a pessoa. Name, phone and notes never reach the server. */
@@ -227,7 +228,8 @@ export const ClassifyRequest = z.object({ text: z.string().trim().min(1).max(100
 // ---------------------------------------------------------------------------
 // Responses
 
-export type Member = { id: string; email: string; name: string | null };
+/** email is null for an anonymous session: the tool works without an account. */
+export type Member = { id: string; email: string | null; name: string | null };
 /** In production the link is emailed; in development it's returned so the UI can show it. */
 export type MagicLinkResponse = { sent: true; devLink?: string };
 export type VerifyResponse = { token: string; member: Member };

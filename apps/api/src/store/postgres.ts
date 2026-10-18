@@ -48,6 +48,34 @@ export class PostgresStore implements Store {
     return toMember(rows[0]);
   }
 
+  async createAnonMember() {
+    const { rows } = await this.pool.query(`insert into members (id) values ($1) returning *`, [newId()]);
+    return toMember(rows[0]);
+  }
+
+  async linkEmail(memberId: string, email: string) {
+    const client = await this.pool.connect();
+    try {
+      await client.query("begin");
+      const { rows } = await client.query(`select * from members where email = $1`, [email]);
+      const existing = rows[0];
+      if (existing && existing.id !== memberId) {
+        await client.query(`update contacts set member_id = $1 where member_id = $2`, [existing.id, memberId]);
+        await client.query(`update interactions set member_id = $1 where member_id = $2`, [existing.id, memberId]);
+        await client.query("commit");
+        return toMember(existing);
+      }
+      const me = await client.query(`update members set email = $2 where id = $1 returning *`, [memberId, email]);
+      await client.query("commit");
+      return toMember(me.rows[0]);
+    } catch (err) {
+      await client.query("rollback");
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
   async createSession(memberId: string, tokenHash: string) {
     await this.pool.query(`insert into sessions (token_hash, member_id) values ($1, $2)`, [tokenHash, memberId]);
   }

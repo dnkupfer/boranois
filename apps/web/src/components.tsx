@@ -4,7 +4,7 @@ import type { Priority } from "@boranois/shared";
 import { useSession } from "./session";
 
 export function Layout({ children, narrow = false }: { children: React.ReactNode; narrow?: boolean }) {
-  const { token, signOut } = useSession();
+  const { token, member, signOut } = useSession();
   return (
     <div className={`page ${narrow ? "narrow" : ""}`}>
       <header className="topbar">
@@ -12,7 +12,7 @@ export function Layout({ children, narrow = false }: { children: React.ReactNode
         <nav>
           {token && <NavLink to="/">Pessoas</NavLink>}
           <NavLink to="/como-funciona">Como funciona</NavLink>
-          {token && <button className="link" onClick={signOut}>Sair</button>}
+          {member?.email ? <button className="link" onClick={signOut}>Sair</button> : <NavLink to="/entrar">Entrar com e-mail</NavLink>}
         </nav>
       </header>
       <main>{children}</main>

@@ -19,6 +19,10 @@ export interface Store {
   /** Marks the login used and returns its email, or null if unknown, used or expired. */
   consumeLogin(tokenHash: string): Promise<string | null>;
   memberByEmailOrCreate(email: string): Promise<Member>;
+  /** An account-less member: the tool works without e-mail. */
+  createAnonMember(): Promise<Member>;
+  /** Attaches an e-mail to an anonymous member. If the e-mail already has a member, moves the pessoas there and returns it. */
+  linkEmail(memberId: string, email: string): Promise<Member>;
   createSession(memberId: string, tokenHash: string): Promise<void>;
   memberBySessionHash(tokenHash: string): Promise<Member | null>;
   setMemberName(memberId: string, name: string): Promise<Member>;

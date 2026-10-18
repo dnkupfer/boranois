@@ -9,9 +9,10 @@ import { Pessoa } from "./pages/Pessoa";
 import { ComoFunciona } from "./pages/ComoFunciona";
 import "./styles.css";
 
+/** Waits for the (anonymous or e-mail) session to exist. Nothing is gated behind an account. */
 function RequireSession({ children }: { children: React.ReactNode }) {
   const { token } = useSession();
-  return token ? children : <Navigate to="/entrar" replace />;
+  return token ? children : <p className="muted" style={{ padding: 24 }}>Um momento…</p>;
 }
 
 createRoot(document.getElementById("root")!).render(

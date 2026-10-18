@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import type { MagicLinkResponse, MeResponse, VerifyResponse } from "@boranois/shared";
 import { api } from "../api";
 import { Layout } from "../components";
@@ -11,6 +11,7 @@ export function Entrar() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { token, member, signIn, setMember } = useSession();
+  const anonToken = token && !member?.email ? token : undefined;
   const t = params.get("t");
   const [phase, setPhase] = useState<Phase>(t ? "verifying" : "email");
   const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ export function Entrar() {
 
   useEffect(() => {
     if (!t) return;
-    api<VerifyResponse>("/auth/verify", { body: { t } })
+    api<VerifyResponse>("/auth/verify", { body: { t, anonToken } })
       .then((r) => {
         signIn(r.token, r.member);
         if (r.member.name) navigate("/", { replace: true });
@@ -30,7 +31,7 @@ export function Entrar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t]);
 
-  if (token && member?.name && phase !== "name") return <Navigate to="/" replace />;
+  if (member?.email && phase === "email") return <Navigate to="/" replace />;
 
   const sendLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,24 +56,11 @@ export function Entrar() {
     <Layout narrow>
       {phase === "email" && (
         <>
-          <h1>Uma ferramenta para influenciar eleitores</h1>
+          <h1>Entrar com e-mail</h1>
           <p>
-            Faltam poucos dias para o 2º turno. Você conhece alguém que não votou, votou em branco ou está em dúvida. O Boranois
-            te ajuda a saber com quem falar primeiro e como conversar, do seu jeito, para que essa pessoa vá votar e decida melhor.
+            Você não precisa de conta para usar o Boranois: tudo já funciona neste aparelho. Entre com e-mail só se quiser{" "}
+            <strong>continuar de outro aparelho</strong>. Suas pessoas vêm junto.
           </p>
-          <div className="card accent">
-            <p><strong>Influenciar não é manipular.</strong></p>
-            <p className="small">
-              Influenciar é ajudar alguém a decidir <em>no interesse dela</em>: com o que é verdade, ouvindo, e respeitando a
-              decisão final. Manipular é levar alguém a agir <em>contra o próprio interesse</em>: com mentira, medo ou pressão.
-              O teste é simples: se ela soubesse exatamente o que você está fazendo e por quê, ela te agradeceria ou se
-              sentiria usada?
-            </p>
-            <p className="small">
-              Aqui só se faz o primeiro. Sem fatos inventados, sem pressão, sem mensagem que você não mandaria na frente dela.{" "}
-              <a href="/como-funciona">Entenda o método</a>.
-            </p>
-          </div>
           <form onSubmit={sendLink} className="card">
             <label>
               Seu e-mail
@@ -81,6 +69,10 @@ export function Entrar() {
             <button className="primary" disabled={busy}>{busy ? "Enviando…" : "Receber link de acesso"}</button>
             <p className="muted small">Sem senha. Você recebe um link por e-mail e entra com um toque.</p>
           </form>
+          <p className="muted small">
+            Nomes, telefones e anotações ficam sempre só no aparelho onde você os escreveu, com ou sem e-mail.{" "}
+            <Link to="/">Voltar</Link>
+          </p>
         </>
       )}
 

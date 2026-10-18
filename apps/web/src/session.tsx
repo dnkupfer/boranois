@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import type { Member, MeResponse } from "@boranois/shared";
+import type { Member, MeResponse, VerifyResponse } from "@boranois/shared";
 import { api, ApiError, getToken, setToken } from "./api";
 
 type Session = {
@@ -24,8 +24,18 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setMember(null);
   }, []);
 
+  // No account needed: without a session, start an anonymous one. E-mail is optional, for other devices.
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      api<VerifyResponse>("/auth/anon", { body: {} })
+        .then((r) => {
+          setToken(r.token);
+          setTokenState(r.token);
+          setMember(r.member);
+        })
+        .catch(() => {});
+      return;
+    }
     api<MeResponse>("/me")
       .then((r) => setMember(r.member))
       .catch((err) => {

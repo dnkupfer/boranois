@@ -59,6 +59,27 @@ export class FileStore implements Store {
     return m;
   }
 
+  async createAnonMember() {
+    const m: Member = { id: newId(), email: null, name: null };
+    this.data.members.push(m);
+    this.save();
+    return m;
+  }
+
+  async linkEmail(memberId: string, email: string) {
+    const existing = this.data.members.find((m) => m.email === email);
+    const me = this.data.members.find((m) => m.id === memberId)!;
+    if (existing && existing.id !== memberId) {
+      for (const c of this.data.contacts) if (c.memberId === memberId) c.memberId = existing.id;
+      for (const i of this.data.interactions) if (i.memberId === memberId) i.memberId = existing.id;
+      this.save();
+      return existing;
+    }
+    me.email = email;
+    this.save();
+    return me;
+  }
+
   async createSession(memberId: string, tokenHash: string) {
     this.data.sessions.push({ tokenHash, memberId });
     this.save();

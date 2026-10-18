@@ -119,12 +119,22 @@ export function createApp({ store, catalogue, phraser, webOrigin, sendEmail, tod
     res.json({ sent: true, devLink: link } satisfies MagicLinkResponse);
   });
 
+  /** Start using the tool with no account. */
+  api.post("/auth/anon", async (_req, res) => {
+    const member = await store.createAnonMember();
+    const token = newToken();
+    await store.createSession(member.id, hashToken(token));
+    res.json({ token, member } satisfies VerifyResponse);
+  });
+
   api.post("/auth/verify", async (req, res) => {
     const body = VerifyRequest.safeParse(req.body);
     if (!body.success) return res.status(400).json({ error: "invalid_request" });
     const email = await store.consumeLogin(hashToken(body.data.t));
     if (!email) return res.status(401).json({ error: "link_invalid" });
-    const member = await store.memberByEmailOrCreate(email);
+    // Attach the e-mail to the anonymous session that asked for it, so the pessoas come along.
+    const anon = body.data.anonToken ? await store.memberBySessionHash(hashToken(body.data.anonToken)) : null;
+    const member = anon && !anon.email ? await store.linkEmail(anon.id, email) : await store.memberByEmailOrCreate(email);
     const token = newToken();
     await store.createSession(member.id, hashToken(token));
     res.json({ token, member } satisfies VerifyResponse);
