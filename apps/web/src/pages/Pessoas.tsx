@@ -58,22 +58,13 @@ export function Pessoas() {
     <Layout>
       <header className="intro">
         <h1>Convença alguém que você conhece a ir votar</h1>
-        <ol className="plain">
-          <li>As redes são fundamentais. Mas o que mais importa na hora de decidir são as pessoas próximas.</li>
-          <li>Opinião não é fato. É identificação de grupo.</li>
-          <li>O Boranois ajuda você a entender a pessoa que você quer influenciar e dá dicas de como conversar.</li>
-          <li>Manipular é convencer alguém a fazer algo contra os interesses dela. Influenciar é convencer alguém a fazer algo a favor dos interesses dela.</li>
+        <ol className="points">
+          <li>Redes importam. Mas quem decide o voto é quem está perto.</li>
+          <li>Opinião não vem de fatos. Vem do grupo.</li>
+          <li>O Boranois mostra como a pessoa pensa e o que dizer.</li>
+          <li>Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.</li>
         </ol>
       </header>
-
-      <section className="card howto">
-        <h2>Como usar</h2>
-        <ol>
-          <li><strong>Adicione uma pessoa</strong> que não votou, votou em branco ou está em dúvida. Leva 2 minutos.</li>
-          <li><strong>Leia como ela pensa</strong> e mande a primeira mensagem, do seu jeito.</li>
-          <li><strong>Conte o que ela respondeu.</strong> O app diz o próximo passo.</li>
-        </ol>
-      </section>
 
       <section className="card rules">
         <h2>As cinco regras</h2>
