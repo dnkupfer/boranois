@@ -21,7 +21,7 @@
     {
       "id": "grupos",
       "text": "De que grupos {nome} faz parte?",
-      "hint": "Quem é do mesmo grupo que você ouve mais o que você diz.",
+      "hint": "Onde ela ouve o que ouve.",
       "options": "GROUPS",
       "optional": true,
       "allowCustom": true,

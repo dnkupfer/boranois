@@ -10,7 +10,7 @@ const GENDERS = [
 import { track } from "../analytics";
 import { api } from "../api";
 import { ChipGroup, Layout, Progress } from "../components";
-import { privateContacts, profile } from "../local";
+import { privateContacts } from "../local";
 import { useSession } from "../session";
 
 type Answer = { optionIds: string[]; custom: string[]; interpreted?: Interpretation | null };
@@ -225,14 +225,14 @@ export function NovaPessoa() {
           if (field === "frequency" && !frequency) frequency = NEUTRAL.frequency;
         }
       }
-      const mine = profile.get().groups;
+      // "Same group as you": family always is; other groups we don't ask about the member.
       const chips = Chips.parse({
         gender: gender[0],
         situation, relation, frequency,
         sayings: merged.sayings, worries: merged.worries, groups: merged.groups, influencers: merged.influencers, trustLoss: merged.trustLoss,
         tags: merged.tags.slice(0, 30),
         custom: customField,
-        sharedGroup: merged.groups.some((g) => mine.includes(g as never)),
+        sharedGroup: relation === "familia" || merged.groups.includes("familia"),
       });
       const contact = await api<Contact>("/contacts", { body: { chips } });
       doneRef.current = true;

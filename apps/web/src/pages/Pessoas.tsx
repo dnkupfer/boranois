@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GROUPS, type Contact, type ContactState, type GroupId } from "@boranois/shared";
+import type { Contact, ContactState } from "@boranois/shared";
 import { api } from "../api";
-import { ChipGroup, Layout, PriorityBadge } from "../components";
-import { privateContacts, profile } from "../local";
+import { Layout, PriorityBadge } from "../components";
+import { privateContacts } from "../local";
 import { useSession } from "../session";
 
 const ORDER: Record<string, number> = { alta: 0, media: 1, baixa: 2 };
@@ -32,7 +32,6 @@ const DONE: ContactState[] = ["votou", "perdido"];
 export function Pessoas() {
   const { member } = useSession();
   const [contacts, setContacts] = useState<Contact[] | null>(null);
-  const [prof, setProf] = useState(profile.get);
   const names = privateContacts.all();
 
   useEffect(() => {
@@ -48,12 +47,6 @@ export function Pessoas() {
       Number(!a.priority.engage) - Number(!b.priority.engage) ||
       ORDER[a.priority.level] - ORDER[b.priority.level],
   );
-
-  const saveGroups = (groups: GroupId[]) => {
-    const next = { ...prof, groups };
-    setProf(next);
-    profile.set(next);
-  };
 
   return (
     <Layout>
@@ -78,14 +71,6 @@ export function Pessoas() {
         </ol>
         <p className="small"><Link to="/como-funciona">Por quê?</Link></p>
       </section>
-
-      {prof.groups.length === 0 && (
-        <section className="card accent">
-          <h2>Antes, sobre você</h2>
-          <p>De que grupos você faz parte? Quem é do mesmo grupo ouve mais o que você diz.</p>
-          <ChipGroup options={GROUPS} value={prof.groups} onChange={saveGroups} />
-        </section>
-      )}
 
       <div className="row between">
         <h2>Suas pessoas{member?.name ? `, ${member.name}` : ""}</h2>
