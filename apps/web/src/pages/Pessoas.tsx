@@ -58,6 +58,17 @@ export function Pessoas() {
     <Layout>
       <h1>Oi, {member?.name ?? ""}</h1>
 
+      <section className="card rules">
+        <ol>
+          <li>Pergunte. Depois cale.</li>
+          <li>Não mande link.</li>
+          <li>Fato só se ela pedir. Um.</li>
+          <li>Não discuta. Nunca.</li>
+          <li>Ela decide.</li>
+        </ol>
+        <p className="small"><Link to="/como-funciona">Por quê?</Link></p>
+      </section>
+
       {prof.groups.length === 0 && (
         <section className="card accent">
           <h2>Antes, sobre você</h2>

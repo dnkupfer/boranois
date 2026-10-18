@@ -126,3 +126,9 @@ ol.plain li, ul.plain li { margin-bottom: 10px; }
 .bubble .suggestion { margin-top: 10px; }
 .bubble blockquote { margin: 4px 0 8px; padding: 10px 12px; background: #fff; border-left: 4px solid var(--primary); border-radius: 6px; }
 .chat form input { flex: 1 1 240px; margin: 0; }
+
+/* The five rules: always on the home, read in three seconds */
+.card.rules { background: var(--primary); border-color: var(--primary); color: var(--primary-text); padding: 16px 20px; }
+.card.rules ol { margin: 0; padding-left: 24px; font-size: 1.15rem; font-weight: 700; line-height: 1.6; }
+.card.rules p { margin: 8px 0 0; }
+.card.rules a { color: var(--primary-text); opacity: 0.85; }
