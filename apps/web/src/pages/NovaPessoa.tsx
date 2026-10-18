@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Chips, nextTargets, type ChipSets, type Contact, type GenderId, type Interpretation, type Question, type QuestionsResponse } from "@boranois/shared";
 
@@ -44,16 +44,31 @@ export function NovaPessoa() {
 
   const doneRef = useRef(false);
   const lastQuestionRef = useRef<string>("");
+  const [flowError, setFlowError] = useState(false);
+
+  /** The question flow comes from the API; if the API is restarting, try again before giving up. */
+  const loadFlow = useCallback(async () => {
+    setFlowError(false);
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const f = await api<QuestionsResponse>("/questions");
+        setFlow(f);
+        setVisits([{ id: f.start, queue: [] }]);
+        return;
+      } catch {
+        await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+      }
+    }
+    setFlowError(true);
+  }, []);
+
   useEffect(() => {
     track("nova_start");
-    api<QuestionsResponse>("/questions").then((f) => {
-      setFlow(f);
-      setVisits([{ id: f.start, queue: [] }]);
-    });
+    loadFlow();
     return () => {
       if (!doneRef.current) track("nova_leave", { lastQuestion: lastQuestionRef.current });
     };
-  }, []);
+  }, [loadFlow]);
   useEffect(() => {
     const id = visits[visits.length - 1]?.id;
     if (screen === "pergunta" && id) {
@@ -261,6 +276,12 @@ export function NovaPessoa() {
             WhatsApp (com DDD) <span className="muted">(opcional)</span>
             <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="11 99999-0000" enterKeyHint="go" />
           </label>
+          {!flow && !flowError && <p className="muted small">Carregando as perguntas…</p>}
+          {flowError && (
+            <p className="error small">
+              Não consegui carregar as perguntas. <button type="button" className="link" onClick={loadFlow}>Tentar de novo</button>
+            </p>
+          )}
           <div className="row end">
             <button type="submit" className="primary" disabled={!nickname.trim() || !gender.length || !flow}>Continuar</button>
           </div>
