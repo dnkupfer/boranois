@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Chips, type ChipSets, type Contact, type Interpretation, type Question, type QuestionsResponse } from "@boranois/shared";
+import { Chips, nextTargets, type ChipSets, type Contact, type Interpretation, type Question, type QuestionsResponse } from "@boranois/shared";
 import { api } from "../api";
 import { ChipGroup, Layout, Progress } from "../components";
 import { privateContacts, profile } from "../local";
@@ -8,6 +8,8 @@ import { useSession } from "../session";
 
 type Answer = { optionIds: string[]; custom: string[]; interpreted?: Interpretation | null };
 type Screen = "quem" | "pergunta" | "nota";
+/** One visited question plus the branches still waiting after it; kept as history so "Voltar" restores the queue. */
+type Visit = { id: string; queue: string[] };
 
 export function NovaPessoa() {
   const navigate = useNavigate();
@@ -19,7 +21,7 @@ export function NovaPessoa() {
   const [nickname, setNickname] = useState("");
   const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
-  const [path, setPath] = useState<string[]>([]); // question ids asked so far, in order
+  const [visits, setVisits] = useState<Visit[]>([]);
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [busy, setBusy] = useState(false);
   const [thinkingFor, setThinkingFor] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export function NovaPessoa() {
   useEffect(() => {
     api<QuestionsResponse>("/questions").then((f) => {
       setFlow(f);
-      setPath([f.start]);
+      setVisits([{ id: f.start, queue: [] }]);
     });
   }, []);
 
@@ -38,8 +40,9 @@ export function NovaPessoa() {
     for (const q of Object.values(extra)) m.set(q.id, q);
     return m;
   }, [flow, extra]);
-  const currentId = path[path.length - 1];
-  const current = currentId ? byId.get(currentId) : undefined;
+  const last = visits[visits.length - 1];
+  const current = last ? byId.get(last.id) : undefined;
+  const asked = visits.map((v) => v.id);
   const answer = (id: string): Answer => answers[id] ?? { optionIds: [], custom: [] };
 
   // Progress = answered / (answered + longest remaining path). Good enough for a tree this size.
@@ -50,20 +53,27 @@ export function NovaPessoa() {
     const nexts = q.next === null ? [] : typeof q.next === "string" ? [q.next] : [...new Set(Object.values(q.next))];
     return 1 + Math.max(0, ...nexts.map((n) => longestFrom(n, new Set([...seen, id]))));
   };
-  const progress = screen === "quem" ? 0.05 : screen === "nota" ? 0.95 : (path.length + 1) / (path.length + 1 + longestFrom(currentId ?? null) + 1);
+  const progress =
+    screen === "quem" ? 0.05 : screen === "nota" ? 0.95 : (visits.length + 1) / (visits.length + 1 + (last?.queue.length ?? 0) + longestFrom(last?.id ?? null) + 1);
 
-  const nextOf = (q: Question, a: Answer): string | null => {
-    if (a.interpreted?.nextQuestionId) return a.interpreted.nextQuestionId;
-    if (q.next === null) return null;
-    if (typeof q.next === "string") return q.next;
-    const first = a.optionIds[0] ?? a.interpreted?.optionId ?? undefined;
-    return (first && q.next[first]) || q.next["*"] || null;
-  };
+  /** Branches to visit after `q`, given its answer. */
+  const targetsOf = (q: Question, a: Answer) =>
+    nextTargets(q, [...a.optionIds, ...(a.interpreted?.optionId ? [a.interpreted.optionId] : [])], a.interpreted?.nextQuestionId);
 
+  /** Go on: pending branches first, then this question's own, never a question already asked. */
   const advance = (q: Question, a: Answer) => {
-    const n = nextOf(q, a);
-    if (n) setPath((p) => [...p, n]);
-    else setScreen("nota");
+    setVisits((vs) => {
+      const cur = vs[vs.length - 1];
+      if (!cur || cur.id !== q.id) return vs;
+      const done = new Set(vs.map((v) => v.id));
+      const queue = [...cur.queue, ...targetsOf(q, a)].filter((id, i, arr) => !done.has(id) && arr.indexOf(id) === i);
+      if (!queue.length) {
+        setScreen("nota");
+        return vs;
+      }
+      const [next, ...rest] = queue;
+      return [...vs, { id: next, queue: rest }];
+    });
   };
 
   const setAnswer = (q: Question, a: Answer, autoAdvance: boolean) => {
@@ -72,8 +82,8 @@ export function NovaPessoa() {
   };
 
   /**
-   * A typed answer. The chip is stored at once (so it shows, survives "Voltar" and enables "Continuar");
-   * the model's interpretation fills in afterwards. Without AI, the chip is kept as a tag and the tree's default applies.
+   * A typed answer. The chip is stored at once (it shows, survives "Voltar", enables "Continuar");
+   * the model's interpretation fills in afterwards. Without AI, the chip stays as a tag and the tree's default applies.
    */
   const onCustom = async (q: Question, custom: string[]) => {
     const a = answer(q.id);
@@ -108,30 +118,24 @@ export function NovaPessoa() {
     setAnswers((prev) => ({ ...prev, [q.id]: withResult }));
 
     if (interpreted?.followup) {
-      const id = `ai_${q.id}_${path.length}`;
-      const fq: Question = {
-        id,
-        text: interpreted.followup.text,
-        options: interpreted.followup.options,
-        max: 1,
-        optional: true,
-        allowCustom: false,
-        next: nextOf(q, { ...withResult, interpreted: { ...interpreted, nextQuestionId: null } }),
-      };
+      const id = `ai_${q.id}_${visits.length}`;
+      const fq: Question = { id, text: interpreted.followup.text, options: interpreted.followup.options, max: 1, optional: true, allowCustom: false, next: null };
       setExtra((e) => ({ ...e, [id]: fq }));
-      setPath((p) => (p[p.length - 1] === q.id ? [...p, id] : p)); // only if still on this question
+      // The follow-up is asked now; the original question's branches wait in the queue behind it.
+      setVisits((vs) => {
+        const cur = vs[vs.length - 1];
+        if (!cur || cur.id !== q.id) return vs;
+        const own = targetsOf(q, { ...withResult, interpreted: { ...interpreted!, nextQuestionId: null } });
+        return [...vs, { id, queue: [...cur.queue, ...own] }];
+      });
       return;
     }
-    if (q.max === 1) {
-      const n = nextOf(q, withResult);
-      if (n) setPath((p) => (p[p.length - 1] === q.id ? [...p, n] : p));
-      else setScreen("nota");
-    }
+    if (q.max === 1) advance(q, withResult);
   };
 
   const back = () => {
     if (screen === "nota") return setScreen("pergunta");
-    if (path.length > 1) return setPath((p) => p.slice(0, -1));
+    if (visits.length > 1) return setVisits((vs) => vs.slice(0, -1));
     setScreen("quem");
   };
 
@@ -140,18 +144,17 @@ export function NovaPessoa() {
     setBusy(true);
     setError(null);
     try {
-      const merged = { sayings: [] as string[], worries: [] as string[], groups: [] as string[], influencers: [] as string[], tags: [] as string[] };
-      let situation: ChipSets["situation"], relation: ChipSets["relation"], frequency: ChipSets["frequency"], trustLoss: ChipSets["trustLoss"];
+      const merged = { sayings: [] as string[], worries: [] as string[], groups: [] as string[], influencers: [] as string[], trustLoss: [] as string[], tags: [] as string[] };
+      let situation: ChipSets["situation"], relation: ChipSets["relation"], frequency: ChipSets["frequency"];
       const customAll: string[] = [];
       const applySets = (sets: ChipSets | undefined) => {
         if (!sets) return;
         situation = sets.situation ?? situation;
         relation = sets.relation ?? relation;
         frequency = sets.frequency ?? frequency;
-        trustLoss = sets.trustLoss ?? trustLoss;
-        for (const k of ["sayings", "worries", "groups", "influencers"] as const) for (const v of sets[k] ?? []) if (!merged[k].includes(v)) merged[k].push(v);
+        for (const k of ["sayings", "worries", "groups", "influencers", "trustLoss"] as const) for (const v of sets[k] ?? []) if (!merged[k].includes(v)) merged[k].push(v);
       };
-      for (const qid of path) {
+      for (const qid of asked) {
         const q = byId.get(qid)!;
         const a = answer(qid);
         customAll.push(...a.custom);
@@ -171,18 +174,15 @@ export function NovaPessoa() {
       }
       const mine = profile.get().groups;
       const chips = Chips.parse({
-        situation, relation, frequency, trustLoss,
-        sayings: merged.sayings,
-        worries: merged.worries,
-        groups: merged.groups,
-        influencers: merged.influencers,
+        situation, relation, frequency,
+        sayings: merged.sayings, worries: merged.worries, groups: merged.groups, influencers: merged.influencers, trustLoss: merged.trustLoss,
         tags: merged.tags.slice(0, 30),
         sharedGroup: merged.groups.some((g) => mine.includes(g as never)),
       });
       const contact = await api<Contact>("/contacts", { body: { chips } });
       privateContacts.set(contact.id, { nickname: nickname.trim(), phone: phone.trim(), note: note.trim(), customChips: customAll });
       // Anonymous: which chips were used. Typed answers were already counted when interpreted.
-      const real = path.filter((qid) => !qid.startsWith("ai_"));
+      const real = asked.filter((qid) => !qid.startsWith("ai_"));
       api("/chips/usage", { body: { answers: real.map((qid) => ({ questionId: qid, optionIds: answer(qid).optionIds, custom: aiAvailable ? [] : answer(qid).custom })) } }).catch(() => {});
       navigate(`/pessoa/${contact.id}`, { replace: true });
     } catch {

@@ -106,7 +106,7 @@ describe("question flow", () => {
   it("a typical path yields chips the engine matches", () => {
     // tia que não foi: situação → por quê → desanimou → confiança → influências → preocupações
     const walk = ["relacao:familia", "frequencia:semanal", "grupos:familia", "situacao:nao_votou", "nao_votou_porque:desanimou", "confianca:inss", "influencias:choquei", "preocupacoes:custo_de_vida"];
-    const sets: Record<string, unknown> = { sayings: [], worries: [], groups: [], influencers: [] };
+    const sets: Record<string, unknown> = { sayings: [], worries: [], groups: [], influencers: [], trustLoss: [] };
     for (const step of walk) {
       const [qid, oid] = step.split(":");
       const q = cat.questions.questions.find((q) => q.id === qid)!;
