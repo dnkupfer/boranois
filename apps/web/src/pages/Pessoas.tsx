@@ -56,9 +56,25 @@ export function Pessoas() {
 
   return (
     <Layout>
-      <h1>Oi, {member?.name ?? ""}</h1>
+      <header className="intro">
+        <h1>Faça alguém que você conhece ir votar.</h1>
+        <p>
+          O Boranois é uma ferramenta para <strong>influenciar eleitores</strong>: você descreve uma pessoa que conhece, o app
+          diz como ela pensa e o que dizer, você manda do seu WhatsApp. Influenciar, não manipular: só o que é verdade, e ela decide.
+        </p>
+      </header>
+
+      <section className="card howto">
+        <h2>Como usar</h2>
+        <ol>
+          <li><strong>Adicione uma pessoa</strong> que não votou, votou em branco ou está em dúvida. Leva 2 minutos.</li>
+          <li><strong>Leia como ela pensa</strong> e mande a primeira mensagem, do seu jeito.</li>
+          <li><strong>Conte o que ela respondeu.</strong> O app diz o próximo passo.</li>
+        </ol>
+      </section>
 
       <section className="card rules">
+        <h2>As cinco regras</h2>
         <ol>
           <li>Pergunte. Depois cale.</li>
           <li>Não mande link.</li>
@@ -89,8 +105,8 @@ export function Pessoas() {
       )}
 
       <div className="row between">
-        <h2>Suas pessoas</h2>
-        <Link className="button primary" to="/nova">+ Adicionar</Link>
+        <h2>Suas pessoas{member?.name ? `, ${member.name}` : ""}</h2>
+        <Link className="button primary" to="/nova">+ Adicionar uma pessoa</Link>
       </div>
 
       {contacts === null ? (
