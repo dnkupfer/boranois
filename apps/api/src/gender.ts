@@ -2,48 +2,48 @@
 // out. Deterministic and closed: only forms that occur in the catalogue and refer to the pessoa are listed,
 // so a new feminine word in the content must be added here (the test checks the catalogue against this list).
 
-export type Gender = "f" | "m";
+/** f = ela, m = ele, n = elu (non-binary, "-e" endings). */
+export type Gender = "f" | "m" | "n";
 
-/** Exact phrases first: words that are ambiguous on their own. */
-const PHRASES: [string, string][] = [
-  ["sou prática", "sou prático"],
-  ["está certa de", "está certo de"],
-  ["não sou otária", "não sou otário"],
-  ["ela mesma", "ele mesmo"],
-  ["ela própria", "ele próprio"],
-  ["uma pessoa de bem", "uma pessoa de bem"],
+/** Exact phrases first: words that are ambiguous on their own. [feminine, masculine, neutral] */
+const PHRASES: [string, string, string][] = [
+  ["sou prática", "sou prático", "sou prátique"],
+  ["está certa de", "está certo de", "está certe de"],
+  ["não sou otária", "não sou otário", "não sou otárie"],
+  ["ela mesma", "ele mesmo", "elu mesme"],
+  ["ela própria", "ele próprio", "elu próprie"],
 ];
 
-/** Whole words that refer to the pessoa. */
-const WORDS: Record<string, string> = {
-  ela: "ele",
-  dela: "dele",
-  nela: "nele",
-  apaixonada: "apaixonado",
-  assaltada: "assaltado",
-  burra: "burro",
-  cansada: "cansado",
-  cobrada: "cobrado",
-  convencida: "convencido",
-  convidada: "convidado",
-  culpada: "culpado",
-  decidida: "decidido",
-  desanimada: "desanimado",
-  doutrinada: "doutrinado",
-  enganada: "enganado",
-  informada: "informado",
-  manipulada: "manipulado",
-  ouvida: "ouvido",
-  ridicularizada: "ridicularizado",
-  sozinha: "sozinho",
-  traída: "traído",
-  tratada: "tratado",
-  usada: "usado",
-  desafiadora: "desafiador",
-  decepcionada: "decepcionado",
-  indignada: "indignado",
-  segura: "seguro",
-  convicta: "convicto",
+/** Whole words that refer to the pessoa: [masculine, neutral]. */
+const WORDS: Record<string, [string, string]> = {
+  ela: ["ele", "elu"],
+  dela: ["dele", "delu"],
+  nela: ["nele", "nelu"],
+  apaixonada: ["apaixonado", "apaixonade"],
+  assaltada: ["assaltado", "assaltade"],
+  burra: ["burro", "burre"],
+  cansada: ["cansado", "cansade"],
+  cobrada: ["cobrado", "cobrade"],
+  convencida: ["convencido", "convencide"],
+  convidada: ["convidado", "convidade"],
+  culpada: ["culpado", "culpade"],
+  decidida: ["decidido", "decidide"],
+  desanimada: ["desanimado", "desanimade"],
+  doutrinada: ["doutrinado", "doutrinade"],
+  enganada: ["enganado", "enganade"],
+  informada: ["informado", "informade"],
+  manipulada: ["manipulado", "manipulade"],
+  ouvida: ["ouvido", "ouvide"],
+  ridicularizada: ["ridicularizado", "ridicularizade"],
+  sozinha: ["sozinho", "sozinhe"],
+  traída: ["traído", "traíde"],
+  tratada: ["tratado", "tratade"],
+  usada: ["usado", "usade"],
+  desafiadora: ["desafiador", "desafiadore"],
+  decepcionada: ["decepcionado", "decepcionade"],
+  indignada: ["indignado", "indignade"],
+  segura: ["seguro", "segure"],
+  convicta: ["convicto", "convicte"],
 };
 
 const WORD_RE = new RegExp(`\\b(${Object.keys(WORDS).join("|")})\\b`, "giu");
@@ -53,17 +53,19 @@ function keepCase(from: string, to: string) {
 }
 
 export function inflect(text: string, gender: Gender): string {
-  if (gender !== "m" || !text) return text;
+  if (gender === "f" || !text) return text;
+  const idx = gender === "m" ? 0 : 1;
   let out = text;
-  for (const [f, m] of PHRASES) {
-    out = out.replace(new RegExp(f.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "giu"), (hit) => keepCase(hit, m));
+  for (const [f, m, n] of PHRASES) {
+    const to = idx === 0 ? m : n;
+    out = out.replace(new RegExp(f.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "giu"), (hit) => keepCase(hit, to));
   }
-  return out.replace(WORD_RE, (hit) => keepCase(hit, WORDS[hit.toLowerCase()]));
+  return out.replace(WORD_RE, (hit) => keepCase(hit, WORDS[hit.toLowerCase()][idx]));
 }
 
 /** Inflects every string in a plain object/array, recursively. */
 export function inflectDeep<T>(value: T, gender: Gender): T {
-  if (gender !== "m") return value;
+  if (gender === "f") return value;
   if (typeof value === "string") return inflect(value, gender) as T;
   if (Array.isArray(value)) return value.map((v) => inflectDeep(v, gender)) as T;
   if (value && typeof value === "object") {

@@ -11,6 +11,9 @@ describe("gender inflection", () => {
     assert.equal(inflect("Sou prática. A pergunta prática é outra.", "m"), "Sou prático. A pergunta prática é outra.");
     assert.equal(inflect("Não sou otária. Eu também me senti otário.", "m"), "Não sou otário. Eu também me senti otário.");
   });
+  it("has a non-binary form", () => {
+    assert.equal(inflect("Ela se sentiu enganada e sozinha. Sou prática.", "n"), "Elu se sentiu enganade e sozinhe. Sou prátique.");
+  });
   it("leaves the feminine untouched", () => {
     assert.equal(inflect("Ela decide.", "f"), "Ela decide.");
   });

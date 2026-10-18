@@ -13,7 +13,8 @@ const SENDING = ["abrir_conversa", "enviar_fato", "enviar_conteudo", "oferecer_a
 const isSending = (s: Step) => SENDING.includes(s.action) && !!s.message;
 
 /** Pronouns for the UI strings; the catalogue texts come already inflected from the API. */
-const pron = (g: "f" | "m") => (g === "m" ? { ela: "ele", Ela: "Ele", dela: "dele" } : { ela: "ela", Ela: "Ela", dela: "dela" });
+const pron = (g: "f" | "m" | "n") =>
+  g === "m" ? { ela: "ele", Ela: "Ele", dela: "dele" } : g === "n" ? { ela: "elu", Ela: "Elu", dela: "delu" } : { ela: "ela", Ela: "Ela", dela: "dela" };
 
 export function Pessoa() {
   const { id = "" } = useParams();

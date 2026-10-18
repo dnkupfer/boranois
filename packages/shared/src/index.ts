@@ -148,7 +148,8 @@ export type Priority = (typeof PRIORITIES)[number];
 // ---------------------------------------------------------------------------
 // Requests
 
-export const GenderId = z.enum(["f", "m"]);
+/** f = ela, m = ele, n = elu. */
+export const GenderId = z.enum(["f", "m", "n"]);
 export type GenderId = z.infer<typeof GenderId>;
 
 export const Chips = z.object({

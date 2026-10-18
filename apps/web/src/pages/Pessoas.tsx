@@ -89,7 +89,7 @@ export function Pessoas() {
 
       <div className="row between">
         <h2>Suas pessoas{member?.name ? `, ${member.name}` : ""}</h2>
-        <Link className="button primary" to="/nova">+ Convencer uma pessoa a votar certo</Link>
+        <Link className="button primary" to="/nova">+ Influenciar uma pessoa a votar certo</Link>
       </div>
 
       {contacts === null ? (

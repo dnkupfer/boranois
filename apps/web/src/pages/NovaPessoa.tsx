@@ -5,6 +5,7 @@ import { Chips, nextTargets, type ChipSets, type Contact, type GenderId, type In
 const GENDERS = [
   { id: "f", label: "Ela" },
   { id: "m", label: "Ele" },
+  { id: "n", label: "Elu" },
 ] as const;
 import { track } from "../analytics";
 import { api } from "../api";
