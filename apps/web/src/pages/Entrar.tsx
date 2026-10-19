@@ -47,6 +47,8 @@ export function Entrar() {
       track("signin_link");
       setDevLink(r.devLink ?? null);
       setPhase("sent");
+    } catch {
+      alert("Não foi possível enviar o link agora. Tente de novo mais tarde.");
     } finally {
       setBusy(false);
     }
