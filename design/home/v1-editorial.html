@@ -13,7 +13,7 @@
   body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);line-height:1.5;font-size:17px;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
   /* running head */
-  .head{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid var(--ink);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+  .head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--ink);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
   .head .brand{font-family:Fraunces,serif;font-weight:600;font-size:22px;letter-spacing:0;text-transform:none}
   .head nav a{color:var(--ink);text-decoration:none;margin-left:22px}
   .head .date{color:var(--mute)}
@@ -58,6 +58,7 @@
   footer a{color:var(--ink)}
   @media(max-width:760px){
     .head nav{display:none}
+    .head .date{font-size:11px;text-align:right}
     .points{grid-template-columns:1fr}
     .point:nth-child(odd){border-right:0;padding-right:0}
     .point:nth-child(even){padding-left:0}
