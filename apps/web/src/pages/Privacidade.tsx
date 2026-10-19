@@ -7,6 +7,14 @@ export function Privacidade() {
         <h1>Política de privacidade</h1>
         <p className="muted small">Última atualização: 18 de outubro de 2026.</p>
 
+        <h2>O que nunca fazemos</h2>
+        <ul>
+          <li>Inventar fatos. Cada número vem com a fonte, e o que não foi conferido não é usado.</li>
+          <li>Guardar quem são as suas pessoas. Nome, telefone, anotações e a conversa com o coach ficam no seu aparelho.</li>
+          <li>Mandar nada sozinho. Toda mensagem sai da sua mão.</li>
+          <li>Pressionar. Nem você, nem o app.</li>
+        </ul>
+
         <h2>Quem somos</h2>
         <p>
           O Boranois é um projeto voluntário, sem fins lucrativos, mantido por Daniel Kupfer. Contato para qualquer assunto desta

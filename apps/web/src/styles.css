@@ -166,3 +166,49 @@ details.persona .body { padding: 0 0 12px 0; }
 details.persona h3 { font-size: 1rem; margin: 12px 0 4px; }
 .legal h2 { margin-top: 24px; }
 .footer .feedback { margin: 0 0 10px; }
+
+/* Reading pages: method and profiles */
+.lead { font-size: 1.15rem; line-height: 1.55; margin: 0 0 24px; }
+.section-title { margin: 36px 0 12px; }
+.principles { display: grid; gap: 14px; }
+.principle { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px 20px 16px 72px; }
+.principle .num, .tactic .num { position: absolute; left: 20px; top: 20px; width: 36px; height: 36px; border-radius: 50%; background: var(--primary-soft); color: var(--primary-dark); display: grid; place-items: center; font-weight: 800; }
+.principle h2 { font-size: 1.1rem; margin: 6px 0 6px; }
+.principle p { margin: 0 0 6px; }
+.principle .example { color: var(--primary-dark); font-style: italic; margin: 8px 0 0; }
+.pull { margin: 36px 0; padding: 20px 24px; border-left: 5px solid var(--primary); background: var(--surface-accent); border-radius: 0 16px 16px 0; font-size: 1.1rem; }
+.pull p { margin: 0 0 8px; }
+.sources { display: grid; gap: 12px; }
+.source { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; }
+.source h3 { font-size: 1rem; margin: 0 0 4px; }
+.source p { margin: 0; color: var(--muted); }
+
+.persona-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin: 8px 0 20px; }
+.persona-card { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; color: var(--text); text-decoration: none; }
+.persona-card:hover { border-color: var(--primary); }
+.persona-card.stop { background: var(--quiet-bg); }
+.persona-card h2 { font-size: 1.1rem; margin: 0 0 8px; }
+.persona-card .quote { margin: 0 0 8px; }
+.persona-card p { margin: 0; }
+.quote { font-style: italic; color: var(--primary-dark); }
+.quote.big { font-size: 1.3rem; margin: 6px 0 12px; }
+.persona-head { margin: 8px 0 24px; }
+.persona-head h1 { margin: 4px 0 8px; }
+.pane { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; margin: 14px 0; }
+.pane p:last-child, .pane ul { margin-bottom: 0; }
+.pane ul { padding-left: 20px; margin-top: 4px; }
+.pane.closes { background: #fdf6f2; border-color: #ecd7c8; }
+.pane.opens { background: var(--ok-bg); border-color: #bfe0c6; }
+.pane.key { background: var(--surface-accent); border-color: var(--primary-soft); }
+.facts3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 14px 0; }
+.facts3 > div { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; }
+.facts3 p:last-child { margin: 0; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.two .pane { margin: 0; }
+.tactic-list { display: grid; gap: 12px; }
+.tactic { position: relative; display: grid; grid-template-columns: 1fr; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px 16px 72px; }
+.tactic h3 { font-size: 1.05rem; margin: 6px 0 4px; }
+.tactic p { margin: 0; color: var(--muted); }
+.avoid-list { background: #fdf9f2; border: 1px solid #e8d9c0; border-radius: 16px; padding: 16px 20px; }
+.avoid-list p { margin: 0 0 10px; }
+.avoid-list p:last-child { margin: 0; }
