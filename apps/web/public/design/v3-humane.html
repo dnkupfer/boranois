@@ -14,10 +14,18 @@
   a{color:var(--teal)}
   .wrap{max-width:1040px;margin:0 auto;padding:0 24px;position:relative}
   /* soft shapes */
-  .blob{position:absolute;border-radius:50%;filter:blur(40px);opacity:.8;z-index:-1}
-  .b1{width:420px;height:420px;background:var(--peach);top:-120px;right:-140px}
-  .b2{width:360px;height:360px;background:var(--mint);top:420px;left:-180px}
-  .b3{width:300px;height:300px;background:var(--sky);top:1100px;right:-120px}
+  /* Blobs: slow drift, a breath of scale, a breath of opacity. Transform/opacity only, so it stays smooth on phones. */
+  .blob{position:absolute;border-radius:50%;filter:blur(40px);opacity:.8;z-index:-1;will-change:transform,opacity;animation:drift var(--t,36s) ease-in-out infinite alternate}
+  .b1{width:420px;height:420px;background:var(--peach);top:-120px;right:-140px;--t:34s;--dx:-40px;--dy:30px}
+  .b2{width:360px;height:360px;background:var(--mint);top:420px;left:-180px;--t:46s;--dx:50px;--dy:-30px;animation-delay:-12s}
+  .b3{width:300px;height:300px;background:var(--sky);top:1100px;right:-120px;--t:40s;--dx:-30px;--dy:-40px;animation-delay:-25s}
+  @keyframes drift{
+    0%  {transform:translate(0,0) scale(.88);opacity:.62}
+    35% {transform:translate(calc(var(--dx)*.6),calc(var(--dy)*.4)) scale(1.06);opacity:.85}
+    70% {transform:translate(var(--dx),var(--dy)) scale(.96);opacity:.72}
+    100%{transform:translate(calc(var(--dx)*.3),calc(var(--dy)*1.1)) scale(1.14);opacity:.9}
+  }
+  @media(prefers-reduced-motion:reduce){.blob{animation:none}}
   .head{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
   .brand{font-weight:800;font-size:24px;color:var(--teal);text-decoration:none;letter-spacing:-.01em}
   .head nav a{text-decoration:none;color:var(--mute);margin-left:22px;font-weight:500}
