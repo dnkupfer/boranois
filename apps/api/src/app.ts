@@ -177,6 +177,12 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, ad
       await sendEmail(body.data.email, link);
       return res.json({ sent: true } satisfies MagicLinkResponse);
     }
+    // Without an e-mail sender, the link may only be shown in local development. In production that
+    // would let anyone sign in as any address, so refuse instead.
+    if (process.env.NODE_ENV === "production") {
+      console.error("magic link requested but no e-mail sender is configured (RESEND_API_KEY / EMAIL_FROM)");
+      return res.status(503).json({ error: "email_unavailable" });
+    }
     console.log(`[dev] magic link for ${body.data.email}: ${link}`);
     res.json({ sent: true, devLink: link } satisfies MagicLinkResponse);
   });
