@@ -7,7 +7,7 @@ import { Pessoas } from "./pages/Pessoas";
 import { NovaPessoa } from "./pages/NovaPessoa";
 import { Pessoa } from "./pages/Pessoa";
 import { ComoFunciona } from "./pages/ComoFunciona";
-import { Perfis } from "./pages/Perfis";
+import { Perfil, Perfis } from "./pages/Perfis";
 import { Termos } from "./pages/Termos";
 import { Privacidade } from "./pages/Privacidade";
 import "./styles.css";
@@ -26,6 +26,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/entrar" element={<Entrar />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
           <Route path="/perfis" element={<Perfis />} />
+          <Route path="/perfis/:id" element={<Perfil />} />
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />
           <Route path="/" element={<RequireSession><Pessoas /></RequireSession>} />
