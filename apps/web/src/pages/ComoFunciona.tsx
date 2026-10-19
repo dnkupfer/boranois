@@ -11,9 +11,9 @@ const PRINCIPLES = [
 ];
 
 const SOURCES = [
-  { who: "David McRaney, How Minds Change (2022)", what: "Passou tempo com terraplanistas e ex-membros de seitas para entender como alguém muda de convicção. Conclusão: ninguém muda derrotado; muda quando se sente seguro para duvidar." },
-  { who: "Deep canvassing (Broockman & Kalla, 2016)", what: "Conversas de dez minutos sobre experiências pessoais mudaram opiniões de forma duradoura, medidas em experimentos de campo." },
-  { who: "Epistemologia de rua", what: "Perguntas sobre quanta certeza a pessoa tem, e por quê, em vez de argumentos contra o que ela acredita." },
+  { who: "David McRaney, How Minds Change (2022)", url: "https://www.davidmcraney.com/howmindschangehome", what: "Passou tempo com terraplanistas e ex-membros de seitas para entender como alguém muda de convicção. Conclusão: ninguém muda derrotado; muda quando se sente seguro para duvidar." },
+  { who: "Deep canvassing (Broockman & Kalla, Science, 2016)", url: "https://doi.org/10.1126/science.aad9713", what: "Conversas de dez minutos sobre experiências pessoais mudaram opiniões de forma duradoura, medidas em experimentos de campo." },
+  { who: "Epistemologia de rua", url: "https://www.streetepistemology.com/", what: "Perguntas sobre quanta certeza a pessoa tem, e por quê, em vez de argumentos contra o que ela acredita." },
 ];
 
 export function ComoFunciona() {
@@ -44,10 +44,10 @@ export function ComoFunciona() {
       <h2 className="section-title">De onde vem isso</h2>
       <section className="sources">
         {SOURCES.map((s, i) => (
-          <article className="source" key={i}>
-            <h3>{s.who}</h3>
+          <a className="source" href={s.url} target="_blank" rel="noreferrer" key={i}>
+            <h3>{s.who} ↗</h3>
             <p>{s.what}</p>
-          </article>
+          </a>
         ))}
       </section>
 

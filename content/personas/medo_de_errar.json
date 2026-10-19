@@ -1,6 +1,6 @@
 {
   "id": "medo_de_errar",
-  "name": "Quem tem medo de errar",
+  "name": "Quem prefere não votar a votar errado",
   "situations": [
     "nao_votou",
     "branco_nulo",

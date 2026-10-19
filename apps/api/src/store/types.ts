@@ -44,4 +44,14 @@ export interface Store {
   // Analytics: anonymous events, kept for aggregation only.
   insertEvents(events: AnalyticsEvent[]): Promise<void>;
   listEvents(sinceDays: number): Promise<AnalyticsEvent[]>;
+
+  /** Totals from the app's own tables, for the admin page. Counts everyone, with or without analytics consent. */
+  adminRows(): Promise<AdminRows>;
 }
+
+/** Just enough of each row to count: no chips, no ids that point at a person. */
+export type AdminRows = {
+  members: number;
+  contacts: { memberId: string; personaId: string; state: string; level: string; engage: boolean; createdAt: string }[];
+  outcomes: { outcome: string; createdAt: string }[];
+};

@@ -32,6 +32,7 @@ createApp({
   phraser,
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:5173",
   adminToken: process.env.ADMIN_TOKEN,
+  adminEmails: (process.env.ADMIN_EMAILS ?? "").toLowerCase().split(/[\s,;]+/).filter(Boolean),
   sendEmail,
 }).listen(port, () => {
   console.log(

@@ -270,7 +270,7 @@ export type Member = { id: string; email: string | null; name: string | null };
 /** In production the link is emailed; in development it's returned so the UI can show it. */
 export type MagicLinkResponse = { sent: true; devLink?: string };
 export type VerifyResponse = { token: string; member: Member };
-export type MeResponse = { member: Member };
+export type MeResponse = { member: Member; admin?: boolean };
 
 export type Match = {
   personaId: string;

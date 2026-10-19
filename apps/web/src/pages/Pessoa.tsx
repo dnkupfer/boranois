@@ -358,7 +358,7 @@ function CoachCard({
 
   return (
     <section className="card coach">
-      <p className="eyebrow">Coach</p>
+      <p className="eyebrow">Vira-voto coach</p>
       <h2>Converse sobre o próximo passo</h2>
       {!aiAvailable && <p className="muted small">O coach precisa da IA, que está indisponível agora.</p>}
       {chat.length === 0 && aiAvailable && (

@@ -38,6 +38,15 @@ export function Perfis() {
   );
 }
 
+function Fact({ tone, label, children }: { tone: "peach" | "mint" | "sky" | "butter"; label: string; children: React.ReactNode }) {
+  return (
+    <div className="fact">
+      <span className={`tag ${tone}`}>{label}</span>
+      <p>{children}</p>
+    </div>
+  );
+}
+
 /** One profile, laid out to be read. */
 export function Perfil() {
   const { id } = useParams();
@@ -52,29 +61,27 @@ export function Perfil() {
       <header className="persona-head">
         <p className="eyebrow">{p.situations.map((s) => labelOf(SITUATIONS, s)).join(" · ")}</p>
         <h1>{p.name}</h1>
-        <p className="quote big">{pr.identity}</p>
         <p className="lead">{p.summary}</p>
+        <blockquote className="says">
+          <span className="eyebrow">Como ela se vê</span>
+          <p>{pr.identity}</p>
+        </blockquote>
       </header>
 
-      <section className="pane">
-        <p className="eyebrow">Como ela chegou aqui</p>
-        <p>{pr.trust_story}</p>
+      <section className="persona-section">
+        <h2 className="section-title">Como ela chegou aqui</h2>
+        <p className="story">{pr.trust_story}</p>
       </section>
 
-      <section className="facts3">
-        <div><p className="eyebrow">Sente</p><p>{pr.feelings.join(", ")}.</p></div>
-        <div><p className="eyebrow">Onde ouve o que ouve</p><p>{pr.media_diet.join(", ")}.</p></div>
-        <div><p className="eyebrow">Em quem acredita</p><p>{pr.would_believe.join("; ")}.</p></div>
-      </section>
-
-      <section className="two">
-        <div className="pane closes"><p className="eyebrow">O que a fecha</p><ul>{pr.shuts_down.map((x, i) => <li key={i}>{x}</li>)}</ul></div>
-        <div className="pane opens"><p className="eyebrow">O que a abre</p><ul>{pr.opens_up.map((x, i) => <li key={i}>{x}</li>)}</ul></div>
-      </section>
-
-      <section className="pane key">
-        <p className="eyebrow">O que pode virar a chave</p>
-        <p>{pr.turning_point}</p>
+      {/* One row per thing to know, in the same rhythm as the tactics below: label on the left, one line on the right. */}
+      <h2 className="section-title">Antes de falar</h2>
+      <section className="fact-list">
+        <Fact tone="peach" label="Sente">{pr.feelings.join(", ")}.</Fact>
+        <Fact tone="sky" label="Onde ouve">{pr.media_diet.join(", ")}.</Fact>
+        <Fact tone="mint" label="Em quem acredita">{pr.would_believe.join("; ")}.</Fact>
+        <Fact tone="peach" label="O que a fecha">{pr.shuts_down.join("; ")}.</Fact>
+        <Fact tone="mint" label="O que a abre">{pr.opens_up.join("; ")}.</Fact>
+        <Fact tone="butter" label="O que vira a chave">{pr.turning_point}</Fact>
       </section>
 
       {p.engage ? (

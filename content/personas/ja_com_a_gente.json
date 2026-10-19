@@ -1,36 +1,38 @@
 {
   "id": "ja_com_a_gente",
-  "name": "Quem já está com a gente",
+  "name": "Quem acha que vai, mas não tem plano",
   "situations": [
     "vai_votar_lula"
   ],
   "default_for": [
     "vai_votar_lula"
   ],
-  "summary": "Vai votar no Lula. O risco é só não ir. Combine o dia e peça ajuda: ela também conhece gente em dúvida.",
+  "summary": "Vai votar no Lula, com certeza. Só não sabe a que horas, com quem, nem onde é a seção. É assim que um voto certo vira abstenção: não por dúvida, por domingo.",
   "profile": {
-    "trust_story": "Decidida. Acompanha, se irrita com o outro lado, às vezes cansa das brigas. Não precisa de argumento; precisa de dia e hora, e de um motivo para fazer mais do que votar.",
+    "trust_story": "Decidida desde sempre. No 1º turno foi, mas quase não: deixou para a tarde, apareceu visita, choveu, a fila estava grande. Votou às 16h50. Para ela, votar é óbvio demais para precisar de plano, e é exatamente por isso que o dia atropela. No 2º turno a abstenção sobe, e sobe entre gente como ela.",
     "feelings": [
       "convicção",
       "ansiedade com o resultado",
-      "vontade de ajudar sem saber como"
+      "certeza de que “claro que vou”"
     ],
-    "identity": "“Eu voto, sempre votei. Não sou eu o problema.”",
+    "identity": "“Claro que vou. Domingo eu vejo.”",
     "media_diet": [
       "Janones",
       "Felipe Neto",
-      "grupos do partido ou do trabalho"
+      "grupos do partido, da família ou do trabalho"
     ],
     "shuts_down": [
-      "ser tratada como quem precisa ser convencida"
+      "ser tratada como quem precisa ser convencida",
+      "sermão sobre dever cívico"
     ],
     "opens_up": [
-      "um pedido concreto: “você conhece alguém que não votou?”"
+      "um convite concreto: “vamos juntos às 9?”",
+      "um pedido de ajuda: “você conhece alguém que não votou?”"
     ],
     "would_believe": [
       "você"
     ],
-    "turning_point": "Transformar um voto em dois: ela combina o dia e conversa com uma pessoa que conhece."
+    "turning_point": "Trocar “claro que vou” por hora, lugar e companhia. Quem tem plano, vai; quem “vê domingo”, às vezes não vê."
   },
   "signals": {
     "sayings": {},
@@ -49,15 +51,19 @@
   "tactics": [
     {
       "title": "Não convença; combine",
-      "detail": "“Domingo, que horas você vai?” Hora marcada é o que impede o imprevisto de virar abstenção."
+      "detail": "“Domingo, que horas você vai?” Quem responde com uma hora vai. Quem responde “de tarde” precisa de uma hora."
+    },
+    {
+      "title": "Cedo, e junto",
+      "detail": "Manhã tem menos fila e menos imprevisto. “Passo aí às 9?” transforma intenção em compromisso com você, não com a urna."
+    },
+    {
+      "title": "Seção e documento na mesma conversa",
+      "detail": "“Sabe onde é sua seção?” Se hesitar, abra o e-Título juntos agora. Dúvida de domingo vira desculpa de domingo."
     },
     {
       "title": "Peça um nome",
       "detail": "“Você conhece alguém que não votou no 1º turno?” Ela conhece. Um voto vira dois."
-    },
-    {
-      "title": "Mande o link do app",
-      "detail": "Se ela topar, é o jeito mais fácil de ela saber o que dizer para a pessoa dela."
     },
     {
       "title": "Não gaste tempo discutindo o outro lado com ela",
@@ -68,6 +74,10 @@
     {
       "what": "Mandar argumento, vídeo ou pesquisa",
       "why": "Ela já decidiu. Vira ruído e tira tempo de quem precisa."
+    },
+    {
+      "what": "Aceitar “claro que vou” como resposta",
+      "why": "É intenção, não plano. Sem hora marcada, foi assim que ela quase não votou no 1º turno."
     }
   ],
   "steps": [
@@ -77,9 +87,9 @@
       "when": [
         "novo"
       ],
-      "title": "Combine o dia",
-      "why": "Quem combina, vai. Simples assim.",
-      "template": "{nome}, domingo que horas você vai votar? Vamos juntos?"
+      "title": "Combine hora e lugar",
+      "why": "Quem combina, vai. Quem “vê domingo”, às vezes não vê.",
+      "template": "{nome}, domingo que horas você vai votar? Vamos juntos de manhã, antes da fila?"
     },
     {
       "id": "um_nome",

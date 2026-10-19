@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import type { MagicLinkResponse, MeResponse, VerifyResponse } from "@boranois/shared";
 import { track } from "../analytics";
@@ -19,9 +19,12 @@ export function Entrar() {
   const [name, setName] = useState("");
   const [devLink, setDevLink] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** A login link is single-use: verify it once, even if the effect runs twice (StrictMode, re-renders). */
+  const verified = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!t) return;
+    if (!t || verified.current === t) return;
+    verified.current = t;
     api<VerifyResponse>("/auth/verify", { body: { t, anonToken } })
       .then((r) => {
         track("signin_done");
@@ -29,7 +32,8 @@ export function Entrar() {
         if (r.member.name) navigate("/", { replace: true });
         else setPhase("name");
       })
-      .catch(() => setPhase("invalid"));
+      // Already signed in with e-mail (e.g. the link was opened twice): nothing went wrong, just go in.
+      .catch(() => (member?.email ? navigate("/", { replace: true }) : setPhase("invalid")));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t]);
 
@@ -104,8 +108,13 @@ export function Entrar() {
       {phase === "name" && (
         <form onSubmit={saveName} className="card">
           <h1>Como você quer ser chamado(a)?</h1>
-          <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" required autoFocus />
-          <button className="primary">Continuar</button>
+          <label>
+            <span className="muted small">Aparece só para você, no app.</span>
+            <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" required autoFocus />
+          </label>
+          <div className="row end">
+            <button className="primary">Continuar</button>
+          </div>
         </form>
       )}
     </Layout>

@@ -7,20 +7,22 @@ import { useSession } from "./session";
 /** Feedback goes straight to the maintainer's WhatsApp, with a prefilled opener. */
 const FEEDBACK_WHATSAPP = `https://wa.me/447866750132?text=${encodeURIComponent("Oi! Sobre o Boranois: ")}`;
 
-export function Layout({ children }: { children: React.ReactNode; narrow?: boolean }) {
-  const { token, member, emailAvailable, signOut } = useSession();
+export function Layout({ children, narrow }: { children: React.ReactNode; narrow?: boolean }) {
+  const { token, member, emailAvailable, isAdmin, signOut } = useSession();
   const location = useLocation();
   useEffect(() => {
     track("page_view");
   }, [location.pathname]);
   return (
-    <div className="page">
+    <div className={narrow ? "page narrow" : "page"}>
+      <div className="blob b1" aria-hidden /><div className="blob b2" aria-hidden /><div className="blob b3" aria-hidden />
       <ConsentBanner />
       <header className="topbar">
         <Link to="/" className="brand">Boranois</Link>
         <nav>
           {token && <NavLink to="/">Pessoas</NavLink>}
           <NavLink to="/como-funciona">Como funciona</NavLink>
+          {isAdmin && <NavLink to="/admin">Admin</NavLink>}
           {member?.email ? <button className="link" onClick={signOut}>Sair</button> : emailAvailable ? <NavLink to="/entrar">Entrar com e-mail</NavLink> : null}
         </nav>
       </header>
@@ -30,8 +32,10 @@ export function Layout({ children }: { children: React.ReactNode; narrow?: boole
           Sugestões, dúvidas ou problemas: fale com{" "}
           <a href={FEEDBACK_WHATSAPP} target="_blank" rel="noreferrer">Daniel</a>.
         </p>
-        <Link to="/como-funciona">Como funciona</Link> · <Link to="/perfis">Perfis</Link> · <Link to="/termos">Termos de uso</Link> ·{" "}
-        <Link to="/privacidade">Privacidade</Link>
+        <span>
+          <Link to="/como-funciona">Como funciona</Link> · <Link to="/perfis">Perfis</Link> · <Link to="/termos">Termos</Link> ·{" "}
+          <Link to="/privacidade">Privacidade</Link>
+        </span>
       </footer>
     </div>
   );
@@ -77,7 +81,7 @@ export function CopyButton({ text, label, className = "secondary" }: { text: str
   );
 }
 
-const PRIORITY_LABEL: Record<Priority, string> = { alta: "Comece por aqui", media: "Vale a conversa", baixa: "Depois" };
+const PRIORITY_LABEL: Record<Priority, string> = { alta: "Boa chance", media: "Vale tentar", baixa: "Difícil" };
 
 export function PriorityBadge({ level, engage }: { level: Priority; engage: boolean }) {
   if (!engage) return <span className="badge stop">Melhor não</span>;

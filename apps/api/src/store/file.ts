@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import type { AnalyticsEvent, ChipStats, Member, OutcomeId } from "@boranois/shared";
 import { newId } from "../ids.js";
-import type { ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
+import type { AdminRows, ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
 
 // Local-dev store: everything in one JSON file so data survives `tsx watch` restarts.
 
@@ -156,6 +156,14 @@ export class FileStore implements Store {
   async listEvents(sinceDays: number) {
     const since = Date.now() - sinceDays * 86400000;
     return this.data.events.filter((e) => new Date(e.ts).getTime() >= since);
+  }
+
+  async adminRows(): Promise<AdminRows> {
+    return {
+      members: this.data.members.length,
+      contacts: this.data.contacts.map((c) => ({ memberId: c.memberId, personaId: c.match.personaId, state: c.state, level: c.priority.level, engage: c.priority.engage, createdAt: c.createdAt })),
+      outcomes: this.data.interactions.map((i) => ({ outcome: i.outcome, createdAt: i.createdAt })),
+    };
   }
 
   async chipStats(): Promise<ChipStats> {

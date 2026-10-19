@@ -24,7 +24,7 @@ import {
   type Step,
   type VerifyResponse,
 } from "@boranois/shared";
-import { renderSummary, summarize } from "./analytics.js";
+import { buildOverview, renderSummary, summarize } from "./analytics.js";
 import { toPublic, type Catalogue } from "./catalogue.js";
 import { afterOutcome, afterSent, buildGuide, match, nextStep, priority, renderTemplate } from "./engine.js";
 import { AiUnavailable, type Phraser } from "./gemini.js";
@@ -39,8 +39,10 @@ type Deps = {
   catalogue: Catalogue;
   phraser: Phraser;
   webOrigin: string;
-  /** Protects the analytics summary. */
+  /** Protects the analytics summary for scripts (header x-admin-token). */
   adminToken?: string;
+  /** Members signed in with one of these e-mails see the admin page. */
+  adminEmails?: string[];
   /** Sends the magic link. When absent (local dev), the link is logged and returned to the client. */
   sendEmail?: (to: string, link: string) => Promise<void>;
   today?: () => string;
@@ -50,7 +52,7 @@ type AuthedRequest = Request & { member: Member };
 const localDate = () => new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" }); // YYYY-MM-DD
 const LOGIN_TTL_MS = 30 * 60 * 1000;
 
-export function createApp({ store, catalogue, phraser, webOrigin, adminToken, sendEmail, today = localDate }: Deps) {
+export function createApp({ store, catalogue, phraser, webOrigin, adminToken, adminEmails = [], sendEmail, today = localDate }: Deps) {
   const app = express();
   app.disable("x-powered-by");
   app.set("trust proxy", true);
@@ -62,6 +64,16 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, se
     const member = token ? await store.memberBySessionHash(hashToken(token)) : null;
     if (!member) return res.status(401).json({ error: "unauthorized" });
     (req as AuthedRequest).member = member;
+    next();
+  };
+  const isAdmin = (m: Member | null) => !!m?.email && adminEmails.includes(m.email.toLowerCase());
+  /** Admin by e-mail (signed in with a magic link) or, for scripts, by token. */
+  const adminOnly = async (req: Request, res: Response, next: NextFunction) => {
+    if (adminToken && req.get("x-admin-token") === adminToken) return next();
+    const header = req.get("authorization") ?? "";
+    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+    const member = token ? await store.memberBySessionHash(hashToken(token)) : null;
+    if (!isAdmin(member)) return res.status(member ? 403 : 401).json({ error: member ? "forbidden" : "unauthorized" });
     next();
   };
   const personaOf = (c: ContactRecord) => catalogue.personas.find((p) => p.id === c.match.personaId)!;
@@ -135,12 +147,22 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, se
     res.status(204).end();
   });
 
-  api.get("/analytics/summary", async (req, res) => {
-    if (!adminToken || req.get("x-admin-token") !== adminToken) return res.status(401).json({ error: "unauthorized" });
+  api.get("/analytics/summary", adminOnly, async (req, res) => {
     const days = Math.min(365, Math.max(1, Number(req.query.days ?? 30)));
     const summary = summarize(await store.listEvents(days), days);
     if (req.query.format === "md") return res.type("text/markdown").send(renderSummary(summary));
     res.json(summary);
+  });
+
+  /** Everything the admin page draws, in one call. */
+  api.get("/admin/overview", adminOnly, async (req, res) => {
+    const days = Math.min(90, Math.max(1, Number(req.query.days ?? 7)));
+    const [events, rows] = await Promise.all([store.listEvents(days), store.adminRows()]);
+    const names = {
+      personas: Object.fromEntries(catalogue.personas.map((p) => [p.id, p.name])),
+      questions: Object.fromEntries(catalogue.questions.questions.map((q) => [q.id, q.text])),
+    };
+    res.json(buildOverview(events, rows, days, names, limits.aiDaily.remaining));
   });
 
   // --- Sign-in by magic link ------------------------------------------------
@@ -180,7 +202,10 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, se
     res.json({ token, member } satisfies VerifyResponse);
   });
 
-  api.get("/me", auth, (req, res) => res.json({ member: (req as AuthedRequest).member } satisfies MeResponse));
+  api.get("/me", auth, (req, res) => {
+    const member = (req as AuthedRequest).member;
+    res.json({ member, admin: isAdmin(member) } satisfies MeResponse);
+  });
 
   api.put("/me", auth, async (req, res) => {
     const body = UpdateMeRequest.safeParse(req.body);

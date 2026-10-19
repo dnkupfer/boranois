@@ -1,4 +1,5 @@
 import type { AnalyticsEvent } from "@boranois/shared";
+import type { AdminRows } from "./store/types.js";
 
 // Turns raw events into the questions we actually ask: how many people start, where they stop,
 // how many send a first message, what comes back, whether the coach helps.
@@ -89,4 +90,122 @@ export function renderSummary(s: Summary): string {
     `- links pedidos: ${s.signin.links}, entradas: ${s.signin.done}`,
     "",
   ].join("\n");
+}
+
+// --- The admin page: one payload, already in the shape the page draws ---------------------------
+
+export type Row = { key: string; label: string; count: number };
+export type Overview = {
+  sinceDays: number;
+  /** From the app's own tables: everyone, with or without analytics consent. All time. */
+  totals: {
+    visitors: number;
+    members: number;
+    pessoas: number;
+    willVote: number;
+    voted: number;
+    byPersona: Row[];
+    byChance: Row[];
+    byState: Row[];
+    outcomes: Row[];
+  };
+  /** From analytics events: only devices that accepted measurement. This period. */
+  consented: number;
+  funnel: Row[];
+  daily: { day: string; devices: number; added: number; replies: number }[];
+  leftAt: Row[];
+  typedIn: Row[];
+  steps: { key: string; shown: number; sent: number; skipped: number }[];
+  coach: { asks: number; replies: number; suggestionsUsed: number };
+  signin: { links: number; done: number };
+  aiRemainingToday: number;
+};
+
+const CHANCE: Record<string, string> = { alta: "Boa chance", media: "Vale tentar", baixa: "Difícil", nao: "Melhor não" };
+const STATE: Record<string, string> = {
+  novo: "ainda não conversaram", aguardando: "esperando resposta", conversando: "respondeu, vez de quem usa", objecao: "discordou, vez de quem usa",
+  cortou: "cortou o assunto", vai_votar: "vai votar", votou: "votou", perdido: "não vai votar", pausado: "em pausa",
+};
+const OUTCOME: Record<string, string> = {
+  respondeu_bem: "Respondeu bem", fez_pergunta: "Fez uma pergunta", discordou: "Discordou", cortou_assunto: "Cortou o assunto",
+  sem_resposta: "Não respondeu", vai_votar: "Disse que vai votar", votou: "Já votou", nao_vai_votar: "Disse que não vai",
+};
+
+/** Calendar day in Brazil, where the users are. */
+const dayOf = (iso: string) => new Date(iso).toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
+const rows = (m: Record<string, number>, label: (k: string) => string = (k) => k): Row[] =>
+  Object.entries(m).sort((a, b) => b[1] - a[1]).map(([key, count]) => ({ key, label: label(key), count }));
+
+export function buildOverview(
+  events: AnalyticsEvent[],
+  admin: AdminRows,
+  sinceDays: number,
+  names: { personas: Record<string, string>; questions: Record<string, string> },
+  aiRemainingToday: number,
+): Overview {
+  const s = summarize(events, sinceDays);
+  const since = Date.now() - sinceDays * 86400000;
+
+  const byPersona: Record<string, number> = {};
+  const byChance: Record<string, number> = {};
+  const byState: Record<string, number> = {};
+  for (const c of admin.contacts) {
+    count(byPersona, c.personaId);
+    count(byChance, c.engage ? c.level : "nao");
+    count(byState, c.state);
+  }
+  const outcomes: Record<string, number> = {};
+  for (const o of admin.outcomes) count(outcomes, o.outcome);
+
+  // Funnel: distinct devices that reached each point, in order.
+  const reached = (names: string[]) => new Set(events.filter((e) => names.includes(e.name)).map((e) => e.aid)).size;
+  const funnel: Row[] = [
+    { key: "open", label: "Abriram o app", count: s.devices },
+    { key: "nova_start", label: "Começaram a adicionar alguém", count: reached(["nova_start"]) },
+    { key: "nova_done", label: "Terminaram de adicionar", count: reached(["nova_done"]) },
+    { key: "step_shown", label: "Viram o primeiro passo", count: reached(["step_shown"]) },
+    { key: "step_sent", label: "Mandaram uma mensagem", count: reached(["step_sent", "nudge_sent"]) },
+    { key: "outcome", label: "Registraram uma resposta", count: reached(["outcome"]) },
+  ];
+
+  // Daily: devices from events (consented), pessoas and replies from the tables (everyone).
+  const days: string[] = [];
+  for (let d = sinceDays - 1; d >= 0; d--) days.push(dayOf(new Date(Date.now() - d * 86400000).toISOString()));
+  const devicesByDay: Record<string, Set<string>> = {};
+  for (const e of events) (devicesByDay[dayOf(e.ts)] ??= new Set()).add(e.aid);
+  const addedByDay: Record<string, number> = {};
+  for (const c of admin.contacts) if (new Date(c.createdAt).getTime() >= since) count(addedByDay, dayOf(c.createdAt));
+  const repliesByDay: Record<string, number> = {};
+  for (const o of admin.outcomes) if (new Date(o.createdAt).getTime() >= since) count(repliesByDay, dayOf(o.createdAt));
+
+  const question = (id: string) => {
+    if (id === "(quem é)") return "Quem é? (nome e pronome)";
+    if (id === "(nota)") return "Mais alguma coisa? (última tela)";
+    if (id.startsWith("ai_")) return "Pergunta extra criada pela IA";
+    return (names.questions[id] ?? id).replaceAll("{nome}", "a pessoa");
+  };
+
+  return {
+    sinceDays,
+    totals: {
+      visitors: admin.members,
+      members: new Set(admin.contacts.map((c) => c.memberId)).size,
+      pessoas: admin.contacts.length,
+      willVote: byState.vai_votar ?? 0,
+      voted: byState.votou ?? 0,
+      byPersona: rows(byPersona, (k) => names.personas[k] ?? k),
+      byChance: ["alta", "media", "baixa", "nao"].map((k) => ({ key: k, label: CHANCE[k], count: byChance[k] ?? 0 })),
+      byState: rows(byState, (k) => STATE[k] ?? k),
+      outcomes: rows(outcomes, (k) => OUTCOME[k] ?? k),
+    },
+    consented: s.devices,
+    funnel,
+    daily: days.map((day) => ({ day, devices: devicesByDay[day]?.size ?? 0, added: addedByDay[day] ?? 0, replies: repliesByDay[day] ?? 0 })),
+    leftAt: rows(s.nova.leftAt, question),
+    typedIn: rows(s.nova.customByQuestion, question),
+    steps: Object.entries(s.steps.byStep).sort((a, b) => b[1].shown - a[1].shown).slice(0, 12).map(([key, v]) => ({ key, ...v })),
+    coach: s.coach,
+    signin: s.signin,
+    aiRemainingToday,
+  };
 }

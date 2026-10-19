@@ -7,6 +7,8 @@ type Session = {
   member: Member | null;
   aiAvailable: boolean;
   emailAvailable: boolean;
+  /** Signed in with an e-mail listed in ADMIN_EMAILS. */
+  isAdmin: boolean;
   signIn: (token: string, member: Member) => void;
   signOut: () => void;
   setMember: (m: Member) => void;
@@ -19,11 +21,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [member, setMember] = useState<Member | null>(null);
   const [aiAvailable, setAiAvailable] = useState(false);
   const [emailAvailable, setEmailAvailable] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const signOut = useCallback(() => {
     setToken(null);
     setTokenState(null);
     setMember(null);
+    setIsAdmin(false);
   }, []);
 
   // No account needed: without a session, start an anonymous one. E-mail is optional, for other devices.
@@ -39,7 +43,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     api<MeResponse>("/me")
-      .then((r) => setMember(r.member))
+      .then((r) => {
+        setMember(r.member);
+        setIsAdmin(!!r.admin);
+      })
       .catch((err) => {
         if (err instanceof ApiError && err.status === 401) signOut();
       });
@@ -60,7 +67,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setMember(m);
   };
 
-  return <SessionContext.Provider value={{ token, member, aiAvailable, emailAvailable, signIn, signOut, setMember }}>{children}</SessionContext.Provider>;
+  return <SessionContext.Provider value={{ token, member, aiAvailable, emailAvailable, isAdmin, signIn, signOut, setMember }}>{children}</SessionContext.Provider>;
 }
 
 export const useSession = () => useContext(SessionContext);
