@@ -1,48 +1,201 @@
 # Boranois
 
-Helps people talk, one to one, with friends and relatives who didn't vote, voted blank, or are wavering, before the runoff on 25 October 2026. A member signs in with a magic link, lists the people they know, and the app says who to talk to first, how that person thinks, which tactics work with her, how to open the conversation, and what to do after she replies. Every message is sent by the member, from their own WhatsApp, in their own words.
+**Convença alguém que você conhece a ir votar.**
 
-## How it decides (and what it never does)
+Boranois helps progressive Brazilians talk, one to one, with people they already know (family, friends, neighbours) about voting in the presidential runoff on **25 October 2026**. It focuses on people who skipped the first round, voted blank or null, or are wavering.
 
-- **Deterministic core.** A pessoa is described with chips (situation, what she says, when she lost trust, who she follows, what worries her, which groups she belongs to). Rules match her to one of eleven published **personas**, compute a **priority** (where the member's time helps most) and pick the **next step** from the persona's hand-written plan. Same catalogue + same inputs = same answer, with the reasons shown.
-- **AI at the edges only.** Gemini rewrites a step in the member's voice (validated: no new numbers, links or claims), labels a pasted reply, and fits a typed answer onto the question tree (validated: it can only point at existing options, chips and questions, or add one follow-up question for that person). It never decides what is true or what to do next. `npm run analyse` turns typed answers into a proposed tree edit for a person to apply. Without a `GEMINI_API_KEY`, templates go out as written.
-- **Only true things.** Every fact in [content/facts.json](content/facts.json) has a source, and unverified facts are never served. A step whose fact isn't verified is skipped.
-- **Minimal data about third parties.** Names, phones and notes stay in the member's browser. The server stores an id, chips, the persona, the state and outcome chips. Pasted replies are classified and discarded.
-- **No coercion.** The relation picker has no boss/employee option (assédio eleitoral is a crime). The "Quem tem certeza" persona exists to say: don't engage.
-- **Published.** `/como-funciona` explains the rules in five lines; `/api/catalogue` exposes every persona in full for anyone who wants to audit.
+You add a person, answer a few quick questions about them, and the app tells you:
 
-Full catalogue and editing rules: [content/README.md](content/README.md).
+- how that person probably thinks, and why,
+- how good your chance is,
+- what to say first, in your own voice,
+- what to do after they reply.
+
+Every message is sent **by you**, from your own WhatsApp, in your own words. The app never sends anything, never posts, never automates.
+
+Live at **https://boranois.web.app**.
+
+---
+
+## Why it works this way
+
+Elections are fought on social media, but a vote is decided close to home. The premise of the whole project:
+
+> **Opinion doesn't come from facts. It comes from the group.**
+
+People believe what the people they trust believe. A fact from outside the group bounces off; a question from inside it gets in. So the person most able to move a vote is not a politician or a video, but someone the voter already knows and trusts. Boranois exists to help that person have a better conversation.
+
+### The method
+
+Six principles, shown in the app at `/como-funciona`:
+
+1. **It's not about facts. It's about belonging.** Ask from inside the group, don't argue from outside it.
+2. **Listen first.** Ask, then be quiet. What they say in the first minutes is worth more than any argument.
+3. **Ask questions that make people think.** "On a scale of 0 to 10, how sure are you?" "What would make you think differently?"
+4. **Tell stories, not theses.** What you lived, or someone in their group lived, persuades more than a number.
+5. **Resist the temptation of facts.** Sending a link is the easiest and least effective thing to do. Facts only when asked, one at a time, with a source.
+6. **They decide.** No pressure, no guilt, no insisting. The relationship continues after election day.
+
+And the five rules on the home page, readable in three seconds:
+
+> 1. Pergunte. Depois cale. · 2. Não mande link. · 3. Fato só se ela pedir. Um. · 4. Não discuta. Nunca. · 5. Ela decide.
+
+### Influence, not manipulation
+
+> **Manipulating** is getting someone to act against their own interest. **Influencing** is helping them decide in their own interest.
+>
+> The test: *if they knew exactly what you were doing and why, would they thank you or feel used?*
+
+### Sources
+
+- David McRaney, [*How Minds Change*](https://www.davidmcraney.com/howmindschangehome) (2022): nobody changes their mind defeated; they change when they feel safe enough to doubt.
+- Broockman & Kalla, [*Durably reducing transphobia: A field experiment on door-to-door canvassing*](https://doi.org/10.1126/science.aad9713), Science (2016): ten-minute conversations about personal experience changed opinions durably (deep canvassing).
+- [Street Epistemology](https://www.streetepistemology.com/): asking how sure someone is and why, instead of arguing against what they believe.
+- Nickerson & Rogers (2010), implementation intentions: people who already intend to vote turn out more when they make a concrete plan (time, place, company). This drives the "decided, but no plan" persona.
+
+---
+
+## How it decides
+
+**Deterministic core, AI at the edges, humans own the content.**
+
+The decisions (who this person is, how good the chance is, what to do next) are made by plain rules over a hand-written, published catalogue. Same inputs and same catalogue give the same answer, and the reasons are shown to the user ("por quê?"). AI only helps with wording.
+
+### 1. Personas
+
+A person is described by tappable chips: their situation in the first round, your relationship, how often you talk, what they say, what worries them, which groups they belong to, who they listen to, when they lost trust. Answers come one question at a time, and each question depends on the previous answer. Users can type their own answer when no chip fits.
+
+The chips match the person to one of twelve **personas**. Each persona is named after the obstacle you have to overcome, from the convincing point of view, not after who the person is:
+
+| Persona | Starting chance |
+|---|---|
+| Quem acha que já está decidido | Boa chance |
+| Quem quer votar, mas não consegue ir | Boa chance |
+| Quem prefere não votar a votar errado | Boa chance |
+| Quem acha que não adianta | Boa chance |
+| Quem não quer nenhum dos dois | Boa chance |
+| Quem acha que voltar a votar é perdoar | Vale tentar |
+| Quem acha que a esquerda é contra Deus | Vale tentar |
+| Quem acha que é hora de gente nova | Vale tentar |
+| Quem acha que só a dureza protege | Vale tentar |
+| Quem quer testar o outro no bolso | Vale tentar |
+| Quem acha que vai, mas não tem plano | Difícil (already votes Lula: the gain is a second vote, via them) |
+| Quem tem certeza que o PT roubou | Melhor não |
+
+Each persona has, written by people: how they got here, what they feel, where they hear what they hear, who they would believe, what shuts them down, what opens them up, what could turn the key, concrete tactics, what to avoid, and a step-by-step conversation plan. All of it is public at `/perfis` and in [content/personas/](content/personas/). If you recognise yourself in one and think it's unfair, open an issue.
+
+### 2. Chance (the chip next to each person)
+
+How likely a conversation is to work, so people spend their time where it helps most.
+
+| Level | Chip | Meaning |
+|---|---|---|
+| `alta` | **Boa chance** | Worth your time first. |
+| `media` | **Vale tentar** | Possible, but slower or harder. |
+| `baixa` | **Difícil** | Different group, rarely in touch, or very set. |
+| `engage: false` | **Melhor não** | Don't try: talking only hardens them. |
+
+Each persona has a starting level. Then, from [content/scoring.json](content/scoring.json):
+
+| Signal | Effect |
+|---|---|
+| You share a group (family always counts) | +1 |
+| You talk daily / rarely | +1 / −1 |
+| They say "nunca muda" | −2 |
+| After a message: replied well or asked a question | +1 |
+| Cut the subject / said they won't vote | −1 |
+| Said they'll vote / voted | +3 |
+
+The result is clamped to the three levels. The person's page shows the reasons behind it.
+
+### 3. State (the line under each name)
+
+| State | Shown as |
+|---|---|
+| `novo` | ainda não conversaram |
+| `aguardando` | esperando resposta · há X h |
+| `conversando` | respondeu — sua vez |
+| `objecao` | discordou — sua vez |
+| `cortou` | cortou o assunto |
+| `vai_votar` | vai votar ✓ |
+| `votou` | votou ✓ |
+| `perdido` | não vai votar |
+| `pausado` | em pausa |
+
+The list puts people waiting for your move first, then by chance; finished ones last. After a message the app suggests how long to wait before a light reminder, shows when you sent it, and lets you decide.
+
+### 4. Where the AI comes in (Gemini)
+
+- **Phrasing:** rewrites the planned message in the user's voice. Validated: it cannot add numbers, links or claims that weren't in the template.
+- **Typed answers:** fits a free-text answer onto the existing question tree, or adds one follow-up question for that person. It can only point at options that exist. The user's own words are kept.
+- **Vira-voto coach:** a chat on each person's page. Paste what they replied to understand what's behind it, or ask "what if they send me a video?". It can suggest a next message, which the user edits before sending.
+
+It never decides what is true or what to do next. Without a `GEMINI_API_KEY`, the hand-written templates go out as they are.
+
+### 5. Only true things
+
+Every fact in [content/facts.json](content/facts.json) carries a source (TSE/TRE). Unverified facts are never served, and a step that depends on one is skipped.
+
+---
+
+## Privacy and the law
+
+- **No account needed.** A session is created anonymously on the device. Email (magic link) is optional, only to continue on another device.
+- **Names, phone numbers, notes and coach conversations never leave the device.** The server knows a person only as an id plus chips, persona, state and outcome chips. Replies pasted into the coach are used for that answer and not stored.
+- **Analytics only with consent**, first-party, anonymous: never names, phones or messages. Used to see where people drop off.
+- **Gender:** users pick Ela / Ele / Elu, and all guidance is inflected accordingly, including non-binary forms.
+- **Brazilian electoral law.** Nothing is boosted, paid for, mass-sent or automated (Lei 9.504/97). The relationship picker has no boss/employee option: pressuring subordinates is *assédio eleitoral*. The terms ask users to talk only with people they know, personally.
+
+Terms of use: `/termos`. Privacy policy: `/privacidade`.
+
+---
+
+## For developers
 
 ```
-apps/web/        Vite + React: magic-link sign-in, suas pessoas, adicionar pessoa (3 steps of chips), guia por pessoa, como funciona
-apps/api/        Express: magic-link auth, catalogue loader, engine (match/priority/next step), Gemini phrasing + validator
-content/         The catalogue: personas, facts (with sources), contents, defaults, scoring weights
-packages/shared/ Taxonomies (chips), request/response types
+apps/web/         Vite + React. Home, add-a-person flow, per-person guide with coach, method, profiles, legal
+apps/api/         Express. Anonymous + magic-link sessions, catalogue loader, engine (match, chance, next step),
+                  Gemini phrasing/interpretation/coach with validators, analytics, cost guards
+content/          The catalogue: personas, question tree, facts with sources, contents, scoring weights
+packages/shared/  Chip taxonomies, request/response schemas (zod)
+design/           Static design explorations for the home page
 ```
 
-## Run locally
+### Run locally
 
 ```sh
 npm install
-npm run dev                          # API on :8080, web on :5173 (proxies /api)
-npm test -w @boranois/api            # catalogue checks, match/priority scenarios, phrasing validator
+npm run dev          # API on :8080, web on :5173 (proxies /api)
+npm test             # catalogue checks, match/priority scenarios, phrasing validator
 ```
 
-Without `apps/api/.env`, data goes to `apps/api/.data/dev.json`, no AI is used, and magic links are printed to the API log and shown on screen (no email provider yet). Copy `apps/api/.env.example` to `.env` to set `GEMINI_API_KEY` and/or `DATABASE_URL` (then `npm run db:migrate -w @boranois/api`).
+With no `apps/api/.env`, data goes to `apps/api/.data/dev.json`, no AI is used, and magic links are printed to the API log. Copy `apps/api/.env.example` to `.env` to set `GEMINI_API_KEY`, `DATABASE_URL` (Postgres; then `npm run db:migrate -w @boranois/api`) and `RESEND_API_KEY`.
 
-## Changing the catalogue
+### Changing the catalogue
 
-Edit the JSON in `content/`, run `npm test -w @boranois/api`, restart the API. The catalogue version (a hash) is recorded on every contact and interaction, so a change never silently rewrites history. Scoring weights live in `content/scoring.json`; `test/scenarios.json` is the regression suite for them.
+Edit the JSON in `content/`, run `npm test`, **restart the API** (it reads the catalogue once at startup). The catalogue version (a hash) is stored with every contact and interaction, so a change never silently rewrites history. `apps/api/test/scenarios.json` is the regression suite for the scoring weights. Editing rules: [content/README.md](content/README.md).
 
-## Deploy
+### Deploy
+
+Web on Firebase Hosting, API on Cloud Run (`southamerica-east1`), Postgres on Neon, secrets in Secret Manager.
 
 One-time setup:
 
-1. A GCP project with billing, Firebase added to it (`firebase projects:addfirebase <id>`), and the APIs: `gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com`.
-2. A Neon project (region `aws-sa-east-1`) and `npm run db:migrate -w @boranois/api` with its **pooled** connection string in `DATABASE_URL`.
-3. Secrets in Secret Manager: `DATABASE_URL`, `GEMINI_API_KEY`, `ADMIN_TOKEN` (`printf '%s' "$VALUE" | gcloud secrets create NAME --data-file=-`), and the Cloud Run service account granted `roles/secretmanager.secretAccessor`.
+1. A GCP project with billing and Firebase added; enable `run`, `cloudbuild`, `artifactregistry` and `secretmanager` APIs.
+2. A Neon project (`aws-sa-east-1`); run the migration with its **pooled** connection string.
+3. Secrets: `DATABASE_URL`, `GEMINI_API_KEY`, `ADMIN_TOKEN`, optionally `RESEND_API_KEY` and `EMAIL_FROM`; grant the Cloud Run service account `roles/secretmanager.secretAccessor`.
 4. `.firebaserc` pointing at the project.
 
-Then: `PROJECT=<id> ./scripts/deploy.sh` (or `api` / `web`). The API goes to Cloud Run `boranois-api` in `southamerica-east1`, built from the root `Dockerfile` (which bundles `content/`); the web app to Firebase Hosting, whose `/api/**` rewrite points at that service. Magic links point at `WEB_ORIGIN` (defaults to `https://<project>.web.app`) and are sent with Resend when the secrets `RESEND_API_KEY` and `EMAIL_FROM` exist (the deploy script adds them automatically); otherwise they are only logged and the UI hides "Entrar com e-mail". Cost guards: `AI_DAILY_CAP` and friends in `.env.example`; Cloud Run is capped at 2 instances; a GCP budget alert covers the billing account.
+Then `PROJECT=<id> ./scripts/deploy.sh` (or `api` / `web`). `ADMIN_EMAILS` is read from the environment or `apps/api/.env` and set on the service. Firebase's `/api/**` rewrite points at the Cloud Run service.
 
-Analytics: `GET /api/analytics/summary?days=7&format=md` with header `x-admin-token`, or `npm run analytics -w @boranois/api` against the same `DATABASE_URL`.
+**Cost guards:** per-session, per-IP and daily caps on AI calls, a write rate limit (see `.env.example`), Cloud Run capped at 2 instances, and a GCP budget alert.
+
+**Analytics:** first-party, stored in the same Postgres, no Google Analytics. List your e-mail in `ADMIN_EMAILS`, sign in with the magic link, and an **Admin** link appears in the menu: totals, a daily chart, the funnel, where people stop, personas, chance, replies, steps and coach use. Totals come from the app's own tables and count everyone; funnel and per-device numbers come from analytics events and only cover people who accepted measurement. For scripts, the same data as text: `GET /api/analytics/summary?days=7&format=md` with header `x-admin-token: $ADMIN_TOKEN`, or `npm run analytics -w @boranois/api`.
+
+---
+
+## Contributing
+
+The most valuable contributions are to the **catalogue**, not the code: better personas, sharper tactics, verified facts with sources, and field reports of what worked or didn't. Open an issue or a pull request.
+
+Questions, suggestions or problems: [boranois@kupfer.co](mailto:boranois@kupfer.co).

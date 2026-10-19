@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boranois — v5 Tropical</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{--sand:#f6e7c1;--ink:#101010;--cobalt:#1d3bd1;--coral:#ff6b35;--pink:#ff4fa3;--lime:#d9ff5a;--white:#fff}
+  *{box-sizing:border-box}
+  html{background:var(--sand)}
+  body{margin:0;font-family:"Work Sans",system-ui,sans-serif;color:var(--ink);font-size:17px;line-height:1.5;overflow-x:hidden}
+  a{color:inherit}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  .head{display:flex;justify-content:space-between;align-items:center;padding:20px 0}
+  .brand{font-family:Syne,sans-serif;font-weight:800;font-size:26px;text-decoration:none;background:var(--ink);color:var(--sand);padding:6px 12px;transform:rotate(-2deg);display:inline-block}
+  .head nav a{text-decoration:none;font-weight:600;margin-left:22px}
+  /* hero with shapes */
+  .hero{position:relative;padding:48px 0 40px;min-height:520px}
+  .shape{position:absolute;z-index:0}
+  .s1{width:240px;height:240px;border-radius:50%;background:var(--coral);right:0;top:-10px}
+  .s2{width:200px;height:200px;background:var(--cobalt);right:22%;top:200px;transform:rotate(12deg)}
+  .s3{width:0;height:0;border-left:120px solid transparent;border-right:120px solid transparent;border-bottom:200px solid var(--pink);right:0;top:280px;transform:rotate(-8deg)}
+  .s4{width:120px;height:120px;border-radius:50%;background:var(--lime);right:24%;top:30px}
+  .hero .in{position:relative;z-index:1;max-width:760px}
+  h1{font-family:Syne,sans-serif;font-weight:800;font-size:clamp(2.4rem,6.2vw,5rem);line-height:.95;letter-spacing:-.03em;margin:0 0 20px;text-transform:uppercase}
+  h1 .u{text-decoration:underline;text-decoration-thickness:.12em;text-decoration-color:var(--coral);text-underline-offset:.08em}
+  .sub{font-size:1.2rem;font-weight:500;margin:0 0 28px;max-width:34ch}
+  .sub a{color:var(--cobalt);font-weight:600}
+  .cta{display:inline-block;background:var(--cobalt);color:#fff;text-decoration:none;font-family:Syne,sans-serif;font-weight:800;font-size:19px;padding:18px 26px;border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);transition:transform .1s,box-shadow .1s}
+  .cta:hover{transform:translate(2px,2px);box-shadow:4px 4px 0 var(--ink)}
+  /* bento points */
+  .points{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:170px;gap:14px;margin:12px 0 44px}
+  .tile{border:3px solid var(--ink);padding:20px;font-family:Syne,sans-serif;font-weight:700;font-size:20px;line-height:1.2;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+  .tile .n{font-size:13px;font-weight:800;letter-spacing:.1em;background:var(--ink);color:var(--sand);padding:4px 8px;display:inline-block;align-self:flex-start}
+  .t1{grid-column:span 3;background:var(--lime)}
+  .t2{grid-column:span 3;background:var(--white)}
+  .t3{grid-column:span 2;background:var(--pink);color:#fff}
+  .t3 .n{background:#fff;color:var(--ink)}
+  .t4{grid-column:span 4;background:var(--coral);color:#fff}
+  .t4 .n{background:#fff;color:var(--ink)}
+  /* rules: diagonal band */
+  .band{position:relative;background:var(--ink);color:var(--sand);padding:72px 0;clip-path:polygon(0 8%,100% 0,100% 92%,0 100%)}
+  .band h2{font-family:Syne,sans-serif;font-weight:800;text-transform:uppercase;font-size:clamp(1.8rem,4.5vw,3.4rem);margin:0 0 20px;letter-spacing:-.02em}
+  .band h2 span{color:var(--lime)}
+  .band ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  .band li{border:2px solid var(--sand);padding:16px 14px;font-family:Syne,sans-serif;font-weight:700;font-size:19px;line-height:1.15;min-height:120px;display:flex;flex-direction:column;justify-content:space-between}
+  .band li b{font-size:28px;color:var(--lime)}
+  .band .why{margin:18px 0 0;font-size:15px}
+  .band .why a{color:var(--lime)}
+  /* people */
+  .people{padding:48px 0 56px}
+  .people h2{font-family:Syne,sans-serif;font-weight:800;text-transform:uppercase;font-size:28px;margin:0 0 14px}
+  .row{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:center;background:#fff;border:3px solid var(--ink);padding:14px 18px;margin-bottom:10px;box-shadow:5px 5px 0 var(--ink)}
+  .row .name{font-family:Syne,sans-serif;font-weight:800;font-size:21px}
+  .row .state{font-size:15px;color:#5a5a5a}
+  .badge{font-family:Syne,sans-serif;font-weight:800;font-size:13px;padding:7px 11px;border:2px solid var(--ink)}
+  .badge.go{background:var(--lime)}
+  .badge.no{background:#e8e2d1;color:#666}
+  footer{padding:0 0 48px;font-size:15px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  @media(max-width:820px){
+    .head nav{display:none}
+    .shape{opacity:.35}
+    .points{grid-template-columns:1fr;grid-auto-rows:auto}
+    .tile{grid-column:span 1!important;min-height:120px}
+    .band ol{grid-template-columns:1fr}
+    .band li{min-height:0;flex-direction:row;align-items:center;justify-content:flex-start;gap:16px}
+    .row{grid-template-columns:1fr auto}
+    .row .state{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <a class="brand" href="#">BORANOIS</a>
+    <nav><a href="#">Pessoas</a><a href="#">Como funciona</a><a href="#">Entrar</a></nav>
+  </header>
+
+  <section class="hero">
+    <div class="shape s1"></div><div class="shape s4"></div><div class="shape s2"></div><div class="shape s3"></div>
+    <div class="in">
+      <h1>Convença alguém que você conhece a <span class="u">ir votar</span></h1>
+      <p class="sub">Usando <a href="#">método científico</a>, testado em campo. Faltam 6 dias.</p>
+      <a class="cta" href="#">+ Convencer uma pessoa a votar certo</a>
+    </div>
+  </section>
+
+  <section class="points">
+    <div class="tile t1"><span class="n">01</span>Redes importam. Mas quem decide o voto é quem está perto.</div>
+    <div class="tile t2"><span class="n">02</span>Opinião não vem de fatos. Vem do grupo.</div>
+    <div class="tile t3"><span class="n">03</span>O Boranois mostra como a pessoa pensa e o que dizer.</div>
+    <div class="tile t4"><span class="n">04</span>Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.</div>
+  </section>
+</div>
+
+<section class="band"><div class="wrap">
+  <h2>As <span>cinco</span> regras</h2>
+  <ol>
+    <li><b>1</b>Pergunte. Depois cale.</li>
+    <li><b>2</b>Não mande link.</li>
+    <li><b>3</b>Fato só se ela pedir. Um.</li>
+    <li><b>4</b>Não discuta. Nunca.</li>
+    <li><b>5</b>Ela decide.</li>
+  </ol>
+  <p class="why"><a href="#">Por quê?</a></p>
+</div></section>
+
+<div class="wrap">
+  <section class="people">
+    <h2>Suas pessoas</h2>
+    <div class="row"><div class="name">tio Zé</div><div class="state">esperando resposta · há 15 h</div><span class="badge go">Comece por aqui</span></div>
+    <div class="row"><div class="name">Zezinho</div><div class="state">respondeu — sua vez</div><span class="badge go">Comece por aqui</span></div>
+    <div class="row"><div class="name">tia Lu</div><div class="state">ainda não conversaram</div><span class="badge no">Melhor não</span></div>
+  </section>
+  <footer>
+    <span>Sugestões, dúvidas ou problemas: <a href="#">fale com Daniel</a>.</span>
+    <span><a href="#">Como funciona</a> · <a href="#">Perfis</a> · <a href="#">Termos</a> · <a href="#">Privacidade</a></span>
+  </footer>
+</div>
+</body>
+</html>

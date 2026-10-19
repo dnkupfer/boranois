@@ -1,7 +1,7 @@
 import pg from "pg";
 import type { AnalyticsEvent, ChipStats, Member, OutcomeId } from "@boranois/shared";
 import { newId } from "../ids.js";
-import type { ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
+import type { AdminRows, ContactPatch, ContactRecord, NewContact, NewInteraction, Store } from "./types.js";
 
 // Use Neon's pooled connection string (host contains "-pooler"): Cloud Run
 // can run many instances, each with its own small pool.
@@ -180,6 +180,19 @@ export class PostgresStore implements Store {
   async listEvents(sinceDays: number) {
     const { rows } = await this.pool.query(`select aid, name, path, props, ts from events where ts >= now() - ($1 || ' days')::interval order by ts`, [sinceDays]);
     return rows.map((r) => ({ aid: r.aid, name: r.name, path: r.path, props: r.props, ts: r.ts.toISOString() }));
+  }
+
+  async adminRows(): Promise<AdminRows> {
+    const [m, c, i] = await Promise.all([
+      this.pool.query(`select count(*)::int as n from members`),
+      this.pool.query(`select member_id, persona_id, state, priority->>'level' as level, (priority->>'engage')::boolean as engage, created_at from contacts`),
+      this.pool.query(`select outcome, created_at from interactions`),
+    ]);
+    return {
+      members: m.rows[0].n,
+      contacts: c.rows.map((r) => ({ memberId: r.member_id, personaId: r.persona_id, state: r.state, level: r.level, engage: r.engage, createdAt: r.created_at.toISOString() })),
+      outcomes: i.rows.map((r) => ({ outcome: r.outcome, createdAt: r.created_at.toISOString() })),
+    };
   }
 
   async chipStats(): Promise<ChipStats> {

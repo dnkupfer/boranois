@@ -20,6 +20,14 @@ const STATE_LABEL: Record<ContactState, string> = {
 };
 const YOUR_TURN: ContactState[] = ["conversando", "objecao", "novo"];
 
+const POINTS = [
+  "Redes importam. Mas quem decide o voto é quem está perto.",
+  "Opinião não vem de fatos. Vem do grupo.",
+  "O Boranois mostra como a pessoa pensa e o que dizer.",
+  "Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.",
+];
+const RULES = ["Pergunte. Depois cale.", "Não mande link.", "Fato só se ela pedir. Um.", "Não discuta. Nunca.", "Ela decide."];
+
 export function ago(iso: string | null | undefined): string | null {
   if (!iso) return null;
   const h = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 3600000));
@@ -50,34 +58,33 @@ export function Pessoas() {
 
   return (
     <Layout>
-      <header className="intro">
-        <h1>Convença alguém que você conhece a ir votar</h1>
-        <p className="subtitle">
-          Usando <Link to="/como-funciona#metodo">método científico</Link>, testado em campo.{" "}
+      <header className="hero">
+        <h1>Convença alguém que você conhece a <mark>ir votar</mark></h1>
+        <p className="sub">
+          Usando <Link to="/como-funciona">método científico</Link>, testado em campo.
         </p>
-        <ol className="points">
-          <li>Redes importam. Mas quem decide o voto é quem está perto.</li>
-          <li>Opinião não vem de fatos. Vem do grupo.</li>
-          <li>O Boranois mostra como a pessoa pensa e o que dizer.</li>
-          <li>Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.</li>
-        </ol>
+        <Link className="cta" to="/nova"><span className="plus">+</span> Influenciar uma pessoa a votar certo</Link>
       </header>
 
-      <section className="card rules">
-        <h2>As cinco regras</h2>
-        <ol>
-          <li>Pergunte. Depois cale.</li>
-          <li>Não mande link.</li>
-          <li>Fato só se ela pedir. Um.</li>
-          <li>Não discuta. Nunca.</li>
-          <li>Ela decide.</li>
-        </ol>
-        <p className="small"><Link to="/como-funciona">Por quê?</Link></p>
+      <section className="points">
+        {POINTS.map((p, i) => (
+          <div className="card" key={i}><div className="ico">{i + 1}</div><p>{p}</p></div>
+        ))}
       </section>
 
-      <div className="row between">
+      <section className="rules">
+        <h2>As cinco regras</h2>
+        <ol>
+          {RULES.map((r, i) => (
+            <li key={i}><b>{i + 1}</b>{r}</li>
+          ))}
+        </ol>
+        <p className="why"><Link to="/como-funciona">Por quê?</Link></p>
+      </section>
+
+      <div className="row between people-head">
         <h2>Suas pessoas{member?.name ? `, ${member.name}` : ""}</h2>
-        <Link className="button primary" to="/nova">+ Influenciar uma pessoa a votar certo</Link>
+        {sorted.length > 0 && <Link className="button secondary" to="/nova">+ Adicionar</Link>}
       </div>
 
       {contacts === null ? (
@@ -102,9 +109,12 @@ function Row({ c, name }: { c: Contact; name?: string }) {
   return (
     <li>
       <Link to={`/pessoa/${c.id}`}>
-        <div>
-          <strong>{name || "Pessoa"}</strong>
-          <div className="muted small">{STATE_LABEL[c.state]}{c.state === "aguardando" && ago(c.lastSentAt) ? ` · ${ago(c.lastSentAt)}` : ""}</div>
+        <div className="l">
+          <div className="av" aria-hidden>{(name || "P").trim().charAt(0).toUpperCase()}</div>
+          <div>
+            <strong>{name || "Pessoa"}</strong>
+            <div className="state">{STATE_LABEL[c.state]}{c.state === "aguardando" && ago(c.lastSentAt) ? ` · ${ago(c.lastSentAt)}` : ""}</div>
+          </div>
         </div>
         <PriorityBadge level={c.priority.level} engage={c.priority.engage} />
       </Link>

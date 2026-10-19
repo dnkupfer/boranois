@@ -1,6 +1,6 @@
 {
   "id": "nao_conseguiu",
-  "name": "Quem não conseguiu ir",
+  "name": "Quem quer votar, mas não consegue ir",
   "situations": [
     "nao_votou"
   ],
