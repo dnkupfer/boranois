@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boranois — v1 Editorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{--paper:#f4efe6;--ink:#141412;--mute:#6b665d;--rule:#d9d2c3;--accent:#1f3fd1;--accent-soft:#e3e8fb}
+  *{box-sizing:border-box}
+  html{background:var(--paper)}
+  body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);line-height:1.5;font-size:17px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  /* running head */
+  .head{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid var(--ink);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+  .head .brand{font-family:Fraunces,serif;font-weight:600;font-size:22px;letter-spacing:0;text-transform:none}
+  .head nav a{color:var(--ink);text-decoration:none;margin-left:22px}
+  .head .date{color:var(--mute)}
+  /* hero */
+  .hero{padding:72px 0 48px;border-bottom:1px solid var(--rule)}
+  h1{font-family:Fraunces,serif;font-weight:400;font-size:clamp(3rem,8.2vw,7rem);line-height:.98;letter-spacing:-.02em;margin:0 0 28px;max-width:16ch;font-variation-settings:"opsz" 144}
+  h1 em{font-style:italic;color:var(--accent)}
+  .sub{font-family:Fraunces,serif;font-style:italic;font-size:clamp(1.25rem,2.4vw,1.7rem);color:var(--mute);margin:0 0 36px;max-width:40ch}
+  .sub a{color:var(--accent);text-decoration:underline;text-underline-offset:4px}
+  .cta{display:inline-flex;align-items:center;gap:14px;background:var(--ink);color:var(--paper);text-decoration:none;padding:18px 26px;font-weight:600;font-size:17px;border-radius:2px}
+  .cta:hover{background:var(--accent)}
+  .cta span{font-family:Fraunces,serif;font-size:26px;line-height:0}
+  /* points: two columns with hairlines, like a magazine deck */
+  .points{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-bottom:1px solid var(--rule)}
+  .point{padding:32px 32px 32px 0;border-top:1px solid var(--rule);display:grid;grid-template-columns:48px 1fr;gap:12px}
+  .point:nth-child(odd){border-right:1px solid var(--rule);padding-right:40px}
+  .point:nth-child(even){padding-left:40px}
+  .point .n{font-family:Fraunces,serif;font-style:italic;font-size:34px;line-height:1;color:var(--accent)}
+  .point p{margin:0;font-size:19px;line-height:1.4;font-weight:500}
+  /* rules: a column of roman numerals */
+  .rules{display:grid;grid-template-columns:1fr 2fr;gap:48px;padding:56px 0;border-bottom:1px solid var(--rule)}
+  .rules h2{font-family:Fraunces,serif;font-weight:400;font-size:40px;margin:0;line-height:1.05}
+  .rules h2 small{display:block;font-family:Inter;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+  .rules ol{list-style:none;margin:0;padding:0}
+  .rules li{display:grid;grid-template-columns:56px 1fr;align-items:baseline;padding:14px 0;border-top:1px solid var(--rule);font-family:Fraunces,serif;font-size:28px;line-height:1.1}
+  .rules li:first-child{border-top:0}
+  .rules li i{font-style:italic;color:var(--accent);font-size:20px}
+  .rules .why{font-family:Inter;font-size:14px;color:var(--mute);margin-top:18px}
+  /* people */
+  .people{padding:48px 0 64px}
+  .people .bar{display:flex;justify-content:space-between;align-items:end;margin-bottom:12px}
+  .people h2{font-family:Fraunces,serif;font-weight:400;font-size:34px;margin:0}
+  table{width:100%;border-collapse:collapse}
+  td{padding:16px 0;border-top:1px solid var(--rule);vertical-align:middle}
+  td.name{font-weight:600;font-size:19px}
+  td.state{color:var(--mute)}
+  td.tag{text-align:right}
+  .tag span{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border:1px solid var(--ink)}
+  .tag span.go{background:var(--ink);color:var(--paper)}
+  .tag span.no{color:var(--mute);border-color:var(--rule)}
+  footer{padding:28px 0 48px;border-top:1px solid var(--ink);font-size:14px;color:var(--mute);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  footer a{color:var(--ink)}
+  @media(max-width:760px){
+    .head nav{display:none}
+    .points{grid-template-columns:1fr}
+    .point:nth-child(odd){border-right:0;padding-right:0}
+    .point:nth-child(even){padding-left:0}
+    .rules{grid-template-columns:1fr;gap:20px}
+    .rules li{font-size:22px}
+    td.state{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div class="brand">Boranois</div>
+    <nav><a href="#">Pessoas</a><a href="#">Como funciona</a><a href="#">Entrar com e-mail</a></nav>
+    <div class="date">2º turno · 25 out · faltam 6 dias</div>
+  </header>
+
+  <section class="hero">
+    <h1>Convença alguém que você conhece a <em>ir votar</em></h1>
+    <p class="sub">Usando <a href="#">método científico</a>, testado em campo.</p>
+    <a class="cta" href="#"><span>+</span> Convencer uma pessoa a votar certo</a>
+  </section>
+
+  <section class="points">
+    <div class="point"><div class="n">1</div><p>Redes importam. Mas quem decide o voto é quem está perto.</p></div>
+    <div class="point"><div class="n">2</div><p>Opinião não vem de fatos. Vem do grupo.</p></div>
+    <div class="point"><div class="n">3</div><p>O Boranois mostra como a pessoa pensa e o que dizer.</p></div>
+    <div class="point"><div class="n">4</div><p>Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.</p></div>
+  </section>
+
+  <section class="rules">
+    <h2><small>Leia antes de mandar qualquer mensagem</small>As cinco regras</h2>
+    <div>
+      <ol>
+        <li><i>I</i><span>Pergunte. Depois cale.</span></li>
+        <li><i>II</i><span>Não mande link.</span></li>
+        <li><i>III</i><span>Fato só se ela pedir. Um.</span></li>
+        <li><i>IV</i><span>Não discuta. Nunca.</span></li>
+        <li><i>V</i><span>Ela decide.</span></li>
+      </ol>
+      <p class="why"><a href="#">Por quê?</a></p>
+    </div>
+  </section>
+
+  <section class="people">
+    <div class="bar"><h2>Suas pessoas</h2><a class="cta" href="#"><span>+</span> Adicionar</a></div>
+    <table>
+      <tr><td class="name">tio Zé</td><td class="state">esperando resposta · há 15 h</td><td class="tag"><span class="go">Comece por aqui</span></td></tr>
+      <tr><td class="name">Zezinho</td><td class="state">respondeu — sua vez</td><td class="tag"><span class="go">Comece por aqui</span></td></tr>
+      <tr><td class="name">tia Lu</td><td class="state">ainda não conversaram</td><td class="tag"><span class="no">Melhor não</span></td></tr>
+    </table>
+  </section>
+
+  <footer>
+    <span>Sugestões, dúvidas ou problemas: <a href="#">fale com Daniel</a>.</span>
+    <span><a href="#">Como funciona</a> · <a href="#">Perfis</a> · <a href="#">Termos</a> · <a href="#">Privacidade</a></span>
+  </footer>
+</div>
+</body>
+</html>

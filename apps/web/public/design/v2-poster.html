@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boranois — v2 Poster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#0b0b0b;--fg:#f3f3ee;--acid:#c8ff3a;--line:#2a2a2a;--mute:#9a9a92}
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{margin:0;font-family:"JetBrains Mono",ui-monospace,monospace;color:var(--fg);font-size:15px;line-height:1.5}
+  a{color:inherit}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+  .head{display:grid;grid-template-columns:1fr auto;align-items:center;padding:16px 0;border-bottom:2px solid var(--fg);text-transform:uppercase;letter-spacing:.06em;font-size:13px}
+  .head .brand{font-family:"Archivo Black",sans-serif;font-size:22px;letter-spacing:0}
+  .head nav a{text-decoration:none;margin-left:20px}
+  .head nav a:hover{color:var(--acid)}
+  /* marquee */
+  .marquee{overflow:hidden;white-space:nowrap;border-bottom:2px solid var(--fg);background:var(--acid);color:var(--bg);font-family:"Archivo Black",sans-serif;font-size:18px;text-transform:uppercase;padding:10px 0}
+  .marquee div{display:inline-block;animation:run 28s linear infinite}
+  .marquee span{margin-right:48px}
+  @keyframes run{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  /* hero */
+  .hero{padding:48px 0 32px;border-bottom:2px solid var(--fg)}
+  h1{font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:clamp(2.6rem,9.5vw,8.6rem);line-height:.9;letter-spacing:-.02em;margin:0 0 24px}
+  h1 .acid{color:var(--acid)}
+  .sub{font-size:clamp(1rem,1.8vw,1.25rem);max-width:60ch;margin:0 0 28px;color:var(--mute)}
+  .sub a{color:var(--acid)}
+  .cta{display:block;width:100%;background:var(--acid);color:var(--bg);text-decoration:none;font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:clamp(1.1rem,3vw,2rem);padding:22px 24px;border:2px solid var(--acid);text-align:left;position:relative}
+  .cta::after{content:"→";position:absolute;right:24px;top:50%;transform:translateY(-50%)}
+  .cta:hover{background:var(--bg);color:var(--acid)}
+  /* grid of points */
+  .points{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid var(--fg)}
+  .point{padding:24px 20px 28px;border-right:2px solid var(--fg);min-height:220px;display:flex;flex-direction:column;justify-content:space-between}
+  .point:last-child{border-right:0}
+  .point .n{font-family:"Archivo Black",sans-serif;font-size:52px;line-height:1;color:var(--acid)}
+  .point p{margin:16px 0 0;font-size:16px;line-height:1.4}
+  /* rules */
+  .rules{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--fg)}
+  .rules .l{padding:36px 24px 36px 0;border-right:2px solid var(--fg)}
+  .rules h2{font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:clamp(2rem,5vw,4rem);line-height:.95;margin:0}
+  .rules .l p{color:var(--mute);margin:18px 0 0;max-width:34ch}
+  .rules ol{list-style:none;margin:0;padding:0}
+  .rules li{display:grid;grid-template-columns:72px 1fr;padding:18px 0 18px 24px;border-bottom:1px solid var(--line);font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:clamp(1.1rem,2.4vw,1.7rem);line-height:1.1}
+  .rules li:last-child{border-bottom:0}
+  .rules li b{color:var(--acid);font-family:"JetBrains Mono";font-weight:600;font-size:14px;padding-top:6px}
+  /* people */
+  .people{padding:36px 0 56px}
+  .people h2{font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:28px;margin:0 0 16px}
+  .row{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+  .row:last-child{border-bottom:1px solid var(--line)}
+  .row .name{font-family:"Archivo Black",sans-serif;font-size:20px}
+  .row .state{color:var(--mute);font-size:14px}
+  .badge{font-size:12px;text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--fg);padding:6px 10px}
+  .badge.go{background:var(--acid);color:var(--bg);border-color:var(--acid)}
+  .badge.no{color:var(--mute);border-color:var(--line)}
+  footer{border-top:2px solid var(--fg);padding:20px 0 40px;font-size:13px;color:var(--mute);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;text-transform:uppercase;letter-spacing:.04em}
+  @media(max-width:800px){
+    .head nav{display:none}
+    .points{grid-template-columns:1fr 1fr}
+    .point:nth-child(2){border-right:0}
+    .point:nth-child(-n+2){border-bottom:2px solid var(--fg)}
+    .rules{grid-template-columns:1fr}
+    .rules .l{border-right:0;border-bottom:2px solid var(--fg);padding-right:0}
+    .rules li{padding-left:0}
+    .row{grid-template-columns:1fr auto}
+    .row .state{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div class="brand">BORANOIS</div>
+    <nav><a href="#">Pessoas</a><a href="#">Como funciona</a><a href="#">Entrar</a></nav>
+  </header>
+</div>
+<div class="marquee"><div>
+  <span>Pergunte. Depois cale.</span><span>Não mande link.</span><span>Fato só se ela pedir. Um.</span><span>Não discuta. Nunca.</span><span>Ela decide.</span>
+  <span>Pergunte. Depois cale.</span><span>Não mande link.</span><span>Fato só se ela pedir. Um.</span><span>Não discuta. Nunca.</span><span>Ela decide.</span>
+</div></div>
+<div class="wrap">
+  <section class="hero">
+    <h1>Convença alguém que você conhece a <span class="acid">ir votar</span></h1>
+    <p class="sub">// Usando <a href="#">método científico</a>, testado em campo. Faltam 6 dias.</p>
+    <a class="cta" href="#">+ Convencer uma pessoa a votar certo</a>
+  </section>
+
+  <section class="points">
+    <div class="point"><div class="n">01</div><p>Redes importam. Mas quem decide o voto é quem está perto.</p></div>
+    <div class="point"><div class="n">02</div><p>Opinião não vem de fatos. Vem do grupo.</p></div>
+    <div class="point"><div class="n">03</div><p>O Boranois mostra como a pessoa pensa e o que dizer.</p></div>
+    <div class="point"><div class="n">04</div><p>Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.</p></div>
+  </section>
+
+  <section class="rules">
+    <div class="l"><h2>As cinco regras</h2><p>Leia antes de mandar qualquer mensagem. <a href="#">Por quê?</a></p></div>
+    <ol>
+      <li><b>R.01</b>Pergunte. Depois cale.</li>
+      <li><b>R.02</b>Não mande link.</li>
+      <li><b>R.03</b>Fato só se ela pedir. Um.</li>
+      <li><b>R.04</b>Não discuta. Nunca.</li>
+      <li><b>R.05</b>Ela decide.</li>
+    </ol>
+  </section>
+
+  <section class="people">
+    <h2>Suas pessoas</h2>
+    <div class="row"><div class="name">tio Zé</div><div class="state">esperando resposta · há 15 h</div><span class="badge go">Comece por aqui</span></div>
+    <div class="row"><div class="name">Zezinho</div><div class="state">respondeu — sua vez</div><span class="badge go">Comece por aqui</span></div>
+    <div class="row"><div class="name">tia Lu</div><div class="state">ainda não conversaram</div><span class="badge no">Melhor não</span></div>
+  </section>
+
+  <footer>
+    <span>Sugestões, dúvidas ou problemas: <a href="#">fale com Daniel</a></span>
+    <span><a href="#">Como funciona</a> / <a href="#">Perfis</a> / <a href="#">Termos</a> / <a href="#">Privacidade</a></span>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boranois — v4 Noir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#0b0f14;--bg2:#0f151c;--fg:#ece7dc;--mute:#8d9099;--gold:#d8b365;--line:rgba(236,231,220,.12);--glass:rgba(255,255,255,.04)}
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--fg);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;background:radial-gradient(1200px 600px at 70% -10%,rgba(216,179,101,.12),transparent 60%),radial-gradient(800px 500px at -10% 40%,rgba(15,107,107,.18),transparent 60%),var(--bg)}
+  a{color:var(--fg)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+  .mono{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .head{display:flex;justify-content:space-between;align-items:center;padding:26px 0;border-bottom:1px solid var(--line)}
+  .brand{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:400;letter-spacing:.02em;text-decoration:none}
+  .head nav a{text-decoration:none;color:var(--mute);margin-left:28px;font-size:14px}
+  .head nav a:hover{color:var(--fg)}
+  /* hero */
+  .hero{padding:88px 0 56px;display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:end;border-bottom:1px solid var(--line)}
+  h1{font-family:"Cormorant Garamond",serif;font-weight:300;font-size:clamp(3rem,7.6vw,6.8rem);line-height:.98;letter-spacing:-.01em;margin:16px 0 0}
+  h1 em{font-style:italic;color:var(--gold)}
+  .aside p{margin:0 0 22px;color:var(--mute);font-size:17px;max-width:34ch}
+  .aside p a{color:var(--fg);text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--gold)}
+  .cta{display:inline-flex;align-items:center;gap:14px;text-decoration:none;border:1px solid var(--gold);color:var(--fg);padding:16px 22px;font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.1em;text-transform:uppercase;transition:background .2s}
+  .cta:hover{background:var(--gold);color:var(--bg)}
+  /* points: glass bento */
+  .points{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:40px 0}
+  .glass{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:14px;padding:22px;min-height:190px;display:flex;flex-direction:column;justify-content:space-between}
+  .glass .n{font-family:"Cormorant Garamond",serif;font-size:40px;line-height:1;color:var(--gold);font-weight:300}
+  .glass p{margin:0;font-size:15px;line-height:1.5;color:var(--fg)}
+  /* rules timeline */
+  .rules{padding:48px 0 64px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1.6fr;gap:48px}
+  .rules h2{font-family:"Cormorant Garamond",serif;font-weight:300;font-size:46px;margin:10px 0 0;line-height:1}
+  .rules p{color:var(--mute);max-width:32ch}
+  .tl{list-style:none;margin:0;padding:0;border-left:1px solid var(--line)}
+  .tl li{position:relative;padding:14px 0 14px 36px;font-family:"Cormorant Garamond",serif;font-size:30px;line-height:1.1;font-weight:400}
+  .tl li::before{content:"";position:absolute;left:-5px;top:28px;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px var(--bg)}
+  .tl li small{display:block;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--mute);margin-bottom:4px}
+  /* people */
+  .people{padding:0 0 64px}
+  .people .bar{display:flex;justify-content:space-between;align-items:end;margin-bottom:10px}
+  .people h2{font-family:"Cormorant Garamond",serif;font-weight:300;font-size:40px;margin:0}
+  .row{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:center;padding:18px 0;border-top:1px solid var(--line)}
+  .row:last-child{border-bottom:1px solid var(--line)}
+  .row .name{font-family:"Cormorant Garamond",serif;font-size:26px}
+  .row .state{color:var(--mute);font-size:14px}
+  .badge{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:7px 10px;border:1px solid var(--line)}
+  .badge.go{border-color:var(--gold);color:var(--gold)}
+  .badge.no{color:var(--mute)}
+  footer{border-top:1px solid var(--line);padding:24px 0 48px;color:var(--mute);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  footer a{color:var(--mute)}
+  @media(max-width:880px){.head nav{display:none}.hero{grid-template-columns:1fr;gap:24px;padding-top:56px}.points{grid-template-columns:1fr 1fr}.rules{grid-template-columns:1fr;gap:20px}.row{grid-template-columns:1fr auto}.row .state{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <a class="brand" href="#">Boranois</a>
+    <nav><a href="#">Pessoas</a><a href="#">Como funciona</a><a href="#">Entrar com e-mail</a></nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="mono">2º turno · 25 de outubro · faltam 6 dias</div>
+      <h1>Convença alguém que você conhece a <em>ir votar</em></h1>
+    </div>
+    <div class="aside">
+      <p>Usando <a href="#">método científico</a>, testado em campo. Não são dicas.</p>
+      <a class="cta" href="#">+ Convencer uma pessoa</a>
+    </div>
+  </section>
+
+  <section class="points">
+    <div class="glass"><div class="n">I</div><p>Redes importam. Mas quem decide o voto é quem está perto.</p></div>
+    <div class="glass"><div class="n">II</div><p>Opinião não vem de fatos. Vem do grupo.</p></div>
+    <div class="glass"><div class="n">III</div><p>O Boranois mostra como a pessoa pensa e o que dizer.</p></div>
+    <div class="glass"><div class="n">IV</div><p>Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.</p></div>
+  </section>
+
+  <section class="rules">
+    <div><div class="mono">Antes de qualquer mensagem</div><h2>As cinco regras</h2><p>Simples de ler, difíceis de seguir. <a href="#">Por quê?</a></p></div>
+    <ol class="tl">
+      <li><small>Regra 01</small>Pergunte. Depois cale.</li>
+      <li><small>Regra 02</small>Não mande link.</li>
+      <li><small>Regra 03</small>Fato só se ela pedir. Um.</li>
+      <li><small>Regra 04</small>Não discuta. Nunca.</li>
+      <li><small>Regra 05</small>Ela decide.</li>
+    </ol>
+  </section>
+
+  <section class="people">
+    <div class="bar"><h2>Suas pessoas</h2><a class="cta" href="#">+ Adicionar</a></div>
+    <div class="row"><div class="name">tio Zé</div><div class="state">esperando resposta · há 15 h</div><span class="badge go">Comece por aqui</span></div>
+    <div class="row"><div class="name">Zezinho</div><div class="state">respondeu — sua vez</div><span class="badge go">Comece por aqui</span></div>
+    <div class="row"><div class="name">tia Lu</div><div class="state">ainda não conversaram</div><span class="badge no">Melhor não</span></div>
+  </section>
+
+  <footer>
+    <span>Sugestões, dúvidas ou problemas: <a href="#">fale com Daniel</a>.</span>
+    <span><a href="#">Como funciona</a> · <a href="#">Perfis</a> · <a href="#">Termos</a> · <a href="#">Privacidade</a></span>
+  </footer>
+</div>
+</body>
+</html>
