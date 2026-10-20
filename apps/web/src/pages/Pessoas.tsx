@@ -21,7 +21,7 @@ const STATE_LABEL: Record<ContactState, string> = {
 const YOUR_TURN: ContactState[] = ["conversando", "objecao", "novo"];
 
 const POINTS = [
-  "Rede social a gente já sabe: assiste até o fim, compartilha, salva, próximo.",
+  "A parte das redes mantém: assiste até o fim, compartilha, salva, próximo.",
   "Tem 30 milhões de pessoas que não odeiam o Lula, ou odeiam mais o Flávio, e não vão votar.",
   "Para achar essas pessoas, todo mundo precisa conversar com todo mundo.",
   "Boa intenção não basta. Deep canvassing: dez minutos sobre a vida da pessoa, não sobre o candidato. Testado em campo.",
@@ -70,7 +70,7 @@ export function Pessoas() {
       <header className="hero">
         <h1>Cada conversa conta. Mas <mark>com método</mark> conta mais!</h1>
         <p className="sub">
-          Agora é cara a cara. {countdown() ?? ""} O <Link to="/como-funciona">deep canvassing</Link> é o jeito mais eficiente que se conhece de convencer.
+          Agora é corpo a corpo. {countdown() ?? ""} O <Link to="/como-funciona">deep canvassing</Link> é cientificamente comprovado como o jeito mais eficiente de convencer.
         </p>
       </header>
 
