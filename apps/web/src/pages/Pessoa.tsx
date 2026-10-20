@@ -157,9 +157,9 @@ export function Pessoa() {
 
       <div ref={stepRef as React.RefObject<HTMLDivElement>}>
         {phase === "step" && contact.state === "aguardando" && step.action === "lembrar" ? (
-          <WaitCard step={step} contact={contact} message={message} setMessage={setMessage} phone={priv.phone} busy={busy} P={P} onReplied={() => setPhase("outcome")} onNudged={nudged} />
+          <WaitCard step={step} contact={contact} message={message} setMessage={setMessage} busy={busy} P={P} onReplied={() => setPhase("outcome")} onNudged={nudged} />
         ) : phase === "step" ? (
-          <StepCard step={step} message={message} setMessage={setMessage} phone={priv.phone} busy={busy} onSent={() => sent(false)} onSkip={() => sent(true)} />
+          <StepCard step={step} message={message} setMessage={setMessage} busy={busy} onSent={() => sent(false)} onSkip={() => sent(true)} />
         ) : (
           <OutcomeCard key={`${step.id}-${prefill?.outcome ?? ""}`} busy={busy} prefill={prefill} P={P} onOutcome={outcome} />
         )}
@@ -200,8 +200,8 @@ export function Pessoa() {
 type Pron = ReturnType<typeof pron>;
 
 function StepCard({
-  step, message, setMessage, phone, busy, onSent, onSkip,
-}: { step: Step; message: string; setMessage: (m: string) => void; phone: string; busy: boolean; onSent: () => void; onSkip: () => void }) {
+  step, message, setMessage, busy, onSent, onSkip,
+}: { step: Step; message: string; setMessage: (m: string) => void; busy: boolean; onSent: () => void; onSkip: () => void }) {
   const sending = isSending(step);
   return (
     <section className="card step-card">
@@ -225,11 +225,8 @@ function StepCard({
             </p>
           )}
           <div className="row">
-            {phone ? (
-              <a className="button whatsapp" href={whatsappLink(phone, message)} target="_blank" rel="noreferrer">Enviar no WhatsApp</a>
-            ) : (
-              <CopyButton text={message} label="Copiar mensagem" className="whatsapp" />
-            )}
+            <a className="button whatsapp" href={whatsappLink(message)} target="_blank" rel="noreferrer">Abrir no WhatsApp</a>
+            <CopyButton text={message} label="Copiar" />
             <button className="primary" disabled={busy} onClick={onSent}>Já mandei</button>
             <button className="link" disabled={busy} onClick={onSkip}>Pular</button>
           </div>
@@ -244,8 +241,8 @@ function StepCard({
 
 /** Waiting for the reply. A suggestion with the clock shown; the person decides. */
 function WaitCard({
-  step, contact, message, setMessage, phone, busy, P, onReplied, onNudged,
-}: { step: Step; contact: Contact; message: string; setMessage: (m: string) => void; phone: string; busy: boolean; P: Pron; onReplied: () => void; onNudged: () => void }) {
+  step, contact, message, setMessage, busy, P, onReplied, onNudged,
+}: { step: Step; contact: Contact; message: string; setMessage: (m: string) => void; busy: boolean; P: Pron; onReplied: () => void; onNudged: () => void }) {
   const [nudging, setNudging] = useState(false);
   const sentAt = contact.lastSentAt ? new Date(contact.lastSentAt) : null;
   const waitH = step.waitHours ?? 24;
@@ -275,11 +272,8 @@ function WaitCard({
             <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} />
           </label>
           <div className="row">
-            {phone ? (
-              <a className="button whatsapp" href={whatsappLink(phone, message)} target="_blank" rel="noreferrer">Enviar no WhatsApp</a>
-            ) : (
-              <CopyButton text={message} label="Copiar mensagem" className="whatsapp" />
-            )}
+            <a className="button whatsapp" href={whatsappLink(message)} target="_blank" rel="noreferrer">Abrir no WhatsApp</a>
+            <CopyButton text={message} label="Copiar" />
             <button className="primary" disabled={busy} onClick={onNudged}>Já mandei</button>
             <button className="link" onClick={() => setNudging(false)}>Cancelar</button>
           </div>

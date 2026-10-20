@@ -10,7 +10,7 @@ export function Privacidade() {
         <h2>O que nunca fazemos</h2>
         <ul>
           <li>Inventar fatos. Cada número vem com a fonte, e o que não foi conferido não é usado.</li>
-          <li>Guardar quem são as suas pessoas. Nome, telefone, anotações e a conversa com o coach ficam no seu aparelho.</li>
+          <li>Guardar quem são as suas pessoas. Nome, anotações e a conversa com o coach ficam no seu aparelho. Não pedimos telefone.</li>
           <li>Mandar nada sozinho. Toda mensagem sai da sua mão.</li>
           <li>Pressionar. Nem você, nem o app.</li>
         </ul>
@@ -23,7 +23,7 @@ export function Privacidade() {
 
         <h2>O que fica só no seu aparelho</h2>
         <p>
-          O nome, o telefone e as anotações sobre cada pessoa que você adiciona, e a conversa com o coach, ficam gravados apenas no
+          O nome e as anotações sobre cada pessoa que você adiciona, e a conversa com o coach, ficam gravados apenas no
           navegador do seu aparelho. Não são enviados ao nosso servidor nem guardados por nós. Se você apagar os dados do navegador,
           eles somem.
         </p>
@@ -50,7 +50,7 @@ export function Privacidade() {
         <h2>Medição de uso</h2>
         <p>
           Só se você aceitar no aviso que aparece na primeira visita. Medimos de forma anônima quais telas são abertas, onde as
-          pessoas param e quantas mensagens são enviadas, com um identificador aleatório do aparelho. Nunca nomes, telefones,
+          pessoas param e quantas mensagens são enviadas, com um identificador aleatório do aparelho. Nunca nomes,
           anotações ou mensagens. Os dados ficam no nosso servidor e não vão para terceiros. Você pode recusar sem perder nada.
         </p>
 
