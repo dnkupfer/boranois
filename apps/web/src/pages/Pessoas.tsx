@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { Contact, ContactState } from "@boranois/shared";
 import { api } from "../api";
-import { Layout, PriorityBadge, QuoteGrid } from "../components";
-import { useCatalogue } from "./Perfis";
+import { Layout, PriorityBadge } from "../components";
 import { privateContacts } from "../local";
 import { useSession } from "../session";
 
@@ -22,11 +21,20 @@ const STATE_LABEL: Record<ContactState, string> = {
 const YOUR_TURN: ContactState[] = ["conversando", "objecao", "novo"];
 
 const POINTS = [
-  "Redes importam. Mas quem decide o voto é quem está perto.",
-  "Opinião não vem de fatos. Vem do grupo.",
-  "O Boranois mostra como a pessoa pensa e o que dizer.",
+  "Curtir, compartilhar e comentar não muda voto. Conversa muda.",
+  "Opinião não vem de fatos. Vem do grupo. Quem convence é quem a pessoa confia.",
+  "Existe método, testado em campo: perguntar antes de argumentar.",
   "Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.",
 ];
+/** "Faltam 5 dias", computed in Brazil's calendar; silent once the election has passed. */
+function countdown(): string | null {
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
+  const days = Math.round((Date.UTC(2026, 9, 25) - Date.parse(today + "T00:00:00Z")) / 86400000);
+  if (days > 1) return `Faltam ${days} dias.`;
+  if (days === 1) return "É amanhã.";
+  if (days === 0) return "É hoje.";
+  return null;
+}
 const RULES = ["Pergunte. Depois cale.", "Não mande link.", "Fato só se ela pedir. Um.", "Não discuta. Nunca.", "Ela decide."];
 
 export function ago(iso: string | null | undefined): string | null {
@@ -42,7 +50,6 @@ export function Pessoas() {
   const { member } = useSession();
   const [contacts, setContacts] = useState<Contact[] | null>(null);
   const names = privateContacts.all();
-  const cat = useCatalogue();
 
   useEffect(() => {
     api<{ contacts: Contact[] }>("/contacts").then((r) => setContacts(r.contacts));
@@ -61,17 +68,43 @@ export function Pessoas() {
   return (
     <Layout>
       <header className="hero">
-        <h1>Convença alguém que você conhece a <mark>ir votar</mark></h1>
+        <h1>Curtir não vira voto. <mark>Conversa vira.</mark></h1>
         <p className="sub">
-          Usando <Link to="/como-funciona">método científico</Link>, testado em campo.
+          Enquanto a gente se engaja nas redes, quem decide o voto é quem está perto. Existe um{" "}
+          <Link to="/como-funciona">método</Link>. {countdown() ?? ""} Não dá para gastar na conversa errada.
         </p>
-        <Link className="cta" to="/nova"><span className="plus">+</span> Influenciar uma pessoa a votar certo</Link>
       </header>
 
       <section className="points">
         {POINTS.map((p, i) => (
           <div className="card" key={i}><div className="ico">{i + 1}</div><p>{p}</p></div>
         ))}
+      </section>
+
+      <section className="paths">
+        <h2>Dois caminhos</h2>
+        <div className="path-grid">
+          <div className="card path best">
+            <p className="eyebrow">O melhor caminho</p>
+            <h3>Alguém que você conhece</h3>
+            <p>
+              Pense com calma. Um parente, uma amiga, um vizinho, alguém do trabalho que <strong>não votou no 1º turno, anulou ou está em dúvida</strong>.
+              A confiança que já existe é o que faz a conversa entrar. É aqui que você faz mais diferença.
+            </p>
+            <Link className="cta" to="/nova"><span className="plus">+</span> Influenciar uma pessoa a votar certo</Link>
+            <p className="small"><Link to="/perfis">Ver primeiro os perfis e o que funciona com cada um</Link></p>
+          </div>
+          <div className="card path">
+            <p className="eyebrow">Se não tiver ninguém</p>
+            <h3>Vá para a rua</h3>
+            <p>
+              Pensou bem e ninguém que você conhece se encaixa? Então a rua é o melhor uso do seu tempo: feira, ponto de ônibus, porta de escola.
+              Dois minutos, uma dúvida plantada, um plano para domingo.
+            </p>
+            <Link className="button" to="/rua">O guia da rua</Link>
+            <p className="small muted">Permitido até sábado, 22h. No domingo, não.</p>
+          </div>
+        </div>
       </section>
 
       <section className="rules">
@@ -84,12 +117,6 @@ export function Pessoas() {
         <p className="why"><Link to="/como-funciona">Por quê?</Link></p>
       </section>
 
-      <section className="by-quote">
-        <h2>Comece pelo que a pessoa diz</h2>
-        <p className="muted">Reconheça o jeito de pensar e veja o que funciona. Sem cadastro, sem salvar nada.</p>
-        {cat && <QuoteGrid personas={cat.personas} hrefFor={(id) => `/perfis/${id}`} />}
-        <p className="muted small">Vai conversar com gente que você não conhece? <Link to="/rua">O guia da rua</Link> é diferente.</p>
-      </section>
 
       <div className="row between people-head">
         <h2>Suas pessoas{member?.name ? `, ${member.name}` : ""}</h2>
