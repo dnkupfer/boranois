@@ -104,6 +104,15 @@
       "why": "Ela já ouviu promessa. Compare planos."
     }
   ],
+  "rua": {
+    "abra": "“O mercado tá pesado, né? O que mais pesou pra você?”",
+    "diga": [
+      "Concorde com o bolso antes de qualquer número: “pesou pra todo mundo”.",
+      "“Testar o outro custa quatro anos. O que ele prometeu pro seu mercado?”",
+      "Um fato só se ela pedir: salário mínimo e preço do gás hoje e em 2022."
+    ],
+    "feche": "“Domingo você vai? Que horas?”"
+  },
   "steps": [
     {
       "id": "abrir",

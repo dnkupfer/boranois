@@ -95,6 +95,15 @@
       "why": "Para ela nada é óbvio. É vergonha."
     }
   ],
+  "rua": {
+    "abra": "“Você já decidiu? Tudo bem não entender tudo. Ninguém entende.”",
+    "diga": [
+      "Dê permissão: “ninguém vota sabendo tudo. Vota com o que viveu.”",
+      "Um guia de duas frases: o que cada um fez pela vida dela, comida, remédio, salário.",
+      "“Não votar também é escolher. Só que sem você.”"
+    ],
+    "feche": "“Quer que eu te mostre onde é a sua seção? Leva dois minutos.”"
+  },
   "steps": [
     {
       "id": "abrir",

@@ -104,6 +104,15 @@
       "why": "Concorde com o cansaço e mude a pergunta: “o que pesa pra você hoje?”"
     }
   ],
+  "rua": {
+    "abra": "“Você votou no 1º turno? Por que não?” Ouça até o fim, sem corrigir.",
+    "diga": [
+      "“Eu também já pensei em não ir.” Nunca o sermão do dever cívico.",
+      "“Dois pontos de diferença. Nunca adiantou tanto.”",
+      "“Votar não é acreditar em político. É não deixar os outros decidirem por você.”"
+    ],
+    "feche": "“Domingo de manhã, dez minutos. Sabe onde é a seção?”"
+  },
   "steps": [
     {
       "id": "abrir",

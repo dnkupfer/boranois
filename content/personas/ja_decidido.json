@@ -81,6 +81,15 @@
       "why": "Vira spam, e spam é o que ela espera de campanha."
     }
   ],
+  "rua": {
+    "abra": "“Quem você acha que ganha?”",
+    "diga": [
+      "Deixe ela responder. Depois: “a diferença é de dois pontos. Tá empatado.”",
+      "“Se está decidido, não custa nada. Se não está, o seu voto decide.”",
+      "Venda tempo, não dever: “é meia hora de manhã”."
+    ],
+    "feche": "“Que horas você vai? Sabe onde é a seção?”"
+  },
   "steps": [
     {
       "id": "abrir",

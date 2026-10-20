@@ -80,6 +80,15 @@
       "why": "É intenção, não plano. Sem hora marcada, foi assim que ela quase não votou no 1º turno."
     }
   ],
+  "rua": {
+    "abra": "“Vai votar domingo? Que horas?”",
+    "diga": [
+      "Se a resposta for “de tarde” ou “vejo lá”, é essa pessoa. Sem plano, muita gente não vai.",
+      "“Vai cedo, antes da fila. Sabe onde é a sua seção? Abre o e-Título aqui.”",
+      "“Conhece alguém que não votou no 1º turno? Chama pra ir junto.”"
+    ],
+    "feche": "Saia com hora e lugar combinados. É o único fecho que conta."
+  },
   "steps": [
     {
       "id": "combinar",

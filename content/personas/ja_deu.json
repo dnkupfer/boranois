@@ -92,6 +92,15 @@
       "why": "Soa a desqualificação, e ela quer ouvir sobre futuro."
     }
   ],
+  "rua": {
+    "abra": "“Você gostou do Lula em algum momento? O que mudou?”",
+    "diga": [
+      "Não defenda o Lula. Concorde que querer renovação é legítimo.",
+      "“Gente nova é uma coisa. O Flávio é a mesma família de 2018 a 2022.”",
+      "“Dessa vez não é escolher o melhor. É escolher quem não desmonta o que funciona.”"
+    ],
+    "feche": "“Pensa nisso até domingo? Se for, vai cedo.”"
+  },
   "steps": [
     {
       "id": "abrir",

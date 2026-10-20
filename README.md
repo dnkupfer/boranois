@@ -84,6 +84,12 @@ The chips match the person to one of twelve **personas**. Each persona is named 
 
 Each persona has, written by people: how they got here, what they feel, where they hear what they hear, who they would believe, what shuts them down, what opens them up, what could turn the key, concrete tactics, what to avoid, and a step-by-step conversation plan. All of it is public at `/perfis` and in [content/personas/](content/personas/). If you recognise yourself in one and think it's unfair, open an issue.
 
+### Two ways in: someone you know, or a stranger on the street
+
+Most people won't add anyone to a list, and don't need to. The home page lists the twelve personas by **the sentence each one says** ("não adianta", "sou de Deus, não de política"); tap one and the full guide opens, with nothing saved. Saving a person is the optional second step, for people who want the follow-up loop (what to send, how long to wait, what to do with the reply).
+
+**Na rua** (`/rua`) is the street version: two minutes with someone you don't know, at a fair, a bus stop, a school gate. The goal shrinks from convincing to leaving a doubt and a plan for Sunday. Each persona carries a street script in the catalogue (`rua`: *abra*, *diga*, *feche*). The page is static: no account, no database, no AI. It also states the legal line: talking to voters is allowed until Saturday 22h; on election day it is *boca de urna*, a crime (Lei 9.504, art. 39 §5), and the page says so by itself on that date.
+
 ### 2. Chance (the chip next to each person)
 
 How likely a conversation is to work, so people spend their time where it helps most.

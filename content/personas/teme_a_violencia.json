@@ -100,6 +100,15 @@
       "why": "Ela nunca mais fala de política com você."
     }
   ],
+  "rua": {
+    "abra": "“Você já passou por alguma situação de violência por aqui?” Ouça. Nada de política nos primeiros minutos.",
+    "diga": [
+      "Reconheça o medo: “é real, eu também tenho”.",
+      "Nunca cite estatística de queda da violência. Para ela é mentira.",
+      "“Dureza sem plano não protege. O que cada um fez de concreto: efetivo, iluminação, armas na rua?”"
+    ],
+    "feche": "“Domingo você vai? Vai com alguém?”"
+  },
   "steps": [
     {
       "id": "abrir",

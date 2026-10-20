@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { Contact, ContactState } from "@boranois/shared";
 import { api } from "../api";
-import { Layout, PriorityBadge } from "../components";
+import { Layout, PriorityBadge, QuoteGrid } from "../components";
+import { useCatalogue } from "./Perfis";
 import { privateContacts } from "../local";
 import { useSession } from "../session";
 
@@ -41,6 +42,7 @@ export function Pessoas() {
   const { member } = useSession();
   const [contacts, setContacts] = useState<Contact[] | null>(null);
   const names = privateContacts.all();
+  const cat = useCatalogue();
 
   useEffect(() => {
     api<{ contacts: Contact[] }>("/contacts").then((r) => setContacts(r.contacts));
@@ -80,6 +82,13 @@ export function Pessoas() {
           ))}
         </ol>
         <p className="why"><Link to="/como-funciona">Por quê?</Link></p>
+      </section>
+
+      <section className="by-quote">
+        <h2>Comece pelo que a pessoa diz</h2>
+        <p className="muted">Reconheça o jeito de pensar e veja o que funciona. Sem cadastro, sem salvar nada.</p>
+        {cat && <QuoteGrid personas={cat.personas} hrefFor={(id) => `/perfis/${id}`} />}
+        <p className="muted small">Vai conversar com gente que você não conhece? <Link to="/rua">O guia da rua</Link> é diferente.</p>
       </section>
 
       <div className="row between people-head">
