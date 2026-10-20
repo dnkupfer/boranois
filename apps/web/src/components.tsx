@@ -54,7 +54,7 @@ function ConsentBanner() {
     <div className="consent" role="dialog" aria-label="Privacidade">
       <p>
         O app guarda no seu aparelho o que precisa para funcionar (sua sessão e as pessoas que você adiciona). Para melhorar o
-        app, gostaríamos também de medir o uso de forma anônima: nunca nomes, telefones ou mensagens.
+        app, gostaríamos também de medir o uso de forma anônima: nunca nomes ou mensagens.
       </p>
       <div className="row">
         <button className="primary" onClick={() => pick("all")}>Aceitar</button>

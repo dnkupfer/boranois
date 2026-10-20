@@ -5,7 +5,8 @@ import type { GroupId } from "@boranois/shared";
 
 export type PrivateContact = {
   nickname: string;
-  phone: string;
+  /** Never asked anymore. Old entries may still carry one; `all()` strips it. */
+  phone?: string;
   note: string;
   /** Chips the member typed in ("+ outra"). Kept here; only an anonymous count goes to the server. */
   customChips: string[];
@@ -32,10 +33,18 @@ function write(key: string, value: unknown) {
   }
 }
 
-const EMPTY: PrivateContact = { nickname: "", phone: "", note: "", customChips: [] };
+const EMPTY: PrivateContact = { nickname: "", note: "", customChips: [] };
 
 export const privateContacts = {
-  all: () => read<Record<string, PrivateContact>>(CONTACTS_KEY, {}),
+  all: () => {
+    const all = read<Record<string, PrivateContact>>(CONTACTS_KEY, {});
+    // Phone numbers were collected before 20 Oct 2026. Drop any still on the device.
+    if (Object.values(all).some((c) => c.phone !== undefined)) {
+      for (const c of Object.values(all)) delete c.phone;
+      write(CONTACTS_KEY, all);
+    }
+    return all;
+  },
   get: (id: string): PrivateContact => ({ ...EMPTY, ...privateContacts.all()[id] }),
   set: (id: string, c: PrivateContact) => write(CONTACTS_KEY, { ...privateContacts.all(), [id]: c }),
   remove: (id: string) => {
@@ -65,8 +74,7 @@ export const profile = {
 };
 
 /** wa.me link for a Brazilian number typed any which way. */
-export function whatsappLink(phone: string, text: string) {
-  let digits = phone.replace(/\D/g, "");
-  if (digits.length === 10 || digits.length === 11) digits = `55${digits}`;
-  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+/** Opens WhatsApp with the text ready; the person picks the contact there. No number is ever stored. */
+export function whatsappLink(text: string) {
+  return `https://wa.me/?text=${encodeURIComponent(text)}`;
 }

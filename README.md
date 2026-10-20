@@ -147,7 +147,8 @@ Every fact in [content/facts.json](content/facts.json) carries a source (TSE/TRE
 ## Privacy and the law
 
 - **No account needed.** A session is created anonymously on the device. Email (magic link) is optional, only to continue on another device.
-- **Names, phone numbers, notes and coach conversations never leave the device.** The server knows a person only as an id plus chips, persona, state and outcome chips. Replies pasted into the coach are used for that answer and not stored.
+- **No phone numbers, ever.** The app doesn't ask for the other person's number; "Abrir no WhatsApp" opens WhatsApp with the text ready and the user picks the contact there.
+- **Names, notes and coach conversations never leave the device.** The server knows a person only as an id plus chips, persona, state and outcome chips. Replies pasted into the coach are used for that answer and not stored.
 - **Analytics only with consent**, first-party, anonymous: never names, phones or messages. Used to see where people drop off.
 - **Gender:** users pick Ela / Ele / Elu, and all guidance is inflected accordingly, including non-binary forms.
 - **Brazilian electoral law.** Nothing is boosted, paid for, mass-sent or automated (Lei 9.504/97). The relationship picker has no boss/employee option: pressuring subordinates is *assédio eleitoral*. The terms ask users to talk only with people they know, personally.

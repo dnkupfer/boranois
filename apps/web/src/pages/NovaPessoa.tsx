@@ -33,7 +33,6 @@ export function NovaPessoa() {
   const [screen, setScreen] = useState<Screen>("quem");
   const [nickname, setNickname] = useState("");
   const [gender, setGender] = useState<GenderId[]>([]);
-  const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
   const [visits, setVisits] = useState<Visit[]>([]);
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
@@ -254,7 +253,7 @@ export function NovaPessoa() {
       const contact = await api<Contact>("/contacts", { body: { chips } });
       doneRef.current = true;
       track("nova_done", { persona: contact.match.personaId, priority: contact.priority.level, questions: asked.length });
-      privateContacts.set(contact.id, { nickname: nickname.trim(), phone: phone.trim(), note: note.trim(), customChips: customAll });
+      privateContacts.set(contact.id, { nickname: nickname.trim(), note: note.trim(), customChips: customAll });
       // Anonymous: which chips were used. Typed answers were already counted when interpreted.
       const real = asked.filter((qid) => !qid.startsWith("ai_"));
       api("/chips/usage", { body: { answers: real.map((qid) => ({ questionId: qid, optionIds: answer(qid).optionIds, custom: aiAvailable ? [] : answer(qid).custom })) } }).catch(() => {});
@@ -286,17 +285,13 @@ export function NovaPessoa() {
           }}
         >
           <h1>Quem é?</h1>
-          <p className="muted small">Nome e telefone ficam só no seu aparelho.</p>
+          <p className="muted small">O nome fica só no seu aparelho.</p>
           <label>
             Como você chama essa pessoa?
             <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="tia Lu, Zé do mercado…" autoFocus enterKeyHint="next" />
           </label>
           <p className="label">Falo de…</p>
           <ChipGroup options={GENDERS} value={gender} onChange={(g) => { setGender(g); setQuemHint(null); }} max={1} />
-          <label>
-            WhatsApp (com DDD) <span className="muted">(opcional)</span>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="11 99999-0000" enterKeyHint="go" />
-          </label>
           {!flow && !flowError && <p className="muted small">Carregando as perguntas…</p>}
           {flowError && (
             <p className="error small">

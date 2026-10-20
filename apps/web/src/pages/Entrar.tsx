@@ -79,7 +79,7 @@ export function Entrar() {
             <p className="muted small">Sem senha. Você recebe um link por e-mail e entra com um toque.</p>
           </form>
           <p className="muted small">
-            Nomes, telefones e anotações ficam sempre só no aparelho onde você os escreveu, com ou sem e-mail.{" "}
+            Nomes e anotações ficam sempre só no aparelho onde você os escreveu, com ou sem e-mail.{" "}
             <Link to="/">Voltar</Link>
           </p>
         </>
