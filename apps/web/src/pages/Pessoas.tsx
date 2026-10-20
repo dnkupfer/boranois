@@ -20,9 +20,13 @@ const STATE_LABEL: Record<ContactState, string> = {
 };
 const YOUR_TURN: ContactState[] = ["conversando", "objecao", "novo"];
 
-const POINTS = [
+/** Numbers here are the catalogue's verified facts (content/facts.json): TSE final count, Quaest 14/10. */
+const ABSTENCAO_URL = "https://agenciabrasil.ebc.com.br/politica/noticia/2026-10/eleicoes-abstencao-cresce-216-e-soma-33-milhoes-de-brasileiros";
+const POINTS: React.ReactNode[] = [
   "A parte das redes mantém: assiste até o fim, compartilha, salva, próximo.",
-  "Tem 30 milhões de pessoas que não odeiam o Lula, ou odeiam mais o Flávio, e não vão votar.",
+  <>
+    <a href={ABSTENCAO_URL} target="_blank" rel="noreferrer">33 milhões</a> ficaram em casa no 1º turno. Entre eles, mais gente prefere o Lula do que o Flávio.
+  </>,
   "Para achar essas pessoas, todo mundo precisa conversar com todo mundo.",
   "Boa intenção não basta. Deep canvassing: dez minutos sobre a vida da pessoa, não sobre o candidato. Testado em campo.",
 ];
@@ -68,7 +72,7 @@ export function Pessoas() {
   return (
     <Layout>
       <header className="hero">
-        <h1>Cada conversa conta. Mas <mark>com método</mark> conta mais!</h1>
+        <h1>Cada conversa conta. <mark>Com método</mark> conta mais!</h1>
         <p className="sub">
           Agora é corpo a corpo. {countdown() ?? ""} O <Link to="/como-funciona">deep canvassing</Link> é cientificamente comprovado como o jeito mais eficiente de convencer.
         </p>
