@@ -24,7 +24,7 @@ const POINTS = [
   "Rede social a gente já sabe: assiste até o fim, compartilha, salva, próximo.",
   "Tem 30 milhões de pessoas que não odeiam o Lula, ou odeiam mais o Flávio, e não vão votar.",
   "Para achar essas pessoas, todo mundo precisa conversar com todo mundo.",
-  "Boa intenção não basta. Existe método para a conversa funcionar. Esta página mostra.",
+  "Boa intenção não basta. Deep canvassing: dez minutos sobre a vida da pessoa, não sobre o candidato. Testado em campo.",
 ];
 /** "Faltam 5 dias", computed in Brazil's calendar; silent once the election has passed. */
 function countdown(): string | null {
@@ -68,9 +68,9 @@ export function Pessoas() {
   return (
     <Layout>
       <header className="hero">
-        <h1>Conversar pra <mark>virar!</mark></h1>
+        <h1>Cada conversa conta. Mas <mark>com método</mark> conta mais!</h1>
         <p className="sub">
-          Agora é cara a cara. {countdown() ?? ""} Não dá para gastar na conversa errada.
+          Agora é cara a cara. {countdown() ?? ""} O <Link to="/como-funciona">deep canvassing</Link> é o jeito mais eficiente que se conhece de convencer.
         </p>
       </header>
 
