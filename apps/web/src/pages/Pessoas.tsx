@@ -21,10 +21,10 @@ const STATE_LABEL: Record<ContactState, string> = {
 const YOUR_TURN: ContactState[] = ["conversando", "objecao", "novo"];
 
 const POINTS = [
-  "Curtir, compartilhar e comentar não muda voto. Conversa muda.",
-  "Opinião não vem de fatos. Vem do grupo. Quem convence é quem a pessoa confia.",
-  "Existe método, testado em campo: perguntar antes de argumentar.",
-  "Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.",
+  "Rede social a gente já sabe: assiste até o fim, compartilha, salva, próximo.",
+  "Tem 30 milhões de pessoas que não odeiam o Lula, ou odeiam mais o Flávio, e não vão votar.",
+  "Para achar essas pessoas, todo mundo precisa conversar com todo mundo.",
+  "Boa intenção não basta. Existe método para a conversa funcionar. Esta página mostra.",
 ];
 /** "Faltam 5 dias", computed in Brazil's calendar; silent once the election has passed. */
 function countdown(): string | null {
@@ -68,10 +68,9 @@ export function Pessoas() {
   return (
     <Layout>
       <header className="hero">
-        <h1>Curtir não vira voto. <mark>Conversa vira.</mark></h1>
+        <h1>Conversar pra <mark>virar!</mark></h1>
         <p className="sub">
-          Enquanto a gente se engaja nas redes, quem decide o voto é quem está perto. Existe um{" "}
-          <Link to="/como-funciona">método</Link>. {countdown() ?? ""} Não dá para gastar na conversa errada.
+          Agora é cara a cara. {countdown() ?? ""} Não dá para gastar na conversa errada.
         </p>
       </header>
 
@@ -88,21 +87,16 @@ export function Pessoas() {
             <p className="eyebrow">O melhor caminho</p>
             <h3>Alguém que você conhece</h3>
             <p>
-              Pense com calma. Um parente, uma amiga, um vizinho, alguém do trabalho que <strong>não votou no 1º turno, anulou ou está em dúvida</strong>.
-              A confiança que já existe é o que faz a conversa entrar. É aqui que você faz mais diferença.
+              Pense bem: parente, amiga, vizinho, colega que <strong>não votou, anulou ou está em dúvida</strong>. Confiança é o que faz a conversa entrar.
             </p>
             <Link className="cta" to="/nova"><span className="plus">+</span> Influenciar uma pessoa a votar certo</Link>
-            <p className="small"><Link to="/perfis">Ver primeiro os perfis e o que funciona com cada um</Link></p>
           </div>
           <div className="card path">
-            <p className="eyebrow">Se não tiver ninguém</p>
+            <p className="eyebrow">Não tem ninguém?</p>
             <h3>Vá para a rua</h3>
-            <p>
-              Pensou bem e ninguém que você conhece se encaixa? Então a rua é o melhor uso do seu tempo: feira, ponto de ônibus, porta de escola.
-              Dois minutos, uma dúvida plantada, um plano para domingo.
-            </p>
+            <p>Feira, ponto de ônibus, porta de escola. Dois minutos, um plano para domingo.</p>
             <Link className="button" to="/rua">O guia da rua</Link>
-            <p className="small muted">Permitido até sábado, 22h. No domingo, não.</p>
+            <p className="small muted">Até sábado, 22h.</p>
           </div>
         </div>
       </section>
