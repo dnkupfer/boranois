@@ -11,6 +11,7 @@ import { Perfil, Perfis } from "./pages/Perfis";
 import { Termos } from "./pages/Termos";
 import { Privacidade } from "./pages/Privacidade";
 import { Admin } from "./pages/Admin";
+import { Rua } from "./pages/Rua";
 import "./styles.css";
 
 /** Waits for the (anonymous or e-mail) session to exist. Nothing is gated behind an account. */
@@ -44,6 +45,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/rua" element={<Rua />} />
           <Route path="/" element={<RequireSession><Pessoas /></RequireSession>} />
           <Route path="/nova" element={<RequireSession><NovaPessoa /></RequireSession>} />
           <Route path="/pessoa/:id" element={<RequireSession><Pessoa /></RequireSession>} />

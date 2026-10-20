@@ -20,12 +20,25 @@ const STATE_LABEL: Record<ContactState, string> = {
 };
 const YOUR_TURN: ContactState[] = ["conversando", "objecao", "novo"];
 
-const POINTS = [
-  "Redes importam. Mas quem decide o voto é quem está perto.",
-  "Opinião não vem de fatos. Vem do grupo.",
-  "O Boranois mostra como a pessoa pensa e o que dizer.",
-  "Manipular é convencer contra o interesse dela. Influenciar é convencer a favor.",
+/** Numbers here are the catalogue's verified facts (content/facts.json): TSE final count, Quaest 14/10. */
+const ABSTENCAO_URL = "https://agenciabrasil.ebc.com.br/politica/noticia/2026-10/eleicoes-abstencao-cresce-216-e-soma-33-milhoes-de-brasileiros";
+const POINTS: React.ReactNode[] = [
+  "A parte das redes mantém: assiste até o fim, compartilha, salva, próximo.",
+  <>
+    <a href={ABSTENCAO_URL} target="_blank" rel="noreferrer">33 milhões</a> ficaram em casa no 1º turno. Entre eles, mais gente prefere o Lula do que o Flávio.
+  </>,
+  "Para achar essas pessoas, todo mundo precisa conversar com todo mundo.",
+  "Boa intenção não basta. Deep canvassing: dez minutos sobre a vida da pessoa, não sobre o candidato. Testado em campo.",
 ];
+/** "Faltam 5 dias", computed in Brazil's calendar; silent once the election has passed. */
+function countdown(): string | null {
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
+  const days = Math.round((Date.UTC(2026, 9, 25) - Date.parse(today + "T00:00:00Z")) / 86400000);
+  if (days > 1) return `Faltam ${days} dias.`;
+  if (days === 1) return "É amanhã.";
+  if (days === 0) return "É hoje.";
+  return null;
+}
 const RULES = ["Pergunte. Depois cale.", "Não mande link.", "Fato só se ela pedir. Um.", "Não discuta. Nunca.", "Ela decide."];
 
 export function ago(iso: string | null | undefined): string | null {
@@ -59,17 +72,37 @@ export function Pessoas() {
   return (
     <Layout>
       <header className="hero">
-        <h1>Convença alguém que você conhece a <mark>ir votar</mark></h1>
+        <h1>Cada conversa conta. <mark>Com método</mark> conta mais!</h1>
         <p className="sub">
-          Usando <Link to="/como-funciona">método científico</Link>, testado em campo.
+          Agora é corpo a corpo. {countdown() ?? ""} O <Link to="/como-funciona">deep canvassing</Link> é cientificamente comprovado como o jeito mais eficiente de convencer.
         </p>
-        <Link className="cta" to="/nova"><span className="plus">+</span> Influenciar uma pessoa a votar certo</Link>
       </header>
 
       <section className="points">
         {POINTS.map((p, i) => (
           <div className="card" key={i}><div className="ico">{i + 1}</div><p>{p}</p></div>
         ))}
+      </section>
+
+      <section className="paths">
+        <h2>Dois caminhos</h2>
+        <div className="path-grid">
+          <div className="card path best">
+            <p className="eyebrow">O melhor caminho</p>
+            <h3>Alguém que você conhece</h3>
+            <p>
+              Pense bem: parente, amiga, vizinho, colega que <strong>não votou, anulou ou está em dúvida</strong>. Confiança é o que faz a conversa entrar.
+            </p>
+            <Link className="cta" to="/nova"><span className="plus">+</span> Influenciar uma pessoa a votar certo</Link>
+          </div>
+          <div className="card path">
+            <p className="eyebrow">Não tem ninguém?</p>
+            <h3>Vá para a rua</h3>
+            <p>Feira, ponto de ônibus, porta de escola. Dois minutos, um plano para domingo.</p>
+            <Link className="button" to="/rua">O guia da rua</Link>
+            <p className="small muted">Até sábado, 22h.</p>
+          </div>
+        </div>
       </section>
 
       <section className="rules">
@@ -81,6 +114,7 @@ export function Pessoas() {
         </ol>
         <p className="why"><Link to="/como-funciona">Por quê?</Link></p>
       </section>
+
 
       <div className="row between people-head">
         <h2>Suas pessoas{member?.name ? `, ${member.name}` : ""}</h2>

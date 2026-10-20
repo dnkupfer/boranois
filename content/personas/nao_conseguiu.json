@@ -79,6 +79,15 @@
       "why": "Ela já decidiu votar. Argumento só gasta a conversa."
     }
   ],
+  "rua": {
+    "abra": "“Você votou no 1º turno? O que impediu?”",
+    "diga": [
+      "Resolva o problema, não a opinião: horário, criança, distância, título.",
+      "“Trabalha domingo? Vai antes do turno; a urna abre às 8h.” “Leva a criança, pode.”",
+      "Título atrasado? Ainda dá para votar com documento com foto."
+    ],
+    "feche": "Combine hora e lugar. Se der, vá junto."
+  },
   "steps": [
     {
       "id": "abrir",

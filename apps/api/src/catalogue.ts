@@ -73,6 +73,8 @@ export const PersonaSchema = z.object({
   /** Specific and actionable: timing, channel, wording, what to do with her reply. */
   tactics: z.array(z.object({ title: z.string().min(1), detail: z.string().min(1) })).min(1),
   avoid: z.array(z.object({ what: z.string().min(1), why: z.string().min(1) })),
+  /** Two minutes with a stranger on the street: how to open, what to say, how to close. */
+  rua: z.object({ abra: z.string().min(1), diga: z.array(z.string().min(1)).min(1).max(4), feche: z.string().min(1) }).optional(),
   steps: z.array(StepSchema),
   objections: z.partialRecord(SayingId, ObjectionSchema).default({}),
 });
@@ -275,5 +277,6 @@ export function toPublic(p: PersonaDef): PublicPersona {
     engage: p.engage,
     tactics: p.tactics,
     avoid: p.avoid,
+    rua: p.rua ?? null,
   };
 }

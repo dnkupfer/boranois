@@ -101,6 +101,15 @@
       "why": "Ela não quer ouvir o Lula. Quer ser ouvida."
     }
   ],
+  "rua": {
+    "abra": "“Tá difícil escolher, né? O que te afasta de cada um?”",
+    "diga": [
+      "Não venda o Lula. Concorde: dá para não gostar de nenhum.",
+      "“Não é torcida. É escolher qual dos dois você aguenta por quatro anos.”",
+      "“Nulo não é protesto no 2º turno. É deixar os outros escolherem.”"
+    ],
+    "feche": "“Vai lá e decide na urna. Sabe onde é a seção?”"
+  },
   "steps": [
     {
       "id": "abrir",

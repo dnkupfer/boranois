@@ -111,6 +111,15 @@
       "why": "Não é onde ela decide, e é onde a conversa morre."
     }
   ],
+  "rua": {
+    "abra": "“Você é de igreja? Posso te perguntar uma coisa, sem discutir política?”",
+    "diga": [
+      "Pergunte o que a igreja dela ensina sobre cuidar dos pobres e da família. Ouça.",
+      "“Eu também acredito que fé é cuidar de gente.” Nunca diga que a igreja está errada.",
+      "Um fato só se ela pedir, e um só: o que cada governo fez por quem precisa."
+    ],
+    "feche": "“Domingo você vai? Vai com alguém da igreja?”"
+  },
   "steps": [
     {
       "id": "abrir",

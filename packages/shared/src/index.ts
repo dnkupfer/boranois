@@ -351,6 +351,8 @@ export type PublicPersona = {
   };
   engage: boolean;
   tactics: { title: string; detail: string }[];
+  /** Street version: open, say, close. */
+  rua: { abra: string; diga: string[]; feche: string } | null;
   avoid: { what: string; why: string }[];
 };
 

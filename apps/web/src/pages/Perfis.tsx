@@ -5,7 +5,7 @@ import { api } from "../api";
 import { Layout } from "../components";
 
 let cache: CatalogueResponse | null = null;
-function useCatalogue() {
+export function useCatalogue() {
   const [cat, setCat] = useState<CatalogueResponse | null>(cache);
   useEffect(() => {
     if (!cache) api<CatalogueResponse>("/catalogue").then((c) => ((cache = c), setCat(c)));
@@ -103,6 +103,17 @@ export function Perfil() {
         </section>
       )}
 
+      {p.rua && (
+        <>
+          <h2 className="section-title">Na rua, em dois minutos</h2>
+          <section className="fact-list">
+            <Fact tone="mint" label="Abra">{p.rua.abra}</Fact>
+            <Fact tone="sky" label="Diga">{p.rua.diga.join(" ")}</Fact>
+            <Fact tone="butter" label="Feche">{p.rua.feche}</Fact>
+          </section>
+        </>
+      )}
+
       {p.avoid.length > 0 && (
         <>
           <h2 className="section-title">Evite</h2>
@@ -112,6 +123,13 @@ export function Perfil() {
             ))}
           </section>
         </>
+      )}
+      {p.engage && (
+        <section className="card follow">
+          <h2>É alguém que você conhece?</h2>
+          <p className="muted">Salve a pessoa e o app sugere cada passo: o que mandar, quanto esperar, o que fazer com a resposta.</p>
+          <Link className="cta" to="/nova"><span className="plus">+</span> Influenciar essa pessoa a votar certo</Link>
+        </section>
       )}
     </Layout>
   );

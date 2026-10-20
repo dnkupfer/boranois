@@ -98,6 +98,15 @@
       "why": "Uma basta. Mais que isso é pressão, e pressão confirma a raiva."
     }
   ],
+  "rua": {
+    "abra": "“Você votou no 1º turno? Anulou? Eu entendo. Posso te perguntar o que te deu raiva?”",
+    "diga": [
+      "Concorde com a raiva antes de qualquer coisa: “faz sentido”. Ouça até o fim.",
+      "“No 2º turno o nulo não é contado em lugar nenhum. A sua raiva some.”",
+      "“Votar não é perdoar ninguém. É não deixar o outro decidir por você.”"
+    ],
+    "feche": "“Se for, vai de manhã? Sabe onde é a sua seção?” Agradeça e vá."
+  },
   "steps": [
     {
       "id": "abrir",

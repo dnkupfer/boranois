@@ -11,7 +11,10 @@
   .in{position:absolute;inset:0;padding:64px 80px;display:flex;flex-direction:column;justify-content:space-between}
   .brand{display:flex;align-items:center;gap:14px;font-weight:800;font-size:34px;color:#0f6b6b;letter-spacing:-.01em}
   .brand img{width:48px;height:48px}
-  h1{margin:0;font-weight:800;font-size:92px;line-height:1.0;letter-spacing:-.035em;max-width:980px}
+  h1{margin:0;font-weight:800;font-size:78px;line-height:1.04;letter-spacing:-.035em;max-width:1040px}
+  .chips{display:flex;gap:14px;flex-wrap:wrap}
+  .chip{border-radius:999px;padding:16px 26px;font-weight:800;font-size:26px;background:#fff;box-shadow:0 8px 24px rgba(31,42,46,.08)}
+  .chip.a{background:#ffd9c2}.chip.b{background:#cfeee3}.chip.c{background:#d6e6ff}.chip.d{background:#fff1b8}
   mark{background:linear-gradient(transparent 55%,#fff1b8 55%);color:inherit;padding:0 .08em;white-space:nowrap}
   .cta{display:inline-flex;align-items:center;gap:14px;background:#0f6b6b;color:#fff;border-radius:999px;padding:20px 32px;font-weight:800;font-size:28px;box-shadow:0 14px 36px rgba(15,107,107,.25);align-self:flex-start}
   .cta b{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#fff;color:#0f6b6b;font-size:26px}
@@ -20,7 +23,7 @@
   <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
   <div class="in">
     <div class="brand"><img src="favicon.svg" alt="">Boranois</div>
-    <h1>Convença alguém que você conhece a <mark>ir votar</mark></h1>
-    <div class="cta"><b>+</b> Convencer uma pessoa a votar certo</div>
+    <h1>Alguém que você conhece não vai votar? <mark>Veja o que dizer.</mark></h1>
+    <div class="chips"><span class="chip a">Como a pessoa pensa</span><span class="chip b">O que dizer</span><span class="chip c">O que evitar</span><span class="chip d">Em casa ou na rua</span></div>
   </div>
 </body></html>

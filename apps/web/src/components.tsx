@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import type { Priority } from "@boranois/shared";
+import type { Priority, PublicPersona } from "@boranois/shared";
 import { getConsent, setConsent, track } from "./analytics";
 import { useSession } from "./session";
 
@@ -21,6 +21,7 @@ export function Layout({ children, narrow }: { children: React.ReactNode; narrow
         <Link to="/" className="brand">Boranois</Link>
         <nav>
           {token && <NavLink to="/">Pessoas</NavLink>}
+          <NavLink to="/rua">Na rua</NavLink>
           <NavLink to="/como-funciona">Como funciona</NavLink>
           {isAdmin && <NavLink to="/admin">Admin</NavLink>}
           {member?.email ? <button className="link" onClick={signOut}>Sair</button> : emailAvailable ? <NavLink to="/entrar">Entrar com e-mail</NavLink> : null}
@@ -156,6 +157,34 @@ export function ChipGroup<T extends string>({
           <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Escreva com suas palavras" maxLength={60} autoFocus onBlur={addCustom} />
         </form>
       )}
+    </div>
+  );
+}
+
+/**
+ * The twelve personas as the sentence each one says. Tapping is how you recognise someone in
+ * 30 seconds; the catalogue's own quotes are what people actually say.
+ */
+export function QuoteGrid({
+  personas, selected, onPick, hrefFor,
+}: { personas: PublicPersona[]; selected?: string | null; onPick?: (id: string) => void; hrefFor?: (id: string) => string }) {
+  return (
+    <div className="quotes">
+      {personas.map((p, i) => {
+        const inner = (
+          <>
+            <span className={`quote-mark t${i % 4}`}>“</span>
+            <span className="quote-text">{p.profile.identity.replace(/^[“"]|[”"]$/g, "")}</span>
+            <span className="quote-who">{p.name}</span>
+          </>
+        );
+        const cls = `quote-card ${selected === p.id ? "on" : ""} ${p.engage ? "" : "stop"}`;
+        return hrefFor ? (
+          <Link key={p.id} to={hrefFor(p.id)} className={cls}>{inner}</Link>
+        ) : (
+          <button key={p.id} type="button" className={cls} onClick={() => onPick?.(p.id)} aria-pressed={selected === p.id}>{inner}</button>
+        );
+      })}
     </div>
   );
 }

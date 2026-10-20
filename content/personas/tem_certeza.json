@@ -84,6 +84,13 @@
       "why": "Não existe “só um fato” com quem tem certeza. Só desgaste, e uma relação a menos."
     }
   ],
+  "rua": {
+    "abra": "Reconheça em uma frase: “o PT roubou”, “eu sei o que vi”. Não é a sua pessoa.",
+    "diga": [
+      "Não discuta. Nada do que você disser entra, e você perde dez minutos que valem com outra pessoa."
+    ],
+    "feche": "“Valeu pelo papo, boa semana.” E a próxima pessoa."
+  },
   "steps": [
     {
       "id": "nao_engajar",
