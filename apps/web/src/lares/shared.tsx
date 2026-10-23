@@ -46,7 +46,7 @@ export async function laresApi<T>(path: string, init: { method?: string; body?: 
 
 export const STATUS_LABEL: Record<LarStatus, string> = {
   livre: "Ninguém ligou ainda", ligando: "Alguém está ligando", telefone_errado: "Telefone errado", sem_interesse: "Sem interesse",
-  interessados: "Têm interessados", ajudantes: "Ajuda combinada",
+  interessados: "Precisam de companhia", ajudantes: "Ajuda combinada", resolvido: "Vão votar, já resolvido",
 };
 export function statusLabel(h: Lar) {
   if (h.status === "livre" && h.last_outcome === "nao_atendeu") return `Não atendeu (${h.tries}×)`;
@@ -60,10 +60,11 @@ export const fmtKm = (d: number | null | undefined) => (d == null ? null : d < 1
 export const UFS = ["AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"];
 
 export const SCRIPT = [
-  "Olá, meu nome é ___. Sou voluntário(a) de um grupo de vizinhos, sem ligação com partido ou campanha.",
-  "Queremos saber se há moradores que gostariam de votar no domingo e precisam de companhia para chegar ao local de votação, a pé ou de transporte público.",
-  "Podemos ajudar? Quantos moradores? Que horas seria melhor? Vocês sabem qual é o local de votação deles?",
-  "Se for não: “Sem problema, obrigado(a) pelo tempo.” E a próxima casa.",
+  "Olá, meu nome é ___. Sou voluntário(a) de um grupo de vizinhos. Não sou de campanha nem de partido.",
+  "Queremos saber se há moradores que gostariam de votar no domingo e precisam de companhia para chegar ao local de votação.",
+  "A casa tem van e leva os moradores? Se não: a gente acompanha a pé ou no transporte público, que é de graça acima de 65. A seção deles é perto?",
+  "Quantos moradores? Que horas seria melhor? Com quem eu falo no domingo?",
+  "Se perguntarem em quem você vota, diga: até sábado às 22h pode. Se for não: “Sem problema, obrigado(a).” E a próxima casa.",
 ];
 
 export function LaresLayout({ children, narrow }: { children: React.ReactNode; narrow?: boolean }) {
@@ -78,6 +79,7 @@ export function LaresLayout({ children, narrow }: { children: React.ReactNode; n
           <NavLink to={BASE} end>Casas</NavLink>
           <NavLink to={`${BASE}/painel`}>Painel</NavLink>
           <NavLink to={`${BASE}/ajudar`}>Ajudar no domingo</NavLink>
+          <NavLink to={`${BASE}/domingo`}>Guia do domingo</NavLink>
         </nav>
       </header>
       <main>{children}</main>

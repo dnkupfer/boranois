@@ -54,7 +54,7 @@ export function Lar() {
 
   if (!d) return <LaresLayout narrow><p className="muted">Carregando…</p></LaresLayout>;
   const { home, calling, helpers, history } = d;
-  const needsCount = outcome[0] === "interessados" || outcome[0] === "ajudantes";
+  const needsCount = ["interessados", "ajudantes", "van", "ja_tem"].includes(outcome[0] ?? "");
 
   return (
     <LaresLayout narrow>
@@ -121,7 +121,7 @@ export function Lar() {
       <section className="card">
         <h2>Vizinhos para domingo</h2>
         {helpers.length === 0 ? (
-          <p className="muted">Ninguém ainda. {home.status === "interessados" ? "Essa casa tem moradores interessados: " : ""}<Link to={`${BASE}/ajudar?home=${home.id}`}>Quero acompanhar daqui</Link>.</p>
+          <p className="muted">Ninguém ainda. {home.status === "interessados" ? "Essa casa tem moradores que precisam de companhia: " : ""}<Link to={`${BASE}/ajudar?home=${home.id}`}>Quero acompanhar daqui</Link>.</p>
         ) : (
           <ul className="plain">
             {helpers.map((h, i) => <li key={i}><strong>{h.name}</strong>{h.neighbourhood ? ` (${h.neighbourhood})` : ""}: {h.contact}</li>)}
@@ -138,7 +138,7 @@ export function Lar() {
           </ul>
         </section>
       )}
-      {vol && <p className="muted small">Você: {vol.name}.</p>}
+      <p className="muted small"><Link to={`${BASE}/domingo`}>O que fazer no domingo</Link>. {vol ? `Você: ${vol.name}.` : ""}</p>
     </LaresLayout>
   );
 }

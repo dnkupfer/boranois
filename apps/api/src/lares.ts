@@ -8,12 +8,14 @@ import { newId } from "./ids.js";
 // No resident data is ever stored: only counts and what the staff said.
 
 const CLAIM_TTL = "2 hours";
-export const OUTCOMES = ["nao_atendeu", "telefone_errado", "sem_interesse", "interessados", "ajudantes"] as const;
+export const OUTCOMES = ["nao_atendeu", "telefone_errado", "sem_interesse", "interessados", "van", "ja_tem", "ajudantes"] as const;
 const STATUS_AFTER: Record<(typeof OUTCOMES)[number], string> = {
   nao_atendeu: "livre",
   telefone_errado: "telefone_errado",
   sem_interesse: "sem_interesse",
   interessados: "interessados",
+  van: "resolvido",
+  ja_tem: "resolvido",
   ajudantes: "ajudantes",
 };
 
@@ -104,7 +106,7 @@ export function laresRouter(pool: pg.Pool) {
     await expire();
     const [byStatus, byState, helpers, calling] = await Promise.all([
       pool.query(`select status, count(*)::int n from lares group by status`),
-      pool.query(`select state, count(*)::int total, count(*) filter (where status in ('interessados','ajudantes'))::int interested, count(*) filter (where status <> 'livre' or tries > 0)::int touched from lares group by state order by total desc`),
+      pool.query(`select state, count(*)::int total, count(*) filter (where status in ('interessados','ajudantes','resolvido'))::int interested, count(*) filter (where status <> 'livre' or tries > 0)::int touched from lares group by state order by total desc`),
       pool.query(`select count(*)::int n from lares_helpers`),
       pool.query(`select count(*)::int n from lares_claims where released_at is null`),
     ]);

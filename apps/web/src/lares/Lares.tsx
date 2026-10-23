@@ -92,10 +92,11 @@ export function Lares() {
       <section className="card law">
         <h2>Três regras, e são lei</h2>
         <p>
-          <strong>Sem carro.</strong> Transporte de eleitor só pela Justiça Eleitoral (Lei 6.091/74): acompanhe a pé ou de ônibus, metrô, trem.{" "}
-          <strong>Sem partido.</strong> Nenhum candidato, nenhum material, nenhuma conversa sobre voto.{" "}
+          <strong>Sem carro.</strong> No dia da eleição, só a Justiça Eleitoral pode oferecer transporte a eleitor (Lei 6.091/74, art. 11). Levar de carro é crime, com boa intenção ou sem, e quem responde também é a casa. O que pode: a pé, transporte público (de graça acima de 65), a van da própria casa, ou táxi pago pela própria pessoa.{" "}
+          <strong>Sem condicionar.</strong> A ajuda é para quem quer votar, em quem for. Até sábado às 22h você pode dizer em quem vota e conversar sobre a eleição. <strong>No domingo, não:</strong> a propaganda acaba sábado às 22h (Código Eleitoral, art. 240) e no dia da eleição só vale manifestação individual e silenciosa (Lei 9.504, art. 39-A). Nunca condicione a ajuda ao voto (art. 299) nem pressione quem depende de você (art. 301).{" "}
           <strong>Só quem pedir.</strong> Acima de 70 anos o voto é facultativo. Ajudamos quem quer ir.
         </p>
+        <p className="small"><Link to={`${BASE}/domingo`}>O que fazer no domingo, passo a passo</Link>.</p>
       </section>
 
       <section className="rules lares-rules">
@@ -103,12 +104,12 @@ export function Lares() {
         <ol>
           <li><b>1</b><span>Escolha uma casa na lista abaixo e aperte <strong>“Vou ligar para esta”</strong>. A casa fica marcada como sua: assim outra pessoa não liga para a mesma.</span></li>
           <li><b>2</b><span>Ligue pelo número que aparece. Tem um roteiro pronto do que dizer.</span></li>
-          <li><b>3</b><span>Depois da ligação, marque o que aconteceu: não atenderam, não têm interesse, ou têm moradores que querem ir.</span></li>
+          <li><b>3</b><span>Depois da ligação, marque o que aconteceu: não atenderam, não têm interesse, a casa leva na van, ou têm moradores que precisam de companhia.</span></li>
           <li><b>4</b><span>Se houver moradores interessados, um vizinho combina de acompanhar no domingo. Quem mora perto se oferece <Link to={`${BASE}/ajudar`}>aqui</Link>.</span></li>
         </ol>
       </section>
 
-      {isSunday && <p className="card law stop"><strong>Hoje é domingo:</strong> dia de acompanhar, não de ligar. Nada de voto na conversa; só companhia até a seção.</p>}
+      {isSunday && <p className="card law stop"><strong>Hoje é domingo:</strong> dia de acompanhar, não de ligar. <Link to={`${BASE}/domingo`}>O guia do domingo</Link>.</p>}
 
       <section className="finder">
         <form className="cep-form" onSubmit={useCep}>
