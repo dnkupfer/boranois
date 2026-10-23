@@ -94,7 +94,7 @@ export function Lares() {
         <div className="rule3">
           <span className="tag peach">Sem carro</span>
           <div>
-            <p>Acompanhe a pé, de transporte público (grátis acima de 65), na van da própria casa, ou em táxi pago pela própria pessoa. <strong>Nunca no seu carro.</strong></p>
+            <p>Acompanhe a pé, de transporte público (grátis acima de 65), na van da própria casa, ou em táxi (ou carro de aplicativo) pago pela própria pessoa. <strong>Nunca no seu carro.</strong></p>
             <p className="muted small">No dia da eleição, só a Justiça Eleitoral pode transportar eleitor (Lei 6.091/74, art. 11). É crime mesmo com boa intenção, e a casa responde junto.</p>
           </div>
         </div>
