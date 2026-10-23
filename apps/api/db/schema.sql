@@ -80,3 +80,55 @@ create table if not exists events (
 );
 create index if not exists events_ts_idx on events (ts);
 create index if not exists events_aid_idx on events (aid, ts);
+
+-- Casas de repouso: volunteers call care homes on Saturday and arrange company for Sunday.
+-- Rows come from the Receita Federal registry (CNAE 8711-5). No resident data, ever: counts and staff notes only.
+create table if not exists lares (
+  id                text primary key,            -- CNPJ, or a generated id for manual rows
+  name              text not null,
+  legal_name        text,
+  kind              text not null default 'privado',   -- publico / filantropico / privado
+  address           text,
+  neighbourhood     text,
+  city              text not null,
+  state             text not null,
+  cep               text,                        -- 8 digits
+  phone             text,                        -- digits with DDD, or null
+  phone2            text,
+  source            text not null,
+  status            text not null default 'livre',    -- livre / ligando / telefone_errado / sem_interesse / interessados / ajudantes
+  tries             int not null default 0,
+  last_outcome      text,
+  interested_count  int,
+  notes             text,
+  updated_at        timestamptz not null default now()
+);
+create index if not exists lares_state_city_idx on lares (state, city);
+create index if not exists lares_status_idx on lares (status);
+
+-- One active claim per home ("estou ligando"); released on outcome or after two hours without an update.
+create table if not exists lares_claims (
+  id               text primary key,
+  home_id          text not null references lares(id) on delete cascade,
+  volunteer_name   text not null,
+  volunteer_email  text not null,
+  claimed_at       timestamptz not null default now(),
+  updated_at       timestamptz not null default now(),
+  released_at      timestamptz,
+  outcome          text
+);
+create index if not exists lares_claims_home_idx on lares_claims (home_id) where released_at is null;
+
+-- Neighbours who offer to accompany residents on Sunday. Contact shown to the volunteers organising that home.
+create table if not exists lares_helpers (
+  id             text primary key,
+  name           text not null,
+  contact        text not null,
+  cep            text,
+  neighbourhood  text,
+  city           text,
+  state          text,
+  home_id        text references lares(id) on delete set null,
+  created_at     timestamptz not null default now()
+);
+create index if not exists lares_helpers_home_idx on lares_helpers (home_id);

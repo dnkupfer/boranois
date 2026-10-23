@@ -4,7 +4,7 @@ import { loadCatalogue } from "./catalogue.js";
 import { createPhraser } from "./gemini.js";
 import { createStore } from "./store/index.js";
 
-const { store, kind } = createStore();
+const { store, kind, pool } = createStore();
 const catalogue = loadCatalogue();
 const phraser = createPhraser();
 const port = Number(process.env.PORT ?? 8080);
@@ -31,6 +31,7 @@ createApp({
   catalogue,
   phraser,
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:5173",
+  pool,
   adminToken: process.env.ADMIN_TOKEN,
   adminEmails: (process.env.ADMIN_EMAILS ?? "").toLowerCase().split(/[\s,;]+/).filter(Boolean),
   sendEmail,

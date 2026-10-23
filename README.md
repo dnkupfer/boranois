@@ -144,6 +144,15 @@ Every fact in [content/facts.json](content/facts.json) carries a source (TSE/TRE
 
 ---
 
+## Casas de repouso: calling care homes for Sunday
+
+A second tool inside the same app, at `/casas-de-repouso`, for a different audience: volunteers who spend Saturday on the phone. The idea: many residents of care homes (ILPIs) over 70 want to vote and have nobody to go with. Neighbours call the homes on Saturday, ask whether residents want company to the polling place, and on Sunday accompany them **on foot or by public transport** (the law bars anyone but the electoral courts from providing transport, Lei 6.091/74). Strictly non-partisan: no candidate, no material, no talk of votes.
+
+- **Data:** every active establishment in the Receita Federal registry with main activity CNAE 8711-5 (ILPIs, geriatric residences, senior condos), via the Base dos Dados mirror on BigQuery: ~12,500 homes, ~9,500 with a registered phone. The CSV is in `content/lares/`; `npm run lares:import -w @boranois/api -- <csv> --source receita` loads or refreshes it (never touching status or notes).
+- **Flow:** enter a CEP to see the nearest homes (same city first, then same state), or filter by state, city, status and name. "Estou ligando" claims the home so nobody else calls it; the claim expires after two hours without an update. The home page has the phone as a tap-to-call link, the script, outcome chips (não atendeu · telefone errado · sem interesse · têm interessados · ajuda combinada), and notes. A dashboard shows counts by status and state; a form lets neighbours offer to accompany residents near a given home.
+- **No resident data, ever.** Only counts and what the staff said. Volunteer e-mails stay server-side and are shown to nobody; helpers' contacts are shown only on the home they offered for. All of it is to be deleted after 25 October 2026 (`delete from lares_claims; delete from lares_helpers;`).
+- The tool needs Postgres (there is no file-store version); without `DATABASE_URL` its routes are absent.
+
 ## Privacy and the law
 
 - **No account needed.** A session is created anonymously on the device. Email (magic link) is optional, only to continue on another device.

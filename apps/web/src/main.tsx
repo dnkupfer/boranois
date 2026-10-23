@@ -12,6 +12,10 @@ import { Termos } from "./pages/Termos";
 import { Privacidade } from "./pages/Privacidade";
 import { Admin } from "./pages/Admin";
 import { Rua } from "./pages/Rua";
+import { Lares } from "./lares/Lares";
+import { Lar } from "./lares/Lar";
+import { Painel } from "./lares/Painel";
+import { Ajudar } from "./lares/Ajudar";
 import "./styles.css";
 
 /** Waits for the (anonymous or e-mail) session to exist. Nothing is gated behind an account. */
@@ -46,6 +50,10 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/privacidade" element={<Privacidade />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/rua" element={<Rua />} />
+          <Route path="/casas-de-repouso" element={<Lares />} />
+          <Route path="/casas-de-repouso/painel" element={<Painel />} />
+          <Route path="/casas-de-repouso/ajudar" element={<Ajudar />} />
+          <Route path="/casas-de-repouso/:id" element={<Lar />} />
           <Route path="/" element={<RequireSession><Pessoas /></RequireSession>} />
           <Route path="/nova" element={<RequireSession><NovaPessoa /></RequireSession>} />
           <Route path="/pessoa/:id" element={<RequireSession><Pessoa /></RequireSession>} />
