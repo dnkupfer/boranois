@@ -62,7 +62,7 @@ export const UFS = ["AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS",
 export const SCRIPT = [
   "Olá, meu nome é ___. Sou voluntário(a) de um grupo de vizinhos. Não sou de campanha nem de partido.",
   "Queremos saber se há moradores que gostariam de votar no domingo e precisam de companhia para chegar ao local de votação.",
-  "A casa tem van e leva os moradores? Se não: a gente acompanha a pé ou no transporte público, que é de graça acima de 65. A seção deles é perto?",
+  "A casa tem van e leva os moradores? Alguém pediu o transporte especial da Justiça Eleitoral (programa Seu Voto Importa)? Se não: a gente acompanha a pé ou no transporte público, que é de graça acima de 65. A seção deles é perto?",
   "Quantos moradores? Que horas seria melhor? Com quem eu falo no domingo?",
   "Se perguntarem em quem você vota, diga: até sábado às 22h pode. Se for não: “Sem problema, obrigado(a).” E a próxima casa.",
 ];

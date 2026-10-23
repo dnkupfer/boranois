@@ -13,6 +13,7 @@ export function Domingo() {
         <h2>Como chegar à seção, nesta ordem</h2>
         <ol className="plain">
           <li><strong>A pé.</strong> Muitas seções ficam a poucas quadras. Confira a seção de cada pessoa antes (e-Título ou o site do TSE, pelo CPF). Pergunte se a seção é acessível; quem tem mobilidade reduzida tem direito a uma, mas o pedido tinha prazo. Se for longe, veja os outros caminhos.</li>
+          <li><strong>O transporte especial da Justiça Eleitoral.</strong> Em 2026 existe o programa <em>Seu Voto Importa</em>: carro adaptado, gratuito, para quem tem deficiência ou mobilidade reduzida, pedido no cartório eleitoral com antecedência. Para este turno o prazo já passou (em SP, 16 de outubro), mas quem pediu tem o transporte garantido: pergunte na casa se alguém pediu.</li>
           <li><strong>A van da própria casa.</strong> Se a casa leva os moradores a consultas na van dela, pode levar para votar: é atividade da casa, como sempre fez. Combine com quem dirige.</li>
           <li><strong>Transporte público, com você junto.</strong> Ônibus, metrô e trem são de graça acima de 65 anos (Estatuto do Idoso, art. 39). Leve o documento da pessoa à mão.</li>
           <li><strong>Táxi ou carro de aplicativo pago pela própria pessoa.</strong> Pedido por ela ou pela casa, pago com o dinheiro dela ou da casa. Você vai junto como companhia. <strong>Nunca pago, pedido ou reembolsado pelo voluntário.</strong></li>
