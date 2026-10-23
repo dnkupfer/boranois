@@ -34,7 +34,7 @@ export function Layout({ children, narrow }: { children: React.ReactNode; narrow
           <a href={FEEDBACK_WHATSAPP} target="_blank" rel="noreferrer">Daniel</a>.
         </p>
         <span>
-          <Link to="/como-funciona">Como funciona</Link> · <Link to="/perfis">Perfis</Link> · <Link to="/termos">Termos</Link> ·{" "}
+          <Link to="/casas-de-repouso">Casas de repouso</Link> · <Link to="/como-funciona">Como funciona</Link> · <Link to="/perfis">Perfis</Link> · <Link to="/termos">Termos</Link> ·{" "}
           <Link to="/privacidade">Privacidade</Link>
         </span>
       </footer>

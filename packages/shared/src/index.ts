@@ -409,3 +409,31 @@ export type Interpretation = {
 };
 
 export type ChipStats = { usage: { questionId: string; optionId: string; count: number }[]; proposals: { questionId: string; text: string; count: number; mapped: string | null }[] };
+
+// --- Casas de repouso: volunteers call care homes on Saturday, arrange company for Sunday ---
+export const LAR_STATUSES = ["livre", "ligando", "telefone_errado", "sem_interesse", "interessados", "ajudantes"] as const;
+export type LarStatus = (typeof LAR_STATUSES)[number];
+export const LAR_OUTCOMES = [
+  { id: "nao_atendeu", label: "Não atendeu" },
+  { id: "telefone_errado", label: "Telefone errado" },
+  { id: "sem_interesse", label: "Sem interesse" },
+  { id: "interessados", label: "Têm moradores interessados" },
+  { id: "ajudantes", label: "Ajuda combinada para domingo" },
+] as const;
+export type LarOutcome = (typeof LAR_OUTCOMES)[number]["id"];
+export type Lar = {
+  id: string; name: string; kind: "publico" | "filantropico" | "privado"; neighbourhood: string | null; city: string; state: string; cep: string | null;
+  phone: string | null; status: LarStatus; tries: number; last_outcome: LarOutcome | null; interested_count: number | null; updated_at: string;
+  calling_by?: string | null;
+};
+export type LarDetail = {
+  home: Lar & { legal_name: string | null; address: string | null; phone2: string | null; notes: string | null; source: string };
+  calling: { name: string; since: string; mine: boolean } | null;
+  helpers: { name: string; contact: string; neighbourhood: string | null; created_at: string }[];
+  history: { volunteer_name: string; outcome: string | null; claimed_at: string; released_at: string | null }[];
+};
+export type LaresStats = {
+  total: number; byStatus: Partial<Record<LarStatus, number>>;
+  byState: { state: string; total: number; interested: number; touched: number }[];
+  helpers: number; callingNow: number;
+};

@@ -353,6 +353,50 @@ details.persona h3 { font-size: 1rem; margin: 12px 0 4px; }
 .card.follow .cta { margin-top: 6px; }
 @media (max-width: 720px) { .street-steps > div { grid-template-columns: 1fr; gap: 6px; } .quotes { grid-template-columns: 1fr; } }
 
+/* Casas de repouso */
+.brand-sub { font-weight: 600; color: var(--mute); font-size: 0.8em; }
+.lares-hero { max-width: 860px; }
+.lares-hero h1 { font-size: clamp(2rem, 4.8vw, 3.4rem); }
+.lares-hero h1 mark { white-space: normal; }
+.lares-rules li { font-size: 17px; font-weight: 500; line-height: 1.45; }
+.lares-rules li strong { font-weight: 800; }
+.lares-rules a { color: #fff; }
+.finder { margin: 8px 0 20px; display: grid; gap: 12px; }
+.cep-form label { margin: 0; }
+.cep-form .row { margin: 6px 0 0; flex-wrap: nowrap; }
+.cep-form input { margin: 0; max-width: 220px; }
+.cep-form .row button { white-space: nowrap; }
+.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.filters select, .filters input { margin: 0; width: auto; min-width: 160px; padding: 10px 14px; border-radius: 999px; font-size: 0.95rem; }
+select { font: inherit; border: 2px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 10px 14px; }
+.check { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; margin: 0; }
+.check input, .filters input[type=checkbox] { display: inline-block; width: auto; min-width: 0; margin: 0; }
+.homes { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.home-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; background: var(--card); border-radius: 18px; padding: 14px 18px; box-shadow: var(--shadow-sm); }
+.home-row.ligando { background: var(--butter-soft); box-shadow: none; }
+.home-row.sem_interesse, .home-row.telefone_errado { opacity: 0.7; }
+.home-row.interessados, .home-row.ajudantes { box-shadow: 0 0 0 2px var(--teal), var(--shadow-sm); }
+.home-main { min-width: 0; }
+.home-name { font-weight: 800; color: var(--ink); text-decoration: none; font-size: 1.05rem; }
+.home-name:hover { color: var(--teal); }
+.home-where { color: var(--mute); font-size: 0.9rem; }
+.home-meta { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: 6px; font-size: 0.9rem; }
+.home-phone { font-weight: 700; color: var(--teal); text-decoration: none; }
+.home-row button { flex: none; min-height: 44px; padding: 8px 16px; font-size: 0.95rem; }
+.badge.st-livre { background: var(--quiet-bg); color: var(--mute); }
+.badge.st-ligando { background: var(--butter); color: var(--warn); }
+.badge.st-telefone_errado, .badge.st-sem_interesse { background: #eeeeea; color: var(--mute); }
+.badge.st-interessados { background: var(--teal-soft); color: var(--teal); }
+.badge.st-ajudantes { background: var(--ok-bg); color: var(--ok); }
+.lar-head { margin: 8px 0 20px; }
+.lar-head h1 { margin: 4px 0 6px; }
+.lar-head .row { margin: 14px 0 8px; }
+.button.tel { font-size: 1.2rem; padding: 14px 24px; }
+.card.script p { margin: 0 0 10px; }
+.card.script button { margin-top: 4px; }
+.notes { white-space: pre-wrap; font: inherit; font-size: 0.95rem; margin: 0; }
+@media (max-width: 720px) { .home-row { flex-direction: column; align-items: stretch; } .cep-form .row { flex-wrap: wrap; } .cep-form input { max-width: none; } }
+
 /* Admin */
 .admin-head { margin: 8px 0 20px; }
 .admin-head h1 { margin: 0; }

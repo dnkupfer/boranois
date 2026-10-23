@@ -47,6 +47,21 @@ export function Privacidade() {
           segue os termos da API do Gemini.
         </p>
 
+        <h2>Casas de repouso</h2>
+
+        <p>
+
+          Na ferramenta de casas de repouso, guardamos no servidor o nome e o e-mail de quem liga (para ninguém ligar duas vezes para a
+
+          mesma casa) e o nome e o contato de vizinhos que se oferecem para acompanhar moradores no domingo. O e-mail de quem liga não é
+
+          mostrado a ninguém; o contato dos vizinhos é mostrado só aos voluntários organizando aquela casa. Não guardamos nada sobre os
+
+          moradores: só quantos querem ir e o que a equipe da casa disse. Tudo isso é apagado depois do dia 25 de outubro de 2026.
+
+        </p>
+
+
         <h2>Medição de uso</h2>
         <p>
           Só se você aceitar no aviso que aparece na primeira visita. Medimos de forma anônima quais telas são abertas, onde as

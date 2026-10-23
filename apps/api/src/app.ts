@@ -25,6 +25,8 @@ import {
   type VerifyResponse,
 } from "@boranois/shared";
 import { buildOverview, renderSummary, summarize } from "./analytics.js";
+import { laresRouter } from "./lares.js";
+import type pg from "pg";
 import { toPublic, type Catalogue } from "./catalogue.js";
 import { afterOutcome, afterSent, buildGuide, match, nextStep, priority, renderTemplate } from "./engine.js";
 import { AiUnavailable, type Phraser } from "./gemini.js";
@@ -43,6 +45,8 @@ type Deps = {
   adminToken?: string;
   /** Members signed in with one of these e-mails see the admin page. */
   adminEmails?: string[];
+  /** Postgres pool; the care-home tool needs it (no file-store version). */
+  pool?: pg.Pool;
   /** Sends the magic link. When absent (local dev), the link is logged and returned to the client. */
   sendEmail?: (to: string, link: string) => Promise<void>;
   today?: () => string;
@@ -52,7 +56,7 @@ type AuthedRequest = Request & { member: Member };
 const localDate = () => new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" }); // YYYY-MM-DD
 const LOGIN_TTL_MS = 30 * 60 * 1000;
 
-export function createApp({ store, catalogue, phraser, webOrigin, adminToken, adminEmails = [], sendEmail, today = localDate }: Deps) {
+export function createApp({ store, catalogue, phraser, webOrigin, adminToken, adminEmails = [], pool, sendEmail, today = localDate }: Deps) {
   const app = express();
   app.disable("x-powered-by");
   app.set("trust proxy", true);
@@ -421,6 +425,7 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, ad
     }
   });
 
+  if (pool) api.use("/lares", laresRouter(pool));
   app.use("/api", api);
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     console.error(err);
