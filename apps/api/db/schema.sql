@@ -105,6 +105,7 @@ create table if not exists lares (
 );
 create index if not exists lares_state_city_idx on lares (state, city);
 create index if not exists lares_status_idx on lares (status);
+create index if not exists lares_phone_idx on lares (state) where phone is not null;
 
 -- One active claim per home ("estou ligando"); released on outcome or after two hours without an update.
 create table if not exists lares_claims (

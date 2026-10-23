@@ -40,8 +40,11 @@ const LIST_COLS = "id, name, kind, neighbourhood, city, state, cep, phone, statu
 export function laresRouter(pool: pg.Pool) {
   const r = Router();
 
-  /** Claims nobody touched for two hours are released, so a home never stays locked by someone who walked away. */
+  /** Claims nobody touched for two hours are released, so a home never stays locked by someone who walked away. Runs at most every 30 s. */
+  let lastExpire = 0;
   const expire = async () => {
+    if (Date.now() - lastExpire < 30_000) return;
+    lastExpire = Date.now();
     await pool.query(`update lares_claims set released_at = now(), outcome = 'expirou' where released_at is null and updated_at < now() - interval '${CLAIM_TTL}'`);
     await pool.query(`update lares l set status = 'livre', updated_at = now() where status = 'ligando' and not exists (select 1 from lares_claims c where c.home_id = l.id and c.released_at is null)`);
   };
@@ -102,8 +105,16 @@ export function laresRouter(pool: pg.Pool) {
     res.status(404).json({ error: "not_found" });
   });
 
+  const cache = new Map<string, { at: number; body: unknown }>();
+  const cached = async (key: string, ttlMs: number, make: () => Promise<unknown>) => {
+    const hit = cache.get(key);
+    if (hit && Date.now() - hit.at < ttlMs) return hit.body;
+    const body = await make(); cache.set(key, { at: Date.now(), body }); return body;
+  };
+
   r.get("/stats", async (_req, res) => {
     await expire();
+    res.json(await cached("stats", 20_000, async () => {
     const [byStatus, byState, helpers, calling] = await Promise.all([
       pool.query(`select status, count(*)::int n from lares group by status`),
       pool.query(`select state, count(*)::int total, count(*) filter (where status in ('interessados','ajudantes','resolvido'))::int interested, count(*) filter (where status <> 'livre' or tries > 0)::int touched from lares group by state order by total desc`),
@@ -113,14 +124,17 @@ export function laresRouter(pool: pg.Pool) {
     const status: Record<string, number> = {};
     for (const x of byStatus.rows) status[x.status] = x.n;
     const total = Object.values(status).reduce((a, b) => a + b, 0);
-    res.json({ total, byStatus: status, byState: byState.rows, helpers: helpers.rows[0].n, callingNow: calling.rows[0].n });
+    return { total, byStatus: status, byState: byState.rows, helpers: helpers.rows[0].n, callingNow: calling.rows[0].n };
+    }));
   });
 
   r.get("/cities", async (req, res) => {
     const state = String(req.query.state ?? "").toUpperCase();
     if (!/^[A-Z]{2}$/.test(state)) return res.status(400).json({ error: "state" });
-    const { rows } = await pool.query(`select city, count(*)::int n from lares where state = $1 group by city order by n desc, city`, [state]);
-    res.json({ cities: rows });
+    res.json(await cached(`cities:${state}`, 300_000, async () => {
+      const { rows } = await pool.query(`select city, count(*)::int n from lares where state = $1 group by city order by n desc, city`, [state]);
+      return { cities: rows };
+    }));
   });
 
   r.post("/helpers", async (req, res) => {

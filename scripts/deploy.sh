@@ -29,7 +29,7 @@ if [ "$WHAT" = "api" ] || [ "$WHAT" = "all" ]; then
     --project "$PROJECT" --region "$REGION" \
     --source . \
     --allow-unauthenticated \
-    --min-instances 0 --max-instances 2 --memory 512Mi --cpu 1 --concurrency 80 \
+    --min-instances 0 --max-instances 4 --memory 512Mi --cpu 1 --concurrency 80 \
     --set-env-vars "^|^NODE_ENV=production|WEB_ORIGIN=$SITE_URL|CONTENT_DIR=/app/content|ADMIN_EMAILS=$ADMIN_EMAILS" \
     --set-secrets "DATABASE_URL=DATABASE_URL:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,ADMIN_TOKEN=ADMIN_TOKEN:latest$EMAIL_SECRETS"
 fi
