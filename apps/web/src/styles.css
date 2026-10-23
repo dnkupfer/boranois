@@ -357,6 +357,7 @@ details.persona h3 { font-size: 1rem; margin: 12px 0 4px; }
 .brand-sub { font-weight: 600; color: var(--mute); font-size: 0.8em; }
 .lares-hero { max-width: 860px; }
 .lares-hero h1 { font-size: clamp(2rem, 4.8vw, 3.4rem); }
+.lares-hero h1 mark { white-space: normal; }
 .lares-rules li { font-size: 17px; font-weight: 500; line-height: 1.45; }
 .lares-rules li strong { font-weight: 800; }
 .lares-rules a { color: #fff; }
@@ -369,7 +370,7 @@ details.persona h3 { font-size: 1rem; margin: 12px 0 4px; }
 .filters select, .filters input { margin: 0; width: auto; min-width: 160px; padding: 10px 14px; border-radius: 999px; font-size: 0.95rem; }
 select { font: inherit; border: 2px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 10px 14px; }
 .check { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; margin: 0; }
-.check input { width: auto; margin: 0; }
+.check input, .filters input[type=checkbox] { display: inline-block; width: auto; min-width: 0; margin: 0; }
 .homes { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
 .home-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; background: var(--card); border-radius: 18px; padding: 14px 18px; box-shadow: var(--shadow-sm); }
 .home-row.ligando { background: var(--butter-soft); box-shadow: none; }

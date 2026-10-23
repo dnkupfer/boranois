@@ -86,9 +86,9 @@ export function Lares() {
       <section className="rules lares-rules">
         <h2>Como funciona</h2>
         <ol>
-          <li><b>1</b>Escolha uma casa perto de você e marque <strong>“estou ligando”</strong>. Ninguém mais liga para ela enquanto isso.</li>
-          <li><b>2</b>Use o roteiro, registre o que aconteceu: não atendeu, sem interesse, têm interessados.</li>
-          <li><b>3</b>Se houver interessados, combine quem acompanha no domingo. Vizinhos se oferecem <Link to={`${BASE}/ajudar`}>aqui</Link>.</li>
+          <li><b>1</b><span>Escolha uma casa perto de você e marque <strong>“estou ligando”</strong>. Ninguém mais liga para ela enquanto isso.</span></li>
+          <li><b>2</b><span>Use o roteiro, registre o que aconteceu: não atendeu, sem interesse, têm interessados.</span></li>
+          <li><b>3</b><span>Se houver interessados, combine quem acompanha no domingo. Vizinhos se oferecem <Link to={`${BASE}/ajudar`}>aqui</Link>.</span></li>
         </ol>
       </section>
 

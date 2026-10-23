@@ -33,21 +33,28 @@ function parseCsv(text: string): Record<string, string>[] {
 const digits = (s: string) => s.replace(/\D/g, "");
 const rows = parseCsv(readFileSync(file, "utf8"));
 const pool = createPool(url);
-let n = 0;
-for (const r of rows) {
-  if (!r.name || !r.city || !r.state) continue;
+const KIND = ["publico", "filantropico", "privado"];
+const toRow = (r: Record<string, string>) => {
   const phone = digits(r.phone ?? ""); const phone2 = digits(r.phone2 ?? "");
+  return [r.id || `m_${digits(r.cep)}_${r.name.toLowerCase().replace(/\W+/g, "-").slice(0, 30)}`, r.name, r.legal_name || null,
+    KIND.includes(r.kind) ? r.kind : "privado", r.address || null, r.neighbourhood || null, r.city, r.state.toUpperCase(),
+    digits(r.cep ?? "").padStart(8, "0").slice(-8) || null, phone.length >= 10 ? phone : null, phone2.length >= 10 ? phone2 : null, source];
+};
+const valid = rows.filter((r) => r.name && r.city && r.state);
+// Batches of 500: one round-trip per batch instead of one per row (the database is in another continent).
+const BATCH = 500;
+let n = 0;
+for (let i = 0; i < valid.length; i += BATCH) {
+  const chunk = valid.slice(i, i + BATCH).map(toRow);
+  const values = chunk.map((_, k) => `(${Array.from({ length: 12 }, (_, j) => `$${k * 12 + j + 1}`).join(",")})`).join(",");
   await pool.query(
-    `insert into lares (id, name, legal_name, kind, address, neighbourhood, city, state, cep, phone, phone2, source)
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+    `insert into lares (id, name, legal_name, kind, address, neighbourhood, city, state, cep, phone, phone2, source) values ${values}
      on conflict (id) do update set name = excluded.name, legal_name = excluded.legal_name, kind = excluded.kind, address = excluded.address,
        neighbourhood = excluded.neighbourhood, city = excluded.city, state = excluded.state, cep = excluded.cep,
        phone = coalesce(excluded.phone, lares.phone), phone2 = coalesce(excluded.phone2, lares.phone2)`,
-    [r.id || `m_${digits(r.cep)}_${r.name.toLowerCase().replace(/\W+/g, "-").slice(0, 30)}`, r.name, r.legal_name || null,
-     ["publico", "filantropico", "privado"].includes(r.kind) ? r.kind : "privado", r.address || null, r.neighbourhood || null,
-     r.city, r.state.toUpperCase(), digits(r.cep ?? "").padStart(8, "0").slice(-8) || null, phone.length >= 10 ? phone : null, phone2.length >= 10 ? phone2 : null, source],
+    chunk.flat(),
   );
-  n++;
+  n += chunk.length;
 }
 await pool.end();
 console.log(`imported ${n} of ${rows.length} rows (source: ${source})`);
