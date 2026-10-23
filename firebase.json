@@ -1,10 +1,30 @@
 {
   "hosting": {
     "public": "apps/web/dist",
-    "ignore": ["firebase.json", "**/.*"],
+    "ignore": [
+      "firebase.json",
+      "**/.*"
+    ],
     "rewrites": [
-      { "source": "/api/**", "run": { "serviceId": "boranois-api", "region": "southamerica-east1" } },
-      { "source": "**", "destination": "/index.html" }
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "boranois-api",
+          "region": "southamerica-east1"
+        }
+      },
+      {
+        "source": "/casas-de-repouso",
+        "destination": "/casas-de-repouso/index.html"
+      },
+      {
+        "source": "/casas-de-repouso/**",
+        "destination": "/casas-de-repouso/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
   }
 }
