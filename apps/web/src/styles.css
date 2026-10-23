@@ -399,6 +399,16 @@ select { font: inherit; border: 2px solid var(--line); background: #fff; color: 
 .notes { white-space: pre-wrap; font: inherit; font-size: 0.95rem; margin: 0; }
 @media (max-width: 720px) { .home-row { flex-direction: column; align-items: stretch; } .cep-form .row { flex-wrap: wrap; } .cep-form input { max-width: none; } }
 
+/* Loading: a spinner in the button and ghost rows where the list will be */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, 0.35); border-top-color: #fff; animation: spin 0.8s linear infinite; }
+@keyframes shimmer { from { background-position: -400px 0; } to { background-position: 400px 0; } }
+.sk { border-radius: 8px; background: linear-gradient(90deg, #eeebe4 25%, #f7f4ee 50%, #eeebe4 75%); background-size: 800px 100%; animation: shimmer 1.4s linear infinite; }
+.sk-name { width: 55%; height: 18px; margin-bottom: 8px; } .sk-where { width: 35%; height: 13px; margin-bottom: 10px; } .sk-meta { width: 45%; height: 24px; border-radius: 999px; } .sk-btn { width: 160px; height: 44px; border-radius: 999px; flex: none; }
+.home-row.skeleton { box-shadow: none; background: #fff; }
+.homes.dim { opacity: 0.45; transition: opacity 0.2s; }
+@media (prefers-reduced-motion: reduce) { .spinner, .sk { animation: none; } }
+
 /* Admin */
 .admin-head { margin: 8px 0 20px; }
 .admin-head h1 { margin: 0; }

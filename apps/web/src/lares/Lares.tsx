@@ -18,13 +18,15 @@ export function Lares() {
   const [q, setQ] = useState("");
   const [withPhone, setWithPhone] = useState(true);
   const [homes, setHomes] = useState<Lar[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [cepBusy, setCepBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [claiming, setClaiming] = useState<Lar | null>(null);
   const isSunday = todayBR() >= ELECTION;
 
   const load = useCallback(async () => {
     if (!cep && !state) return setHomes(null);
-    setError(null);
+    setError(null); setLoading(true);
     const p = new URLSearchParams();
     if (cep) { p.set("cep", cep.cep); p.set("cepCity", cep.city); p.set("cepState", cep.state); if (cep.lat != null && cep.lng != null) { p.set("lat", String(cep.lat)); p.set("lng", String(cep.lng)); } }
     if (state) p.set("state", state);
@@ -34,11 +36,14 @@ export function Lares() {
     if (withPhone) p.set("phone", "1");
     p.set("limit", "80");
     // The API restarts now and then; try three times before showing an error.
+    let last: unknown = null;
     for (let attempt = 0; attempt < 3; attempt++) {
-      try { setHomes((await laresApi<{ homes: Lar[] }>(`?${p}`)).homes); return; }
-      catch { await new Promise((r) => setTimeout(r, 700 * (attempt + 1))); }
+      try { setHomes((await laresApi<{ homes: Lar[] }>(`?${p}`)).homes); setLoading(false); return; }
+      catch (err) { last = err; await new Promise((r) => setTimeout(r, 700 * (attempt + 1))); }
     }
-    setHomes([]); setError("Não deu para carregar a lista. Tente de novo em instantes.");
+    const e = last as { status?: number; message?: string } | null;
+    setHomes([]); setLoading(false);
+    setError(`Não deu para carregar a lista (${e?.status ? `erro ${e.status}` : "sem resposta do servidor"}${e?.message && e.message !== "unknown" ? `: ${e.message}` : ""}). Tente de novo em instantes.`);
   }, [cep, state, city, status, q, withPhone]);
 
   useEffect(() => { load(); }, [load]);
@@ -54,8 +59,9 @@ export function Lares() {
 
   const useCep = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCepError(null);
+    setCepError(null); setCepBusy(true);
     const info = await lookupCep(cepDraft);
+    setCepBusy(false);
     if (!info) return setCepError("CEP não encontrado. Confira os 8 números.");
     savedCep.set(info); setCep(info); setState(""); setCity("");
   };
@@ -109,7 +115,7 @@ export function Lares() {
           <label>Seu CEP, para ver as casas mais perto
             <div className="row">
               <input value={cepDraft} onChange={(e) => setCepDraft(e.target.value)} inputMode="numeric" placeholder="01310-100" maxLength={9} />
-              <button className="primary" type="submit">Ver perto de mim</button>
+              <button className="primary" type="submit" disabled={cepBusy || loading}>{cepBusy ? <><span className="spinner" /> Procurando…</> : loading ? <><span className="spinner" /> Carregando…</> : "Ver perto de mim"}</button>
             </div>
           </label>
           {cepError && <p className="error small">{cepError}</p>}
@@ -142,15 +148,17 @@ export function Lares() {
 
       {!cep && !state ? (
         <p className="muted">Digite seu CEP ou escolha um estado para ver as casas. São {`12 mil`} em todo o Brasil, {`9 mil`} com telefone.</p>
-      ) : homes === null ? (
-        <p className="muted">Carregando…</p>
+      ) : homes === null || (loading && homes.length === 0) ? (
+        <ul className="homes" aria-busy="true">
+          {[0, 1, 2, 3].map((i) => <li key={i} className="home-row skeleton"><div className="home-main"><div className="sk sk-name" /><div className="sk sk-where" /><div className="sk sk-meta" /></div><div className="sk sk-btn" /></li>)}
+        </ul>
       ) : homes.length === 0 ? (
         <p className="muted">Nenhuma casa com esses filtros.</p>
       ) : (
         <>
         <h2 className="list-title">Casas {cep ? `perto de ${cep.neighbourhood ?? cep.city}` : city ? `em ${city}` : state ? `em ${state}` : ""}</h2>
         <p className="muted small">{cep?.lat != null ? "Da mais perto para a mais longe. " : ""}Escolha uma e aperte o botão. Cinza = ninguém ligou ainda. Amarela = alguém está ligando agora.</p>
-        <ul className="homes">
+        <ul className={`homes ${loading ? "dim" : ""}`}>
           {homes.map((h) => (
             <li key={h.id} className={`home-row ${h.status}`}>
               <div className="home-main">
