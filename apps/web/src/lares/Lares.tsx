@@ -89,14 +89,30 @@ export function Lares() {
         </p>
       </header>
 
-      <section className="card law">
+      <section className="card law rules3">
         <h2>Três regras, e são lei</h2>
-        <p>
-          <strong>Sem carro.</strong> No dia da eleição, só a Justiça Eleitoral pode oferecer transporte a eleitor (Lei 6.091/74, art. 11). Levar de carro é crime, com boa intenção ou sem, e quem responde também é a casa. O que pode: a pé, transporte público (de graça acima de 65), a van da própria casa, ou táxi pago pela própria pessoa.{" "}
-          <strong>Sem condicionar.</strong> A ajuda é para quem quer votar, em quem for. Até sábado às 22h você pode dizer em quem vota e conversar sobre a eleição. <strong>No domingo, não:</strong> a propaganda acaba sábado às 22h (Código Eleitoral, art. 240) e no dia da eleição só vale manifestação individual e silenciosa (Lei 9.504, art. 39-A). Nunca condicione a ajuda ao voto (art. 299) nem pressione quem depende de você (art. 301).{" "}
-          <strong>Só quem pedir.</strong> Acima de 70 anos o voto é facultativo. Ajudamos quem quer ir.
-        </p>
-        <p className="small"><Link to={`${BASE}/domingo`}>O que fazer no domingo, passo a passo</Link>.</p>
+        <div className="rule3">
+          <span className="tag peach">Sem carro</span>
+          <div>
+            <p>Acompanhe a pé, de transporte público (grátis acima de 65), na van da própria casa, ou em táxi pago pela própria pessoa. <strong>Nunca no seu carro.</strong></p>
+            <p className="muted small">No dia da eleição, só a Justiça Eleitoral pode transportar eleitor (Lei 6.091/74, art. 11). É crime mesmo com boa intenção, e a casa responde junto.</p>
+          </div>
+        </div>
+        <div className="rule3">
+          <span className="tag butter">Sem voto no domingo</span>
+          <div>
+            <p>Até sábado às 22h você pode dizer em quem vota e conversar sobre a eleição. <strong>No domingo, não:</strong> você é companhia, só isso.</p>
+            <p className="muted small">A propaganda acaba sábado às 22h (Código Eleitoral, art. 240). No dia da eleição só vale manifestação individual e silenciosa (Lei 9.504, art. 39-A).</p>
+          </div>
+        </div>
+        <div className="rule3">
+          <span className="tag mint">Só quem pedir</span>
+          <div>
+            <p>A ajuda é para quem quer votar, em quem for. Acima de 70 anos o voto é facultativo. <strong>Nunca condicione a ajuda ao voto, nunca insista.</strong></p>
+            <p className="muted small">Condicionar é corrupção eleitoral (Código Eleitoral, art. 299); pressionar quem depende de você é coação (art. 301).</p>
+          </div>
+        </div>
+        <p className="small rules3-link"><Link to={`${BASE}/domingo`}>O que fazer no domingo, passo a passo</Link></p>
       </section>
 
       <section className="rules lares-rules">
