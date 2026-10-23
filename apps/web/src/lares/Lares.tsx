@@ -37,6 +37,10 @@ export function Lares() {
   }, [cep, state, city, status, q, withPhone]);
 
   useEffect(() => { load(); }, [load]);
+  // A CEP saved before coordinates existed: look it up again so the list can be ranked by distance.
+  useEffect(() => {
+    if (cep && cep.lat == null) lookupCep(cep.cep).then((info) => { if (info?.lat != null) { savedCep.set(info); setCep(info); } });
+  }, [cep]);
   useEffect(() => {
     setCity("");
     if (!state) return setCities([]);
