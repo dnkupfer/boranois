@@ -101,7 +101,7 @@ export function Lares() {
         <div className="rule3">
           <span className="tag butter">Domingo: sem voto</span>
           <div>
-            <p>Até sábado às 22h você pode dizer em quem vota e conversar sobre a eleição. <strong>No domingo, não:</strong> você é companhia, só isso.</p>
+            <p>Até sábado às 22h você pode dizer em quem vota e conversar sobre a eleição (<Link to="/">o Boranois mostra como</Link>). <strong>No domingo, não:</strong> você é companhia, só isso.</p>
             <p className="muted small">A propaganda acaba sábado às 22h (Código Eleitoral, art. 240). No dia da eleição só vale manifestação individual e silenciosa (Lei 9.504, art. 39-A).</p>
           </div>
         </div>
