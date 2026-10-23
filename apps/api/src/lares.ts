@@ -64,12 +64,24 @@ export function laresRouter(pool: pg.Pool) {
     const limit = Math.min(200, Math.max(1, Number(q.limit ?? 60)));
     const offset = Math.max(0, Number(q.offset ?? 0));
     let order = "status = 'livre' desc, tries asc, name asc";
-    if (q.cep && /^\d{8}$/.test(q.cep)) {
+    let distance = "null::double precision as distance_km";
+    const lat = Number(q.lat), lng = Number(q.lng);
+    if (q.lat && q.lng && Number.isFinite(lat) && Number.isFinite(lng)) {
+      // Great-circle distance in km from the visitor's CEP to each home's CEP (haversine). Homes whose CEP we
+      // couldn't geocode go last, ordered by the old CEP-number proximity.
+      params.push(lat, lng);
+      const [la, ln] = [params.length - 1, params.length];
+      distance = `(6371 * acos(least(1.0, cos(radians($${la})) * cos(radians(g.lat)) * cos(radians(g.lng) - radians($${ln})) + sin(radians($${la})) * sin(radians(g.lat))))) as distance_km`;
+      order = `g.lat is null asc, ${distance.replace(" as distance_km", "")} asc nulls last, status = 'livre' desc`;
+      if (q.cep && /^\d{8}$/.test(q.cep)) { params.push(q.cep); order += `, abs(coalesce(nullif(lares.cep, '')::bigint, 0) - $${params.length}::bigint) asc`; }
+    } else if (q.cep && /^\d{8}$/.test(q.cep)) {
       params.push(q.cep, q.cepCity ?? "", q.cepState ?? "");
       const [c, city, state] = [params.length - 2, params.length - 1, params.length];
-      order = `(lower(city) = lower($${city})) desc, (state = $${state}) desc, abs(coalesce(nullif(cep, '')::bigint, 0) - $${c}::bigint) asc, status = 'livre' desc`;
+      order = `(lower(city) = lower($${city})) desc, (state = $${state}) desc, abs(coalesce(nullif(lares.cep, '')::bigint, 0) - $${c}::bigint) asc, status = 'livre' desc`;
     }
-    const sql = `select ${LIST_COLS}, (select volunteer_name from lares_claims c where c.home_id = lares.id and c.released_at is null) as calling_by from lares ${where.length ? "where " + where.join(" and ") : ""} order by ${order} limit ${limit} offset ${offset}`;
+    const cols = LIST_COLS.split(", ").map((c) => `lares.${c}`).join(", ");
+    const sql = `select ${cols}, ${distance}, (select volunteer_name from lares_claims c where c.home_id = lares.id and c.released_at is null) as calling_by
+      from lares left join lares_geo g on g.cep = lares.cep ${where.length ? "where " + where.join(" and ") : ""} order by ${order} limit ${limit} offset ${offset}`;
     const { rows } = await pool.query(sql, params);
     res.json({ homes: rows });
   });

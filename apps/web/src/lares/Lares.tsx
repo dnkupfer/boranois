@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { Lar, LarStatus } from "@boranois/shared";
-import { BASE, type CepInfo, fmtPhone, LaresLayout, laresApi, lookupCep, savedCep, STATUS_LABEL, statusLabel, UFS, volunteer, VolunteerForm } from "./shared";
+import { BASE, type CepInfo, fmtKm, fmtPhone, LaresLayout, laresApi, lookupCep, savedCep, STATUS_LABEL, statusLabel, UFS, volunteer, VolunteerForm } from "./shared";
 
 const ELECTION = "2026-10-25";
 const todayBR = () => new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
@@ -26,7 +26,7 @@ export function Lares() {
     if (!cep && !state) return setHomes(null);
     setError(null);
     const p = new URLSearchParams();
-    if (cep) { p.set("cep", cep.cep); p.set("cepCity", cep.city); p.set("cepState", cep.state); }
+    if (cep) { p.set("cep", cep.cep); p.set("cepCity", cep.city); p.set("cepState", cep.state); if (cep.lat != null && cep.lng != null) { p.set("lat", String(cep.lat)); p.set("lng", String(cep.lng)); } }
     if (state) p.set("state", state);
     if (city) p.set("city", city);
     if (status) p.set("status", status);
@@ -140,13 +140,16 @@ export function Lares() {
       ) : (
         <>
         <h2 className="list-title">Casas {cep ? `perto de ${cep.neighbourhood ?? cep.city}` : city ? `em ${city}` : state ? `em ${state}` : ""}</h2>
-        <p className="muted small">Escolha uma e aperte o botão. Cinza = ninguém ligou ainda. Amarela = alguém está ligando agora.</p>
+        <p className="muted small">{cep?.lat != null ? "Da mais perto para a mais longe. " : ""}Escolha uma e aperte o botão. Cinza = ninguém ligou ainda. Amarela = alguém está ligando agora.</p>
         <ul className="homes">
           {homes.map((h) => (
             <li key={h.id} className={`home-row ${h.status}`}>
               <div className="home-main">
                 <Link to={`${BASE}/${h.id}`} className="home-name">{h.name}</Link>
-                <div className="home-where">{[h.neighbourhood, `${h.city}/${h.state}`].filter(Boolean).join(" · ")}</div>
+                <div className="home-where">
+                  {fmtKm(h.distance_km) && <strong className="home-km">a {fmtKm(h.distance_km)}</strong>}
+                  {[h.neighbourhood, `${h.city}/${h.state}`].filter(Boolean).join(" · ")}
+                </div>
                 <div className="home-meta">
                   <a href={h.phone ? `tel:+55${h.phone}` : undefined} className="home-phone">{fmtPhone(h.phone)}</a>
                   <span className={`badge st-${h.status}`}>{statusLabel(h)}</span>

@@ -425,6 +425,8 @@ export type Lar = {
   id: string; name: string; kind: "publico" | "filantropico" | "privado"; neighbourhood: string | null; city: string; state: string; cep: string | null;
   phone: string | null; status: LarStatus; tries: number; last_outcome: LarOutcome | null; interested_count: number | null; updated_at: string;
   calling_by?: string | null;
+  /** From the visitor's CEP, when known. */
+  distance_km?: number | null;
 };
 export type LarDetail = {
   home: Lar & { legal_name: string | null; address: string | null; phone2: string | null; notes: string | null; source: string };

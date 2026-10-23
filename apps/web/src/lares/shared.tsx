@@ -15,16 +15,23 @@ export const volunteer = {
   get: (): Volunteer | null => { try { const r = localStorage.getItem(VOL_KEY); return r ? JSON.parse(r) : null; } catch { return null; } },
   set: (v: Volunteer) => { try { localStorage.setItem(VOL_KEY, JSON.stringify(v)); } catch {} },
 };
-export type CepInfo = { cep: string; city: string; state: string; neighbourhood?: string };
+export type CepInfo = { cep: string; city: string; state: string; neighbourhood?: string; lat?: number; lng?: number };
 export const savedCep = {
   get: (): CepInfo | null => { try { const r = localStorage.getItem(CEP_KEY); return r ? JSON.parse(r) : null; } catch { return null; } },
   set: (c: CepInfo | null) => { try { c ? localStorage.setItem(CEP_KEY, JSON.stringify(c)) : localStorage.removeItem(CEP_KEY); } catch {} },
 };
 
-/** City and state for a CEP, from BrasilAPI with ViaCEP as fallback. */
+/** City, state and coordinates for a CEP. AwesomeAPI has street-level coordinates; the others only place names. */
 export async function lookupCep(raw: string): Promise<CepInfo | null> {
   const cep = raw.replace(/\D/g, "");
   if (cep.length !== 8) return null;
+  try {
+    const r = await fetch(`https://cep.awesomeapi.com.br/json/${cep}`);
+    if (r.ok) {
+      const d = await r.json();
+      if (d.city && d.state) return { cep, city: d.city, state: d.state, neighbourhood: d.district || undefined, lat: d.lat ? Number(d.lat) : undefined, lng: d.lng ? Number(d.lng) : undefined };
+    }
+  } catch {}
   try {
     const r = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`);
     if (r.ok) { const d = await r.json(); if (d.city && d.state) return { cep, city: d.city, state: d.state, neighbourhood: d.neighborhood ?? undefined }; }
@@ -58,6 +65,7 @@ export function statusLabel(h: Lar) {
 export const KIND_LABEL = { publico: "Pública", filantropico: "Filantrópica", privado: "Privada" } as const;
 export const fmtPhone = (p: string | null) => (p ? p.replace(/^(\d{2})(\d{4,5})(\d{4})$/, "($1) $2-$3") : "sem telefone");
 export const fmtCep = (c: string | null) => (c ? c.replace(/^(\d{5})(\d{3})$/, "$1-$2") : "");
+export const fmtKm = (d: number | null | undefined) => (d == null ? null : d < 1 ? `${Math.round(d * 1000)} m` : d < 10 ? `${d.toFixed(1).replace(".", ",")} km` : `${Math.round(d)} km`);
 
 export const UFS = ["AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"];
 

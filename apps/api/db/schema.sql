@@ -132,3 +132,11 @@ create table if not exists lares_helpers (
   created_at     timestamptz not null default now()
 );
 create index if not exists lares_helpers_home_idx on lares_helpers (home_id);
+
+-- Coordinates per CEP, so the list can rank homes by real distance. Filled by `lares:geocode`.
+create table if not exists lares_geo (
+  cep         text primary key,
+  lat         double precision,
+  lng         double precision,
+  tried_at    timestamptz not null default now()
+);

@@ -381,6 +381,7 @@ select { font: inherit; border: 2px solid var(--line); background: #fff; color: 
 .home-name { font-weight: 800; color: var(--ink); text-decoration: none; font-size: 1.05rem; }
 .home-name:hover { color: var(--teal); }
 .home-where { color: var(--mute); font-size: 0.9rem; }
+.home-km { color: var(--teal); margin-right: 8px; }
 .home-meta { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: 6px; font-size: 0.9rem; }
 .home-phone { font-weight: 700; color: var(--teal); text-decoration: none; }
 .home-row button { flex: none; min-height: 44px; padding: 8px 16px; font-size: 0.95rem; }
