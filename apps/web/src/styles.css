@@ -360,7 +360,7 @@ details.persona h3 { font-size: 1rem; margin: 12px 0 4px; }
 .lares-hero h1 mark { white-space: normal; }
 .rules3 { display: grid; gap: 16px; }
 .rules3 h2 { margin: 0; }
-.rule3 { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: start; }
+.rule3 { display: grid; grid-template-columns: 170px 1fr; gap: 14px; align-items: start; }
 .rule3 .tag { justify-self: start; margin-top: 3px; white-space: nowrap; }
 .rule3 p { margin: 0 0 4px; }
 .rule3 p.small { margin: 0; }
