@@ -406,6 +406,7 @@ select { font: inherit; border: 2px solid var(--line); background: #fff; color: 
 .sk { border-radius: 8px; background: linear-gradient(90deg, #eeebe4 25%, #f7f4ee 50%, #eeebe4 75%); background-size: 800px 100%; animation: shimmer 1.4s linear infinite; }
 .sk-name { width: 55%; height: 18px; margin-bottom: 8px; } .sk-where { width: 35%; height: 13px; margin-bottom: 10px; } .sk-meta { width: 45%; height: 24px; border-radius: 999px; } .sk-btn { width: 160px; height: 44px; border-radius: 999px; flex: none; }
 .home-row.skeleton { box-shadow: none; background: #fff; }
+.home-row.skeleton .home-main { flex: 1; }
 .homes.dim { opacity: 0.45; transition: opacity 0.2s; }
 @media (prefers-reduced-motion: reduce) { .spinner, .sk { animation: none; } }
 
