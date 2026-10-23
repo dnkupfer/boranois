@@ -21,26 +21,16 @@ export const savedCep = {
   set: (c: CepInfo | null) => { try { c ? localStorage.setItem(CEP_KEY, JSON.stringify(c)) : localStorage.removeItem(CEP_KEY); } catch {} },
 };
 
-/** City, state and coordinates for a CEP. AwesomeAPI has street-level coordinates; the others only place names. */
+/** City, state, bairro and coordinates for a CEP, through our API (which caches and falls back to the public services). */
 export async function lookupCep(raw: string): Promise<CepInfo | null> {
   const cep = raw.replace(/\D/g, "");
   if (cep.length !== 8) return null;
   try {
-    const r = await fetch(`https://cep.awesomeapi.com.br/json/${cep}`);
-    if (r.ok) {
-      const d = await r.json();
-      if (d.city && d.state) return { cep, city: d.city, state: d.state, neighbourhood: d.district || undefined, lat: d.lat ? Number(d.lat) : undefined, lng: d.lng ? Number(d.lng) : undefined };
-    }
-  } catch {}
-  try {
-    const r = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`);
-    if (r.ok) { const d = await r.json(); if (d.city && d.state) return { cep, city: d.city, state: d.state, neighbourhood: d.neighborhood ?? undefined }; }
-  } catch {}
-  try {
-    const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-    if (r.ok) { const d = await r.json(); if (d.localidade && d.uf) return { cep, city: d.localidade, state: d.uf, neighbourhood: d.bairro || undefined }; }
-  } catch {}
-  return null;
+    const r = await fetch(`/api/lares/cep/${cep}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    return { cep, city: d.city, state: d.state, neighbourhood: d.neighbourhood ?? undefined, lat: d.lat ?? undefined, lng: d.lng ?? undefined };
+  } catch { return null; }
 }
 
 export async function laresApi<T>(path: string, init: { method?: string; body?: unknown; email?: string } = {}): Promise<T> {

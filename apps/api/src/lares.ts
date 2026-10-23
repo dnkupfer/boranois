@@ -86,6 +86,20 @@ export function laresRouter(pool: pg.Pool) {
     res.json({ homes: rows });
   });
 
+  /** A visitor's CEP → bairro, city, state and coordinates, from the CEP directory in our own database. */
+  r.get("/cep/:cep", async (req, res) => {
+    const cep = String(req.params.cep).replace(/\D/g, "");
+    if (!/^\d{8}$/.test(cep)) return res.status(400).json({ error: "cep" });
+    const { rows } = await pool.query(`select lat, lng, bairro, city, state from lares_geo where cep = $1 and lat is not null`, [cep]);
+    if (rows[0]?.city) return res.json({ cep, city: rows[0].city, state: rows[0].state, neighbourhood: rows[0].bairro, lat: rows[0].lat, lng: rows[0].lng });
+    // Not in the directory (new CEP): names from BrasilAPI, no coordinates. The list then falls back to CEP proximity.
+    try {
+      const b = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`, { headers: { "user-agent": "boranois.web.app (boranois@kupfer.co)" } });
+      if (b.ok) { const d = (await b.json()) as { city?: string; state?: string; neighborhood?: string }; if (d.city && d.state) return res.json({ cep, city: d.city, state: d.state, neighbourhood: d.neighborhood ?? null, lat: rows[0]?.lat ?? null, lng: rows[0]?.lng ?? null }); }
+    } catch {}
+    res.status(404).json({ error: "not_found" });
+  });
+
   r.get("/stats", async (_req, res) => {
     await expire();
     const [byStatus, byState, helpers, calling] = await Promise.all([

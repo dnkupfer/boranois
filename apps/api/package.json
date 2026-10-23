@@ -13,7 +13,7 @@
     "analyse": "tsx --env-file-if-exists=.env src/analyse.ts",
     "analytics": "tsx --env-file-if-exists=.env src/report.ts",
     "lares:import": "tsx --env-file-if-exists=.env src/lares-import.ts",
-    "lares:geocode": "tsx --env-file-if-exists=.env src/lares-geocode.ts"
+    "lares:ceps": "tsx --env-file-if-exists=.env src/lares-ceps.ts"
   },
   "dependencies": {
     "@boranois/shared": "*",

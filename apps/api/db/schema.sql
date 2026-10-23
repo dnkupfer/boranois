@@ -133,10 +133,19 @@ create table if not exists lares_helpers (
 );
 create index if not exists lares_helpers_home_idx on lares_helpers (home_id);
 
--- Coordinates per CEP, so the list can rank homes by real distance. Filled by `lares:geocode`.
+-- The national CEP directory (Base dos Dados, ~905k CEPs with centroids), so the list can rank homes by real
+-- distance and a visitor's CEP resolves from our own database. Filled by `lares:ceps`.
 create table if not exists lares_geo (
   cep         text primary key,
   lat         double precision,
   lng         double precision,
+  logradouro  text,
+  bairro      text,
+  city        text,
+  state       text,
   tried_at    timestamptz not null default now()
 );
+alter table lares_geo add column if not exists logradouro text;
+alter table lares_geo add column if not exists bairro text;
+alter table lares_geo add column if not exists city text;
+alter table lares_geo add column if not exists state text;
