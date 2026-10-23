@@ -33,7 +33,12 @@ export function Lares() {
     if (q.trim()) p.set("q", q.trim());
     if (withPhone) p.set("phone", "1");
     p.set("limit", "80");
-    try { setHomes((await laresApi<{ homes: Lar[] }>(`?${p}`)).homes); } catch { setError("Não deu para carregar a lista. Tente de novo."); }
+    // The API restarts now and then; try three times before showing an error.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try { setHomes((await laresApi<{ homes: Lar[] }>(`?${p}`)).homes); return; }
+      catch { await new Promise((r) => setTimeout(r, 700 * (attempt + 1))); }
+    }
+    setHomes([]); setError("Não deu para carregar a lista. Tente de novo em instantes.");
   }, [cep, state, city, status, q, withPhone]);
 
   useEffect(() => { load(); }, [load]);
