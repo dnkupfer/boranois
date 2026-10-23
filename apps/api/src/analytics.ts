@@ -119,6 +119,10 @@ export type Overview = {
   coach: { asks: number; replies: number; suggestionsUsed: number };
   signin: { links: number; done: number };
   aiRemainingToday: number;
+  /** Which tool people open: devices and page views per section, this period. */
+  tools: { key: string; label: string; devices: number; views: number }[];
+  /** Care homes: operational counts from the tables (all time) and pageviews of each page (this period). */
+  lares: { total: number; byStatus: Record<string, number>; callingNow: number; helpers: number; claimsTotal: number; volunteers: number; pages: Row[] } | null;
 };
 
 const CHANCE: Record<string, string> = { alta: "Boa chance", media: "Vale tentar", baixa: "Difícil", nao: "Melhor não" };
@@ -142,6 +146,7 @@ export function buildOverview(
   sinceDays: number,
   names: { personas: Record<string, string>; questions: Record<string, string> },
   aiRemainingToday: number,
+  lares: Overview["lares"] = null,
 ): Overview {
   const s = summarize(events, sinceDays);
   const since = Date.now() - sinceDays * 86400000;
@@ -185,8 +190,23 @@ export function buildOverview(
     return (names.questions[id] ?? id).replaceAll("{nome}", "a pessoa");
   };
 
+  // Tool split: a device counts for a tool when it viewed any page of it.
+  const toolOf = (path: string) => (path.startsWith("/casas-de-repouso") ? "lares" : path.startsWith("/rua") ? "rua" : path.startsWith("/admin") ? null : "boranois");
+  const TOOL_LABEL: Record<string, string> = { boranois: "Boranois (conversas)", rua: "Na rua", lares: "Casas de repouso" };
+  const toolDevices: Record<string, Set<string>> = {}; const toolViews: Record<string, number> = {};
+  for (const e of events) {
+    if (e.name !== "page_view") continue;
+    const t = toolOf(e.path); if (!t) continue;
+    (toolDevices[t] ??= new Set()).add(e.aid); count(toolViews, t);
+  }
+  const tools = ["boranois", "rua", "lares"].map((key) => ({ key, label: TOOL_LABEL[key], devices: toolDevices[key]?.size ?? 0, views: toolViews[key] ?? 0 }));
+  const laresPages: Record<string, number> = {};
+  for (const [p, n] of Object.entries(s.pageViews)) if (p.startsWith("/casas-de-repouso")) laresPages[p.replace(/\/casas-de-repouso\/[0-9]{14}$/, "/casas-de-repouso/:id")] = (laresPages[p.replace(/\/casas-de-repouso\/[0-9]{14}$/, "/casas-de-repouso/:id")] ?? 0) + n;
+
   return {
     sinceDays,
+    tools,
+    lares: lares ? { ...lares, pages: rows(laresPages) } : null,
     totals: {
       visitors: admin.members,
       members: new Set(admin.contacts.map((c) => c.memberId)).size,

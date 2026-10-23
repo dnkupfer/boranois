@@ -166,7 +166,19 @@ export function createApp({ store, catalogue, phraser, webOrigin, adminToken, ad
       personas: Object.fromEntries(catalogue.personas.map((p) => [p.id, p.name])),
       questions: Object.fromEntries(catalogue.questions.questions.map((q) => [q.id, q.text])),
     };
-    res.json(buildOverview(events, rows, days, names, limits.aiDaily.remaining));
+    let lares: Parameters<typeof buildOverview>[5] = null;
+    if (pool) {
+      const [st, calling, helpers, claims] = await Promise.all([
+        pool.query(`select status, count(*)::int n from lares group by status`),
+        pool.query(`select count(*)::int n from lares_claims where released_at is null`),
+        pool.query(`select count(*)::int n from lares_helpers`),
+        pool.query(`select count(*)::int total, count(distinct volunteer_email)::int volunteers from lares_claims`),
+      ]);
+      const byStatus: Record<string, number> = {};
+      for (const r of st.rows) byStatus[r.status] = r.n;
+      lares = { total: Object.values(byStatus).reduce((x, y) => x + y, 0), byStatus, callingNow: calling.rows[0].n, helpers: helpers.rows[0].n, claimsTotal: claims.rows[0].total, volunteers: claims.rows[0].volunteers, pages: [] };
+    }
+    res.json(buildOverview(events, rows, days, names, limits.aiDaily.remaining, lares));
   });
 
   // --- Sign-in by magic link ------------------------------------------------
