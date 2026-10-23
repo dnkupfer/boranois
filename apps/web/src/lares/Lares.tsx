@@ -84,11 +84,12 @@ export function Lares() {
       </section>
 
       <section className="rules lares-rules">
-        <h2>Como funciona</h2>
+        <h2>O que você vai fazer</h2>
         <ol>
-          <li><b>1</b><span>Escolha uma casa perto de você e marque <strong>“estou ligando”</strong>. Ninguém mais liga para ela enquanto isso.</span></li>
-          <li><b>2</b><span>Use o roteiro, registre o que aconteceu: não atendeu, sem interesse, têm interessados.</span></li>
-          <li><b>3</b><span>Se houver interessados, combine quem acompanha no domingo. Vizinhos se oferecem <Link to={`${BASE}/ajudar`}>aqui</Link>.</span></li>
+          <li><b>1</b><span>Escolha uma casa na lista abaixo e aperte <strong>“Vou ligar para esta”</strong>. A casa fica marcada como sua: assim outra pessoa não liga para a mesma.</span></li>
+          <li><b>2</b><span>Ligue pelo número que aparece. Tem um roteiro pronto do que dizer.</span></li>
+          <li><b>3</b><span>Depois da ligação, marque o que aconteceu: não atenderam, não têm interesse, ou têm moradores que querem ir.</span></li>
+          <li><b>4</b><span>Se houver moradores interessados, um vizinho combina de acompanhar no domingo. Quem mora perto se oferece <Link to={`${BASE}/ajudar`}>aqui</Link>.</span></li>
         </ol>
       </section>
 
@@ -137,6 +138,9 @@ export function Lares() {
       ) : homes.length === 0 ? (
         <p className="muted">Nenhuma casa com esses filtros.</p>
       ) : (
+        <>
+        <h2 className="list-title">Casas {cep ? `perto de ${cep.neighbourhood ?? cep.city}` : city ? `em ${city}` : state ? `em ${state}` : ""}</h2>
+        <p className="muted small">Escolha uma e aperte o botão. Cinza = ninguém ligou ainda. Amarela = alguém está ligando agora.</p>
         <ul className="homes">
           {homes.map((h) => (
             <li key={h.id} className={`home-row ${h.status}`}>
@@ -146,17 +150,19 @@ export function Lares() {
                 <div className="home-meta">
                   <a href={h.phone ? `tel:+55${h.phone}` : undefined} className="home-phone">{fmtPhone(h.phone)}</a>
                   <span className={`badge st-${h.status}`}>{statusLabel(h)}</span>
-                  {h.calling_by && h.status === "ligando" && <span className="muted small">{h.calling_by} está ligando</span>}
                   {h.interested_count ? <span className="muted small">{h.interested_count} interessado{h.interested_count > 1 ? "s" : ""}</span> : null}
                 </div>
               </div>
               {h.status !== "ligando" && h.phone && !isSunday && (
-                <button type="button" className={h.status === "livre" ? "primary" : "secondary"} onClick={() => claim(h)}>Estou ligando</button>
+                <button type="button" className={h.status === "livre" ? "primary" : "secondary"} onClick={() => claim(h)}>
+                  {h.status === "livre" ? "Vou ligar para esta" : "Vou ligar de novo"}
+                </button>
               )}
-              {h.status === "ligando" && <span className="muted small">ocupada</span>}
+              {h.status === "ligando" && <span className="muted small">{h.calling_by ?? "alguém"} está ligando</span>}
             </li>
           ))}
         </ul>
+        </>
       )}
     </LaresLayout>
   );

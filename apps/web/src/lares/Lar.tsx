@@ -69,27 +69,31 @@ export function Lar() {
           {home.phone2 && <a className="button secondary" href={`tel:+55${home.phone2}`}>{fmtPhone(home.phone2)}</a>}
           <span className={`badge st-${home.status}`}>{statusLabel(home)}</span>
         </div>
-        {calling && !calling.mine && <p className="muted"><strong>{calling.name}</strong> está ligando ({ago(calling.since)}). Escolha outra casa, ou volte em um tempo.</p>}
-        {calling?.mine && <p className="muted">Você está ligando. A casa fica reservada para você por duas horas, ou até registrar o resultado.</p>}
+        {calling && !calling.mine && <p className="card law"><strong>{calling.name}</strong> está ligando para esta casa agora ({ago(calling.since)}). Para não ligarem duas vezes, escolha outra casa.</p>}
+        {calling?.mine && <p className="card law">Esta casa está marcada com o seu nome. Ninguém mais vai ligar para ela. Ligue, e depois marque abaixo o que aconteceu.</p>}
       </header>
 
       {askWho && <VolunteerForm onDone={(v) => { setVol(v); setAskWho(false); claim(); }} />}
       {error && <p className="error">{error}</p>}
 
       {!calling && home.phone && (
-        <div className="row"><button className="primary" onClick={claim}>Estou ligando</button></div>
+        <section className="card">
+          <h2>Quer ligar para esta casa?</h2>
+          <p>Aperte o botão. A casa fica marcada com o seu nome, aparece o roteiro do que dizer, e ninguém mais liga para ela.</p>
+          <button className="primary" onClick={claim}>Vou ligar para esta</button>
+        </section>
       )}
 
       {calling?.mine && (
         <>
           <section className="card script">
-            <p className="eyebrow">Roteiro</p>
+            <p className="eyebrow">1. Ligue e diga</p>
             {SCRIPT.map((s, i) => <p key={i}>{s}</p>)}
             <CopyButton text={SCRIPT.slice(0, 3).join(" ")} label="Copiar roteiro" />
           </section>
 
           <section className="card step-card">
-            <p className="eyebrow">O que aconteceu?</p>
+            <p className="eyebrow">2. Depois da ligação, marque o que aconteceu</p>
             <ChipGroup options={LAR_OUTCOMES} value={outcome} onChange={setOutcome} max={1} />
             {needsCount && (
               <label>Quantos moradores querem ir?
@@ -100,8 +104,8 @@ export function Lar() {
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Só o que a equipe disse. Nada sobre os moradores." />
             </label>
             <div className="row between">
-              <button className="link danger" onClick={release}>Desistir desta casa</button>
-              <button className="primary" disabled={!outcome[0] || busy} onClick={save}>{busy ? "Um momento…" : "Registrar"}</button>
+              <button className="link danger" onClick={release}>Não vou ligar, liberar a casa</button>
+              <button className="primary" disabled={!outcome[0] || busy} onClick={save}>{busy ? "Um momento…" : "Salvar o que aconteceu"}</button>
             </div>
           </section>
         </>

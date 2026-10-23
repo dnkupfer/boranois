@@ -48,7 +48,7 @@ export async function laresApi<T>(path: string, init: { method?: string; body?: 
 }
 
 export const STATUS_LABEL: Record<LarStatus, string> = {
-  livre: "Ninguém ligou", ligando: "Ligando agora", telefone_errado: "Telefone errado", sem_interesse: "Sem interesse",
+  livre: "Ninguém ligou ainda", ligando: "Alguém está ligando", telefone_errado: "Telefone errado", sem_interesse: "Sem interesse",
   interessados: "Têm interessados", ajudantes: "Ajuda combinada",
 };
 export function statusLabel(h: Lar) {
@@ -97,7 +97,7 @@ export function VolunteerForm({ onDone, title = "Antes de ligar, quem é você?"
   return (
     <form className="card" onSubmit={(e) => { e.preventDefault(); const v = { name: name.trim(), email: email.trim().toLowerCase() }; if (!v.name || !v.email.includes("@")) return; volunteer.set(v); onDone(v); }}>
       <h2>{title}</h2>
-      <p className="muted small">Para ninguém ligar duas vezes para a mesma casa. Seu e-mail não aparece para ninguém.</p>
+      <p>Só uma vez. É para a casa ficar marcada com o seu nome e ninguém mais ligar para ela. Seu e-mail não aparece para ninguém.</p>
       <label>Seu nome<input value={name} onChange={(e) => setName(e.target.value)} autoFocus autoComplete="name" required /></label>
       <label>Seu e-mail<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required /></label>
       <div className="row end"><button className="primary">Continuar</button></div>
