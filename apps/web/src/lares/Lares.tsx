@@ -108,8 +108,8 @@ export function Lares() {
         <div className="rule3">
           <span className="tag mint">Só quem pedir</span>
           <div>
-            <p>A ajuda é para quem quer votar, em quem for. Acima de 70 anos o voto é facultativo. <strong>Nunca condicione a ajuda ao voto, nunca insista.</strong></p>
-            <p className="muted small">Condicionar é corrupção eleitoral (Código Eleitoral, art. 299); pressionar quem depende de você é coação (art. 301).</p>
+            <p>Quem quer ir, vai: <strong>você acompanha todo mundo que pedir, não só quem vota no seu candidato.</strong> É o jeito legal, justo e democrático. Acima de 70 anos o voto é facultativo; nunca insista.</p>
+            <p className="muted small">Escolher quem ajudar pelo voto, mesmo em silêncio, é corrupção eleitoral (Código Eleitoral, art. 299); pressionar quem depende de você é coação (art. 301).</p>
           </div>
         </div>
         <p className="small rules3-link"><Link to={`${BASE}/domingo`}>O que fazer no domingo, passo a passo</Link></p>

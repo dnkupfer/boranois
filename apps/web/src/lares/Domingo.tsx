@@ -35,6 +35,12 @@ export function Domingo() {
         </ul>
       </section>
 
+      <section className="card">
+        <h2>Quem pede, vai. Todo mundo.</h2>
+        <p>Você acompanha todas as pessoas que querem votar, <strong>não só quem vota no seu candidato</strong>. Se no sábado alguém te disse em quem vota, isso não muda nada no domingo: quem pediu companhia, tem.</p>
+        <p className="muted small">Escolher quem ajudar pelo voto, mesmo sem dizer uma palavra, é corrupção eleitoral (Código Eleitoral, art. 299). Com quem depende de você para chegar lá, é decidir quem vota: coação (art. 301). E é o contrário do que a gente defende: eleição é todo mundo votando. Prioridade só por necessidade: quem não anda vai antes de quem anda.</p>
+      </section>
+
       <section className="card law stop">
         <h2>No domingo, não se fala de voto</h2>
         <ul className="plain">
