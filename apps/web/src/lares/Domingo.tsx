@@ -19,7 +19,10 @@ export function Domingo() {
           <li><strong>Táxi ou carro de aplicativo pago pela própria pessoa.</strong> Pedido por ela ou pela casa, pago com o dinheiro dela ou da casa. Você vai junto como companhia. <strong>Nunca pago, pedido ou reembolsado pelo voluntário.</strong></li>
         </ol>
         <p className="card law stop" style={{ margin: "16px 0 0" }}>
-          <strong>Nunca no seu carro.</strong> No dia da eleição, só a Justiça Eleitoral pode oferecer transporte a eleitor (Lei 6.091/74, art. 11). É crime, de quatro a seis anos, com boa intenção ou sem; não existe exceção para “amigo”, e a casa responde junto. Isso vale para táxi pago por você também.
+          <strong>Nunca no seu carro.</strong> No dia da eleição, só a Justiça Eleitoral pode oferecer transporte a eleitor (Lei 6.091/74, art. 11). É crime, de quatro a seis anos, com boa intenção ou sem, e a casa responde junto. Isso vale para táxi pago por você também, mesmo que a pessoa te devolva o dinheiro depois: quem pediu o carro forneceu o transporte, e a transferência vira prova.
+        </p>
+        <p className="muted small" style={{ margin: "12px 0 0" }}>
+          A exceção da lei é a família (art. 5º, III). Familiar ou amigo de verdade, no seu carro, por quem você levaria em qualquer eleição: pode. Morador de uma casa que você conheceu por este app: não. O que torna uma carona legal é a relação existir antes da eleição.
         </p>
       </section>
 
