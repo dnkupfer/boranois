@@ -21,7 +21,10 @@ type Overview = {
   coach: { asks: number; replies: number; suggestionsUsed: number };
   signin: { links: number; done: number };
   aiRemainingToday: number;
+  tools: { key: string; label: string; devices: number; views: number }[];
+  lares: { total: number; byStatus: Record<string, number>; callingNow: number; helpers: number; claimsTotal: number; volunteers: number; pages: Row[] } | null;
 };
+const LAR_STATUS: Record<string, string> = { livre: "Ninguém ligou", ligando: "Ligando agora", telefone_errado: "Telefone errado", sem_interesse: "Sem interesse", interessados: "Precisam de companhia", resolvido: "Vão votar, já resolvido", ajudantes: "Ajuda combinada" };
 
 const PERIODS = [{ days: 1, label: "Hoje" }, { days: 7, label: "7 dias" }, { days: 30, label: "30 dias" }];
 const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "–");
@@ -88,7 +91,39 @@ export function Admin() {
             <Stat n={t.willVote + t.voted} label={`vão votar ou votaram (${t.voted} já votaram)`} tone="butter" />
           </section>
 
-          <h2 className="section-title">Por dia · últimos {data.sinceDays} {data.sinceDays === 1 ? "dia" : "dias"}</h2>
+          <h2 className="section-title">Qual ferramenta · últimos {data.sinceDays} {data.sinceDays === 1 ? "dia" : "dias"}</h2>
+          <section className="stats tools3">
+            {data.tools.map((t) => (
+              <div key={t.key} className={`stat ${t.key === "lares" ? "mint" : t.key === "rua" ? "butter" : "sky"}`}><b>{t.devices.toLocaleString("pt-BR")}</b><span>{t.label} · {t.views.toLocaleString("pt-BR")} visualizações</span></div>
+            ))}
+          </section>
+          <p className="muted small">Aparelhos que aceitaram a medição e abriram cada ferramenta. Um aparelho pode contar em mais de uma.</p>
+
+          {data.lares && (
+            <>
+              <h2 className="section-title">Casas de repouso · desde o início</h2>
+              <section className="stats">
+                <Stat n={data.lares.volunteers} label="voluntários ligaram" tone="mint" />
+                <Stat n={data.lares.claimsTotal} label="ligações marcadas" tone="sky" />
+                <Stat n={(data.lares.byStatus.interessados ?? 0) + (data.lares.byStatus.ajudantes ?? 0) + (data.lares.byStatus.resolvido ?? 0)} label="casas com moradores que vão votar" tone="peach" />
+                <Stat n={data.lares.helpers} label="vizinhos para domingo" tone="butter" />
+              </section>
+              <div className="admin-grid">
+                <section className="card">
+                  <h2>Casas por situação</h2>
+                  <Bars rows={["interessados", "ajudantes", "resolvido", "ligando", "sem_interesse", "telefone_errado", "livre"].map((k) => ({ key: k, label: LAR_STATUS[k], count: data.lares!.byStatus[k] ?? 0 }))} />
+                  <p className="muted small">{data.lares.callingNow} ligando agora, de {data.lares.total.toLocaleString("pt-BR")} casas.</p>
+                </section>
+                <section className="card">
+                  <h2>Páginas das casas</h2>
+                  <p className="muted small">Visualizações neste período, só de quem aceitou a medição.</p>
+                  <Bars rows={data.lares.pages} empty="Ninguém abriu ainda." />
+                </section>
+              </div>
+            </>
+          )}
+
+          <h2 className="section-title">Boranois (conversas) · por dia · últimos {data.sinceDays} {data.sinceDays === 1 ? "dia" : "dias"}</h2>
           <Daily daily={data.daily} />
 
           <div className="admin-grid">

@@ -358,6 +358,14 @@ details.persona h3 { font-size: 1rem; margin: 12px 0 4px; }
 .lares-hero { max-width: 860px; }
 .lares-hero h1 { font-size: clamp(2rem, 4.8vw, 3.4rem); }
 .lares-hero h1 mark { white-space: normal; }
+.rules3 { display: grid; gap: 16px; }
+.rules3 h2 { margin: 0; }
+.rule3 { display: grid; grid-template-columns: 170px 1fr; gap: 14px; align-items: start; }
+.rule3 .tag { justify-self: start; margin-top: 3px; white-space: nowrap; }
+.rule3 p { margin: 0 0 4px; }
+.rule3 p.small { margin: 0; }
+.rules3-link { margin: 4px 0 0; }
+@media (max-width: 720px) { .rule3 { grid-template-columns: 1fr; gap: 6px; } }
 .lares-rules li { font-size: 17px; font-weight: 500; line-height: 1.45; }
 .lares-rules li strong { font-weight: 800; }
 .lares-rules a { color: #fff; }
@@ -371,6 +379,7 @@ details.persona h3 { font-size: 1rem; margin: 12px 0 4px; }
 select { font: inherit; border: 2px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 10px 14px; }
 .check { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; margin: 0; }
 .check input, .filters input[type=checkbox] { display: inline-block; width: auto; min-width: 0; margin: 0; }
+.list-title { font-size: 1.4rem; margin: 20px 0 4px; }
 .homes { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
 .home-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; background: var(--card); border-radius: 18px; padding: 14px 18px; box-shadow: var(--shadow-sm); }
 .home-row.ligando { background: var(--butter-soft); box-shadow: none; }
@@ -380,6 +389,7 @@ select { font: inherit; border: 2px solid var(--line); background: #fff; color: 
 .home-name { font-weight: 800; color: var(--ink); text-decoration: none; font-size: 1.05rem; }
 .home-name:hover { color: var(--teal); }
 .home-where { color: var(--mute); font-size: 0.9rem; }
+.home-km { color: var(--teal); margin-right: 8px; }
 .home-meta { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: 6px; font-size: 0.9rem; }
 .home-phone { font-weight: 700; color: var(--teal); text-decoration: none; }
 .home-row button { flex: none; min-height: 44px; padding: 8px 16px; font-size: 0.95rem; }
@@ -397,10 +407,22 @@ select { font: inherit; border: 2px solid var(--line); background: #fff; color: 
 .notes { white-space: pre-wrap; font: inherit; font-size: 0.95rem; margin: 0; }
 @media (max-width: 720px) { .home-row { flex-direction: column; align-items: stretch; } .cep-form .row { flex-wrap: wrap; } .cep-form input { max-width: none; } }
 
+/* Loading: a spinner in the button and ghost rows where the list will be */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, 0.35); border-top-color: #fff; animation: spin 0.8s linear infinite; }
+@keyframes shimmer { from { background-position: -400px 0; } to { background-position: 400px 0; } }
+.sk { border-radius: 8px; background: linear-gradient(90deg, #eeebe4 25%, #f7f4ee 50%, #eeebe4 75%); background-size: 800px 100%; animation: shimmer 1.4s linear infinite; }
+.sk-name { width: 55%; height: 18px; margin-bottom: 8px; } .sk-where { width: 35%; height: 13px; margin-bottom: 10px; } .sk-meta { width: 45%; height: 24px; border-radius: 999px; } .sk-btn { width: 160px; height: 44px; border-radius: 999px; flex: none; }
+.home-row.skeleton { box-shadow: none; background: #fff; }
+.home-row.skeleton .home-main { flex: 1; }
+.homes.dim { opacity: 0.45; transition: opacity 0.2s; }
+@media (prefers-reduced-motion: reduce) { .spinner, .sk { animation: none; } }
+
 /* Admin */
 .admin-head { margin: 8px 0 20px; }
 .admin-head h1 { margin: 0; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 6px 0 8px; }
+.stats.tools3 { grid-template-columns: repeat(3, 1fr); }
 .stat { border-radius: 22px; padding: 20px 22px; display: grid; gap: 4px; }
 .stat b { font-size: 2.4rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
 .stat span { font-size: 0.95rem; color: var(--ink); opacity: 0.75; font-weight: 600; }

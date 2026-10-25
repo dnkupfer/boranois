@@ -6,7 +6,7 @@ import type { AdminRows, ContactPatch, ContactRecord, NewContact, NewInteraction
 // Use Neon's pooled connection string (host contains "-pooler"): Cloud Run
 // can run many instances, each with its own small pool.
 export function createPool(connectionString: string) {
-  return new pg.Pool({ connectionString, max: 5, ssl: { rejectUnauthorized: true } });
+  return new pg.Pool({ connectionString, max: 10, ssl: { rejectUnauthorized: true } });
 }
 
 const toMember = (r: any): Member => ({ id: r.id, email: r.email, name: r.name });

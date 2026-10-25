@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { Lar, LarStatus } from "@boranois/shared";
-import { BASE, type CepInfo, fmtPhone, LaresLayout, laresApi, lookupCep, savedCep, STATUS_LABEL, statusLabel, UFS, volunteer, VolunteerForm } from "./shared";
+import { BASE, type CepInfo, fmtKm, fmtPhone, LaresLayout, laresApi, lookupCep, savedCep, STATUS_LABEL, statusLabel, UFS, volunteer, VolunteerForm } from "./shared";
 
 const ELECTION = "2026-10-25";
 const todayBR = () => new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
@@ -18,25 +18,39 @@ export function Lares() {
   const [q, setQ] = useState("");
   const [withPhone, setWithPhone] = useState(true);
   const [homes, setHomes] = useState<Lar[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [cepBusy, setCepBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [claiming, setClaiming] = useState<Lar | null>(null);
   const isSunday = todayBR() >= ELECTION;
 
   const load = useCallback(async () => {
     if (!cep && !state) return setHomes(null);
-    setError(null);
+    setError(null); setLoading(true);
     const p = new URLSearchParams();
-    if (cep) { p.set("cep", cep.cep); p.set("cepCity", cep.city); p.set("cepState", cep.state); }
+    if (cep) { p.set("cep", cep.cep); p.set("cepCity", cep.city); p.set("cepState", cep.state); if (cep.lat != null && cep.lng != null) { p.set("lat", String(cep.lat)); p.set("lng", String(cep.lng)); } }
     if (state) p.set("state", state);
     if (city) p.set("city", city);
     if (status) p.set("status", status);
     if (q.trim()) p.set("q", q.trim());
     if (withPhone) p.set("phone", "1");
     p.set("limit", "80");
-    try { setHomes((await laresApi<{ homes: Lar[] }>(`?${p}`)).homes); } catch { setError("Não deu para carregar a lista. Tente de novo."); }
+    // The API restarts now and then; try three times before showing an error.
+    let last: unknown = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try { setHomes((await laresApi<{ homes: Lar[] }>(`?${p}`)).homes); setLoading(false); return; }
+      catch (err) { last = err; await new Promise((r) => setTimeout(r, 700 * (attempt + 1))); }
+    }
+    const e = last as { status?: number; message?: string } | null;
+    setHomes([]); setLoading(false);
+    setError(`Não deu para carregar a lista (${e?.status ? `erro ${e.status}` : "sem resposta do servidor"}${e?.message && e.message !== "unknown" ? `: ${e.message}` : ""}). Tente de novo em instantes.`);
   }, [cep, state, city, status, q, withPhone]);
 
   useEffect(() => { load(); }, [load]);
+  // A CEP saved before coordinates existed: look it up again so the list can be ranked by distance.
+  useEffect(() => {
+    if (cep && cep.lat == null) lookupCep(cep.cep).then((info) => { if (info?.lat != null) { savedCep.set(info); setCep(info); } });
+  }, [cep]);
   useEffect(() => {
     setCity("");
     if (!state) return setCities([]);
@@ -45,8 +59,9 @@ export function Lares() {
 
   const useCep = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCepError(null);
+    setCepError(null); setCepBusy(true);
     const info = await lookupCep(cepDraft);
+    setCepBusy(false);
     if (!info) return setCepError("CEP não encontrado. Confira os 8 números.");
     savedCep.set(info); setCep(info); setState(""); setCity("");
   };
@@ -74,32 +89,50 @@ export function Lares() {
         </p>
       </header>
 
-      <section className="card law">
+      <section className="card law rules3">
         <h2>Três regras, e são lei</h2>
-        <p>
-          <strong>Sem carro.</strong> Transporte de eleitor só pela Justiça Eleitoral (Lei 6.091/74): acompanhe a pé ou de ônibus, metrô, trem.{" "}
-          <strong>Sem partido.</strong> Nenhum candidato, nenhum material, nenhuma conversa sobre voto.{" "}
-          <strong>Só quem pedir.</strong> Acima de 70 anos o voto é facultativo. Ajudamos quem quer ir.
-        </p>
+        <div className="rule3">
+          <span className="tag peach">Sem carro</span>
+          <div>
+            <p>Acompanhe a pé, de transporte público (grátis acima de 65), na van da própria casa, ou em táxi (ou carro de aplicativo) pago pela própria pessoa. <strong>Nunca no seu carro.</strong></p>
+            <p className="muted small">No dia da eleição, só a Justiça Eleitoral pode transportar eleitor (Lei 6.091/74, art. 11). É crime mesmo com boa intenção, e a casa responde junto.</p>
+          </div>
+        </div>
+        <div className="rule3">
+          <span className="tag butter">Domingo: sem voto</span>
+          <div>
+            <p>Até sábado às 22h você pode dizer em quem vota e conversar sobre a eleição (<Link to="/">o Boranois mostra como</Link>). <strong>No domingo, não:</strong> você é companhia, só isso.</p>
+            <p className="muted small">A propaganda acaba sábado às 22h (Código Eleitoral, art. 240). No dia da eleição só vale manifestação individual e silenciosa (Lei 9.504, art. 39-A).</p>
+          </div>
+        </div>
+        <div className="rule3">
+          <span className="tag mint">Só quem pedir</span>
+          <div>
+            <p>Quem quer ir, vai: <strong>você acompanha todo mundo que pedir, não só quem vota no seu candidato.</strong> É o jeito legal, justo e democrático. Acima de 70 anos o voto é facultativo; nunca insista.</p>
+            <p className="muted small">Escolher quem ajudar pelo voto, mesmo em silêncio, é corrupção eleitoral (Código Eleitoral, art. 299); pressionar quem depende de você é coação (art. 301).</p>
+          </div>
+        </div>
+        <p className="small rules3-link"><Link to={`${BASE}/domingo`}>O que fazer no domingo, passo a passo</Link></p>
       </section>
 
       <section className="rules lares-rules">
-        <h2>Como funciona</h2>
+        <h2>O que você vai fazer</h2>
         <ol>
-          <li><b>1</b><span>Escolha uma casa perto de você e marque <strong>“estou ligando”</strong>. Ninguém mais liga para ela enquanto isso.</span></li>
-          <li><b>2</b><span>Use o roteiro, registre o que aconteceu: não atendeu, sem interesse, têm interessados.</span></li>
-          <li><b>3</b><span>Se houver interessados, combine quem acompanha no domingo. Vizinhos se oferecem <Link to={`${BASE}/ajudar`}>aqui</Link>.</span></li>
+          <li><b>1</b><span>Escolha uma casa na lista abaixo e aperte <strong>“Vou ligar para esta”</strong>. A casa fica marcada como sua: assim outra pessoa não liga para a mesma.</span></li>
+          <li><b>2</b><span>Ligue pelo número que aparece. Tem um roteiro pronto do que dizer.</span></li>
+          <li><b>3</b><span>Depois da ligação, marque o que aconteceu: não atenderam, não têm interesse, a casa leva na van, ou têm moradores que precisam de companhia.</span></li>
+          <li><b>4</b><span>Se houver moradores interessados, um vizinho combina de acompanhar no domingo. Quem mora perto se oferece <Link to={`${BASE}/ajudar`}>aqui</Link>.</span></li>
         </ol>
       </section>
 
-      {isSunday && <p className="card law stop"><strong>Hoje é domingo:</strong> dia de acompanhar, não de ligar. Nada de voto na conversa; só companhia até a seção.</p>}
+      {isSunday && <p className="card law stop"><strong>Hoje é domingo:</strong> dia de acompanhar, não de ligar. <Link to={`${BASE}/domingo`}>O guia do domingo</Link>.</p>}
 
       <section className="finder">
         <form className="cep-form" onSubmit={useCep}>
           <label>Seu CEP, para ver as casas mais perto
             <div className="row">
               <input value={cepDraft} onChange={(e) => setCepDraft(e.target.value)} inputMode="numeric" placeholder="01310-100" maxLength={9} />
-              <button className="primary" type="submit">Ver perto de mim</button>
+              <button className="primary" type="submit" disabled={cepBusy || loading}>{cepBusy ? <><span className="spinner" /> Procurando…</> : loading ? <><span className="spinner" /> Carregando…</> : "Ver perto de mim"}</button>
             </div>
           </label>
           {cepError && <p className="error small">{cepError}</p>}
@@ -132,31 +165,41 @@ export function Lares() {
 
       {!cep && !state ? (
         <p className="muted">Digite seu CEP ou escolha um estado para ver as casas. São {`12 mil`} em todo o Brasil, {`9 mil`} com telefone.</p>
-      ) : homes === null ? (
-        <p className="muted">Carregando…</p>
+      ) : homes === null || (loading && homes.length === 0) ? (
+        <ul className="homes" aria-busy="true">
+          {[0, 1, 2, 3].map((i) => <li key={i} className="home-row skeleton"><div className="home-main"><div className="sk sk-name" /><div className="sk sk-where" /><div className="sk sk-meta" /></div><div className="sk sk-btn" /></li>)}
+        </ul>
       ) : homes.length === 0 ? (
         <p className="muted">Nenhuma casa com esses filtros.</p>
       ) : (
-        <ul className="homes">
+        <>
+        <h2 className="list-title">Casas {cep ? `perto de ${cep.neighbourhood ?? cep.city}` : city ? `em ${city}` : state ? `em ${state}` : ""}</h2>
+        <p className="muted small">{cep?.lat != null ? "Da mais perto para a mais longe. " : ""}Escolha uma e aperte o botão. Cinza = ninguém ligou ainda. Amarela = alguém está ligando agora.</p>
+        <ul className={`homes ${loading ? "dim" : ""}`}>
           {homes.map((h) => (
             <li key={h.id} className={`home-row ${h.status}`}>
               <div className="home-main">
                 <Link to={`${BASE}/${h.id}`} className="home-name">{h.name}</Link>
-                <div className="home-where">{[h.neighbourhood, `${h.city}/${h.state}`].filter(Boolean).join(" · ")}</div>
+                <div className="home-where">
+                  {fmtKm(h.distance_km) && <strong className="home-km">a {fmtKm(h.distance_km)}</strong>}
+                  {[h.neighbourhood, `${h.city}/${h.state}`].filter(Boolean).join(" · ")}
+                </div>
                 <div className="home-meta">
                   <a href={h.phone ? `tel:+55${h.phone}` : undefined} className="home-phone">{fmtPhone(h.phone)}</a>
                   <span className={`badge st-${h.status}`}>{statusLabel(h)}</span>
-                  {h.calling_by && h.status === "ligando" && <span className="muted small">{h.calling_by} está ligando</span>}
                   {h.interested_count ? <span className="muted small">{h.interested_count} interessado{h.interested_count > 1 ? "s" : ""}</span> : null}
                 </div>
               </div>
               {h.status !== "ligando" && h.phone && !isSunday && (
-                <button type="button" className={h.status === "livre" ? "primary" : "secondary"} onClick={() => claim(h)}>Estou ligando</button>
+                <button type="button" className={h.status === "livre" ? "primary" : "secondary"} onClick={() => claim(h)}>
+                  {h.status === "livre" ? "Vou ligar para esta" : "Vou ligar de novo"}
+                </button>
               )}
-              {h.status === "ligando" && <span className="muted small">ocupada</span>}
+              {h.status === "ligando" && <span className="muted small">{h.calling_by ?? "alguém"} está ligando</span>}
             </li>
           ))}
         </ul>
+        </>
       )}
     </LaresLayout>
   );

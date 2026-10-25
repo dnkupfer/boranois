@@ -8,12 +8,14 @@ import { newId } from "./ids.js";
 // No resident data is ever stored: only counts and what the staff said.
 
 const CLAIM_TTL = "2 hours";
-export const OUTCOMES = ["nao_atendeu", "telefone_errado", "sem_interesse", "interessados", "ajudantes"] as const;
+export const OUTCOMES = ["nao_atendeu", "telefone_errado", "sem_interesse", "interessados", "van", "ja_tem", "ajudantes"] as const;
 const STATUS_AFTER: Record<(typeof OUTCOMES)[number], string> = {
   nao_atendeu: "livre",
   telefone_errado: "telefone_errado",
   sem_interesse: "sem_interesse",
   interessados: "interessados",
+  van: "resolvido",
+  ja_tem: "resolvido",
   ajudantes: "ajudantes",
 };
 
@@ -38,8 +40,11 @@ const LIST_COLS = "id, name, kind, neighbourhood, city, state, cep, phone, statu
 export function laresRouter(pool: pg.Pool) {
   const r = Router();
 
-  /** Claims nobody touched for two hours are released, so a home never stays locked by someone who walked away. */
+  /** Claims nobody touched for two hours are released, so a home never stays locked by someone who walked away. Runs at most every 30 s. */
+  let lastExpire = 0;
   const expire = async () => {
+    if (Date.now() - lastExpire < 30_000) return;
+    lastExpire = Date.now();
     await pool.query(`update lares_claims set released_at = now(), outcome = 'expirou' where released_at is null and updated_at < now() - interval '${CLAIM_TTL}'`);
     await pool.query(`update lares l set status = 'livre', updated_at = now() where status = 'ligando' and not exists (select 1 from lares_claims c where c.home_id = l.id and c.released_at is null)`);
   };
@@ -64,35 +69,72 @@ export function laresRouter(pool: pg.Pool) {
     const limit = Math.min(200, Math.max(1, Number(q.limit ?? 60)));
     const offset = Math.max(0, Number(q.offset ?? 0));
     let order = "status = 'livre' desc, tries asc, name asc";
-    if (q.cep && /^\d{8}$/.test(q.cep)) {
+    let distance = "null::double precision as distance_km";
+    const lat = Number(q.lat), lng = Number(q.lng);
+    if (q.lat && q.lng && Number.isFinite(lat) && Number.isFinite(lng)) {
+      // Great-circle distance in km from the visitor's CEP to each home's CEP (haversine). Homes whose CEP we
+      // couldn't geocode go last, ordered by the old CEP-number proximity.
+      params.push(lat, lng);
+      const [la, ln] = [params.length - 1, params.length];
+      distance = `(6371 * acos(least(1.0, cos(radians($${la})) * cos(radians(g.lat)) * cos(radians(g.lng) - radians($${ln})) + sin(radians($${la})) * sin(radians(g.lat))))) as distance_km`;
+      order = `g.lat is null asc, ${distance.replace(" as distance_km", "")} asc nulls last, status = 'livre' desc`;
+      if (q.cep && /^\d{8}$/.test(q.cep)) { params.push(q.cep); order += `, abs(coalesce(nullif(lares.cep, '')::bigint, 0) - $${params.length}::bigint) asc`; }
+    } else if (q.cep && /^\d{8}$/.test(q.cep)) {
       params.push(q.cep, q.cepCity ?? "", q.cepState ?? "");
       const [c, city, state] = [params.length - 2, params.length - 1, params.length];
-      order = `(lower(city) = lower($${city})) desc, (state = $${state}) desc, abs(coalesce(nullif(cep, '')::bigint, 0) - $${c}::bigint) asc, status = 'livre' desc`;
+      order = `(lower(city) = lower($${city})) desc, (state = $${state}) desc, abs(coalesce(nullif(lares.cep, '')::bigint, 0) - $${c}::bigint) asc, status = 'livre' desc`;
     }
-    const sql = `select ${LIST_COLS}, (select volunteer_name from lares_claims c where c.home_id = lares.id and c.released_at is null) as calling_by from lares ${where.length ? "where " + where.join(" and ") : ""} order by ${order} limit ${limit} offset ${offset}`;
+    const cols = LIST_COLS.split(", ").map((c) => `lares.${c}`).join(", ");
+    const sql = `select ${cols}, ${distance}, (select volunteer_name from lares_claims c where c.home_id = lares.id and c.released_at is null) as calling_by
+      from lares left join lares_geo g on g.cep = lares.cep ${where.length ? "where " + where.join(" and ") : ""} order by ${order} limit ${limit} offset ${offset}`;
     const { rows } = await pool.query(sql, params);
     res.json({ homes: rows });
   });
 
+  /** A visitor's CEP → bairro, city, state and coordinates, from the CEP directory in our own database. */
+  r.get("/cep/:cep", async (req, res) => {
+    const cep = String(req.params.cep).replace(/\D/g, "");
+    if (!/^\d{8}$/.test(cep)) return res.status(400).json({ error: "cep" });
+    const { rows } = await pool.query(`select lat, lng, bairro, city, state from lares_geo where cep = $1 and lat is not null`, [cep]);
+    if (rows[0]?.city) return res.json({ cep, city: rows[0].city, state: rows[0].state, neighbourhood: rows[0].bairro, lat: rows[0].lat, lng: rows[0].lng });
+    // Not in the directory (new CEP): names from BrasilAPI, no coordinates. The list then falls back to CEP proximity.
+    try {
+      const b = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`, { headers: { "user-agent": "boranois.web.app (boranois@kupfer.co)" } });
+      if (b.ok) { const d = (await b.json()) as { city?: string; state?: string; neighborhood?: string }; if (d.city && d.state) return res.json({ cep, city: d.city, state: d.state, neighbourhood: d.neighborhood ?? null, lat: rows[0]?.lat ?? null, lng: rows[0]?.lng ?? null }); }
+    } catch {}
+    res.status(404).json({ error: "not_found" });
+  });
+
+  const cache = new Map<string, { at: number; body: unknown }>();
+  const cached = async (key: string, ttlMs: number, make: () => Promise<unknown>) => {
+    const hit = cache.get(key);
+    if (hit && Date.now() - hit.at < ttlMs) return hit.body;
+    const body = await make(); cache.set(key, { at: Date.now(), body }); return body;
+  };
+
   r.get("/stats", async (_req, res) => {
     await expire();
+    res.json(await cached("stats", 20_000, async () => {
     const [byStatus, byState, helpers, calling] = await Promise.all([
       pool.query(`select status, count(*)::int n from lares group by status`),
-      pool.query(`select state, count(*)::int total, count(*) filter (where status in ('interessados','ajudantes'))::int interested, count(*) filter (where status <> 'livre' or tries > 0)::int touched from lares group by state order by total desc`),
+      pool.query(`select state, count(*)::int total, count(*) filter (where status in ('interessados','ajudantes','resolvido'))::int interested, count(*) filter (where status <> 'livre' or tries > 0)::int touched from lares group by state order by total desc`),
       pool.query(`select count(*)::int n from lares_helpers`),
       pool.query(`select count(*)::int n from lares_claims where released_at is null`),
     ]);
     const status: Record<string, number> = {};
     for (const x of byStatus.rows) status[x.status] = x.n;
     const total = Object.values(status).reduce((a, b) => a + b, 0);
-    res.json({ total, byStatus: status, byState: byState.rows, helpers: helpers.rows[0].n, callingNow: calling.rows[0].n });
+    return { total, byStatus: status, byState: byState.rows, helpers: helpers.rows[0].n, callingNow: calling.rows[0].n };
+    }));
   });
 
   r.get("/cities", async (req, res) => {
     const state = String(req.query.state ?? "").toUpperCase();
     if (!/^[A-Z]{2}$/.test(state)) return res.status(400).json({ error: "state" });
-    const { rows } = await pool.query(`select city, count(*)::int n from lares where state = $1 group by city order by n desc, city`, [state]);
-    res.json({ cities: rows });
+    res.json(await cached(`cities:${state}`, 300_000, async () => {
+      const { rows } = await pool.query(`select city, count(*)::int n from lares where state = $1 group by city order by n desc, city`, [state]);
+      return { cities: rows };
+    }));
   });
 
   r.post("/helpers", async (req, res) => {

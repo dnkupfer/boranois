@@ -411,13 +411,15 @@ export type Interpretation = {
 export type ChipStats = { usage: { questionId: string; optionId: string; count: number }[]; proposals: { questionId: string; text: string; count: number; mapped: string | null }[] };
 
 // --- Casas de repouso: volunteers call care homes on Saturday, arrange company for Sunday ---
-export const LAR_STATUSES = ["livre", "ligando", "telefone_errado", "sem_interesse", "interessados", "ajudantes"] as const;
+export const LAR_STATUSES = ["livre", "ligando", "telefone_errado", "sem_interesse", "interessados", "ajudantes", "resolvido"] as const;
 export type LarStatus = (typeof LAR_STATUSES)[number];
 export const LAR_OUTCOMES = [
   { id: "nao_atendeu", label: "Não atendeu" },
   { id: "telefone_errado", label: "Telefone errado" },
   { id: "sem_interesse", label: "Sem interesse" },
-  { id: "interessados", label: "Têm moradores interessados" },
+  { id: "interessados", label: "Têm moradores interessados, precisam de companhia" },
+  { id: "van", label: "A casa leva na própria van" },
+  { id: "ja_tem", label: "Já têm quem acompanhe" },
   { id: "ajudantes", label: "Ajuda combinada para domingo" },
 ] as const;
 export type LarOutcome = (typeof LAR_OUTCOMES)[number]["id"];
@@ -425,6 +427,8 @@ export type Lar = {
   id: string; name: string; kind: "publico" | "filantropico" | "privado"; neighbourhood: string | null; city: string; state: string; cep: string | null;
   phone: string | null; status: LarStatus; tries: number; last_outcome: LarOutcome | null; interested_count: number | null; updated_at: string;
   calling_by?: string | null;
+  /** From the visitor's CEP, when known. */
+  distance_km?: number | null;
 };
 export type LarDetail = {
   home: Lar & { legal_name: string | null; address: string | null; phone2: string | null; notes: string | null; source: string };

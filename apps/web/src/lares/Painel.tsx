@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { LaresStats, LarStatus } from "@boranois/shared";
 import { LaresLayout, laresApi, STATUS_LABEL } from "./shared";
 
-const ORDER: LarStatus[] = ["interessados", "ajudantes", "ligando", "livre", "sem_interesse", "telefone_errado"];
+const ORDER: LarStatus[] = ["interessados", "ajudantes", "resolvido", "ligando", "livre", "sem_interesse", "telefone_errado"];
 
 export function Painel() {
   const [s, setS] = useState<LaresStats | null>(null);
@@ -21,7 +21,7 @@ export function Painel() {
       <section className="stats">
         <div className="stat sky"><b>{s.total.toLocaleString("pt-BR")}</b><span>casas na lista</span></div>
         <div className="stat mint"><b>{s.callingNow}</b><span>ligando agora</span></div>
-        <div className="stat peach"><b>{(s.byStatus.interessados ?? 0) + (s.byStatus.ajudantes ?? 0)}</b><span>casas com moradores interessados</span></div>
+        <div className="stat peach"><b>{(s.byStatus.interessados ?? 0) + (s.byStatus.ajudantes ?? 0) + (s.byStatus.resolvido ?? 0)}</b><span>casas com moradores que vão votar</span></div>
         <div className="stat butter"><b>{s.helpers}</b><span>vizinhos para domingo</span></div>
       </section>
       <div className="admin-grid">

@@ -16,6 +16,7 @@ import { Lares } from "./lares/Lares";
 import { Lar } from "./lares/Lar";
 import { Painel } from "./lares/Painel";
 import { Ajudar } from "./lares/Ajudar";
+import { Domingo } from "./lares/Domingo";
 import "./styles.css";
 
 /** Waits for the (anonymous or e-mail) session to exist. Nothing is gated behind an account. */
@@ -53,6 +54,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/casas-de-repouso" element={<Lares />} />
           <Route path="/casas-de-repouso/painel" element={<Painel />} />
           <Route path="/casas-de-repouso/ajudar" element={<Ajudar />} />
+          <Route path="/casas-de-repouso/domingo" element={<Domingo />} />
           <Route path="/casas-de-repouso/:id" element={<Lar />} />
           <Route path="/" element={<RequireSession><Pessoas /></RequireSession>} />
           <Route path="/nova" element={<RequireSession><NovaPessoa /></RequireSession>} />
